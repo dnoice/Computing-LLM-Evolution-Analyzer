@@ -299,7 +299,7 @@ class GPUAnalyzer:
             year = gpu.year
             vram = gpu.vram_mb
 
-            if year not in year_max or vram > year_max[year]['vram']:
+            if year not in year_max or vram > year_max[year]['vram_mb']:
                 year_max[year] = {
                     'year': year,
                     'vram_mb': vram,
