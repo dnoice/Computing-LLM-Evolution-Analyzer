@@ -8,6 +8,7 @@ A comprehensive, feature-rich Python analysis tool for comparing computing hardw
 
 ### Comprehensive Analysis
 - **Hardware Metrics**: CPU, RAM, Storage, Power consumption, Architecture
+- **GPU Metrics**: TFLOPS (FP32/FP16/INT8), VRAM, Memory bandwidth, Ray tracing, Tensor cores
 - **LLM Capabilities**: Parameters, context window, training compute, capability scores
 - **Moore's Law Analysis**: Prediction accuracy and actual growth rates
 - **Economic Analysis**: Cost per performance, price trends
@@ -23,6 +24,10 @@ A comprehensive, feature-rich Python analysis tool for comparing computing hardw
 
 ### Advanced Visualizations
 - Hardware performance evolution (log scale)
+- GPU performance and memory evolution
+- GPU efficiency trends (TFLOPS/Watt)
+- GPU manufacturer comparisons (NVIDIA, AMD, Intel)
+- GPU price vs performance analysis
 - Cost efficiency comparisons
 - Energy efficiency trends
 - LLM capability radar charts
@@ -98,6 +103,24 @@ print(f"Parameter CAGR: {param_growth.cagr_percent:.2f}%")
 chinchilla = llm.analyze_chinchilla_optimal()
 ```
 
+#### GPU Analysis
+
+```python
+from src.llm_evolution.gpu_analyzer import GPUAnalyzer
+
+# Initialize analyzer
+gpu = GPUAnalyzer()
+
+# Calculate CAGR for GPU metrics
+gpu_cagr = gpu.calculate_all_cagrs()
+print(f"TFLOPS CAGR: {gpu_cagr['tflops_fp32'].cagr_percent:.2f}%")
+
+# Compare manufacturers
+comparison = gpu.get_manufacturer_comparison()
+for mfr, stats in comparison.items():
+    print(f"{mfr}: {stats['count']} GPUs, Avg {stats['avg_tflops_fp32']:.1f} TFLOPS")
+```
+
 ## Project Structure
 
 ```
@@ -105,12 +128,15 @@ Computing-LLM-Evolution-Analyzer/
 ├── data/                      # Data files
 │   ├── hardware/
 │   │   └── systems.json      # Hardware specifications (1965-2024)
+│   ├── gpu/
+│   │   └── gpus.json         # GPU specifications (1999-2024)
 │   └── llm/
 │       └── models.json       # LLM specifications (2018-2024)
 ├── src/
 │   └── llm_evolution/        # Main package
 │       ├── models.py         # Data models
 │       ├── hardware_analyzer.py
+│       ├── gpu_analyzer.py
 │       ├── llm_analyzer.py
 │       ├── moores_law.py
 │       ├── cli.py            # Interactive CLI
@@ -131,6 +157,13 @@ Computing-LLM-Evolution-Analyzer/
 - Apple M-series chips
 - 27 systems spanning 59 years
 
+### GPU Dataset (1999-2024)
+- NVIDIA: GeForce 256, GTX series, RTX 20/30/40 series (15 GPUs)
+- AMD: Radeon 7500, HD series, RX 5000/6000/7000 series (11 GPUs)
+- Intel: Arc A770 (1 GPU)
+- 27 GPUs spanning 25 years
+- Comprehensive metrics: TFLOPS, VRAM, transistors, process nodes, efficiency
+
 ### LLM Dataset (2018-2024)
 - BERT, GPT-2, GPT-3, GPT-3.5, GPT-4 series
 - Claude series (Anthropic)
@@ -149,7 +182,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Roadmap
 
-- [ ] Add GPU analysis
+- [x] Add GPU analysis (✓ Completed)
 - [ ] Include cloud computing costs
 - [ ] Interactive web dashboard
 - [ ] Real-time data updates

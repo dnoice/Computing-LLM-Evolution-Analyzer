@@ -393,3 +393,322 @@ class Plotter:
             plt.show()
 
         plt.close()
+
+    def plot_gpu_performance_evolution(
+        self,
+        gpus: List,
+        output_path: Optional[Path] = None,
+    ) -> None:
+        """Plot GPU performance (TFLOPS) evolution over time.
+
+        Args:
+            gpus: List of GPU metrics
+            output_path: Path to save the plot
+        """
+        gpus = sorted(gpus, key=lambda x: x.year)
+
+        # Get max TFLOPS per year
+        year_max = {}
+        for gpu in gpus:
+            if gpu.year not in year_max or gpu.tflops_fp32 > year_max[gpu.year]['tflops']:
+                year_max[gpu.year] = {
+                    'tflops': gpu.tflops_fp32,
+                    'name': gpu.name,
+                    'manufacturer': gpu.manufacturer
+                }
+
+        years = sorted(year_max.keys())
+        tflops = [year_max[y]['tflops'] for y in years]
+        names = [year_max[y]['name'] for y in years]
+        manufacturers = [year_max[y]['manufacturer'] for y in years]
+
+        # Color by manufacturer
+        colors = []
+        for mfr in manufacturers:
+            if 'NVIDIA' in mfr:
+                colors.append('#76B900')  # NVIDIA green
+            elif 'AMD' in mfr:
+                colors.append('#ED1C24')  # AMD red
+            elif 'Intel' in mfr:
+                colors.append('#0071C5')  # Intel blue
+            else:
+                colors.append('#888888')
+
+        plt.figure(figsize=self.figsize)
+        plt.plot(years, tflops, marker='o', linewidth=2, markersize=8,
+                 color='#2E86AB', alpha=0.7)
+
+        # Color the markers by manufacturer
+        for year, tflop, color in zip(years, tflops, colors):
+            plt.scatter(year, tflop, s=100, c=color, edgecolor='black',
+                       linewidth=1, zorder=5)
+
+        plt.yscale('log')
+        plt.xlabel('Year', fontsize=12, fontweight='bold')
+        plt.ylabel('TFLOPS (FP32)', fontsize=12, fontweight='bold')
+        plt.title('GPU Performance Evolution (Max TFLOPS per Year)',
+                  fontsize=14, fontweight='bold')
+        plt.grid(True, alpha=0.3)
+
+        # Add legend
+        from matplotlib.patches import Patch
+        legend_elements = [
+            Patch(facecolor='#76B900', label='NVIDIA'),
+            Patch(facecolor='#ED1C24', label='AMD'),
+            Patch(facecolor='#0071C5', label='Intel')
+        ]
+        plt.legend(handles=legend_elements, loc='upper left', fontsize=10)
+
+        plt.tight_layout()
+
+        if output_path:
+            plt.savefig(output_path, dpi=300, bbox_inches='tight')
+        else:
+            plt.show()
+
+        plt.close()
+
+    def plot_gpu_memory_evolution(
+        self,
+        gpus: List,
+        output_path: Optional[Path] = None,
+    ) -> None:
+        """Plot GPU memory (VRAM) evolution over time.
+
+        Args:
+            gpus: List of GPU metrics
+            output_path: Path to save the plot
+        """
+        gpus = sorted(gpus, key=lambda x: x.year)
+
+        years = [g.year for g in gpus]
+        vram_gb = [g.vram_mb / 1024 for g in gpus]
+        names = [g.name for g in gpus]
+        manufacturers = [g.manufacturer for g in gpus]
+
+        # Color by manufacturer
+        colors = []
+        for mfr in manufacturers:
+            if 'NVIDIA' in mfr:
+                colors.append('#76B900')
+            elif 'AMD' in mfr:
+                colors.append('#ED1C24')
+            elif 'Intel' in mfr:
+                colors.append('#0071C5')
+            else:
+                colors.append('#888888')
+
+        plt.figure(figsize=self.figsize)
+        plt.scatter(years, vram_gb, s=100, c=colors, edgecolor='black',
+                   linewidth=1, alpha=0.7)
+
+        plt.yscale('log')
+        plt.xlabel('Year', fontsize=12, fontweight='bold')
+        plt.ylabel('VRAM (GB)', fontsize=12, fontweight='bold')
+        plt.title('GPU Memory Evolution', fontsize=14, fontweight='bold')
+        plt.grid(True, alpha=0.3)
+
+        # Add legend
+        from matplotlib.patches import Patch
+        legend_elements = [
+            Patch(facecolor='#76B900', label='NVIDIA'),
+            Patch(facecolor='#ED1C24', label='AMD'),
+            Patch(facecolor='#0071C5', label='Intel')
+        ]
+        plt.legend(handles=legend_elements, loc='upper left', fontsize=10)
+
+        plt.tight_layout()
+
+        if output_path:
+            plt.savefig(output_path, dpi=300, bbox_inches='tight')
+        else:
+            plt.show()
+
+        plt.close()
+
+    def plot_gpu_efficiency(
+        self,
+        gpus: List,
+        output_path: Optional[Path] = None,
+    ) -> None:
+        """Plot GPU efficiency (TFLOPS/Watt) over time.
+
+        Args:
+            gpus: List of GPU metrics
+            output_path: Path to save the plot
+        """
+        gpus = sorted(gpus, key=lambda x: x.year)
+
+        data = []
+        for gpu in gpus:
+            if gpu.tflops_fp32 > 0 and gpu.tdp_watts > 0:
+                efficiency = gpu.tflops_fp32 / gpu.tdp_watts
+                data.append({
+                    'year': gpu.year,
+                    'efficiency': efficiency,
+                    'name': gpu.name,
+                    'manufacturer': gpu.manufacturer
+                })
+
+        years = [d['year'] for d in data]
+        efficiency = [d['efficiency'] for d in data]
+        manufacturers = [d['manufacturer'] for d in data]
+
+        # Color by manufacturer
+        colors = []
+        for mfr in manufacturers:
+            if 'NVIDIA' in mfr:
+                colors.append('#76B900')
+            elif 'AMD' in mfr:
+                colors.append('#ED1C24')
+            elif 'Intel' in mfr:
+                colors.append('#0071C5')
+            else:
+                colors.append('#888888')
+
+        plt.figure(figsize=self.figsize)
+        plt.scatter(years, efficiency, s=100, c=colors, edgecolor='black',
+                   linewidth=1, alpha=0.7)
+
+        plt.yscale('log')
+        plt.xlabel('Year', fontsize=12, fontweight='bold')
+        plt.ylabel('TFLOPS per Watt', fontsize=12, fontweight='bold')
+        plt.title('GPU Power Efficiency Evolution', fontsize=14, fontweight='bold')
+        plt.grid(True, alpha=0.3)
+
+        # Add legend
+        from matplotlib.patches import Patch
+        legend_elements = [
+            Patch(facecolor='#76B900', label='NVIDIA'),
+            Patch(facecolor='#ED1C24', label='AMD'),
+            Patch(facecolor='#0071C5', label='Intel')
+        ]
+        plt.legend(handles=legend_elements, loc='upper left', fontsize=10)
+
+        plt.tight_layout()
+
+        if output_path:
+            plt.savefig(output_path, dpi=300, bbox_inches='tight')
+        else:
+            plt.show()
+
+        plt.close()
+
+    def plot_gpu_manufacturer_comparison(
+        self,
+        comparison_data: Dict[str, Dict[str, Any]],
+        output_path: Optional[Path] = None,
+    ) -> None:
+        """Plot comparison of GPU manufacturers.
+
+        Args:
+            comparison_data: Dictionary with manufacturer statistics
+            output_path: Path to save the plot
+        """
+        manufacturers = list(comparison_data.keys())
+        counts = [comparison_data[m]['count'] for m in manufacturers]
+        avg_tflops = [comparison_data[m]['avg_tflops_fp32'] for m in manufacturers]
+
+        # Set up colors
+        mfr_colors = []
+        for mfr in manufacturers:
+            if 'NVIDIA' in mfr:
+                mfr_colors.append('#76B900')
+            elif 'AMD' in mfr:
+                mfr_colors.append('#ED1C24')
+            elif 'Intel' in mfr:
+                mfr_colors.append('#0071C5')
+            else:
+                mfr_colors.append('#888888')
+
+        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 6))
+
+        # GPU count by manufacturer
+        ax1.bar(manufacturers, counts, color=mfr_colors, alpha=0.8, edgecolor='black')
+        ax1.set_ylabel('Number of GPUs', fontsize=11, fontweight='bold')
+        ax1.set_title('GPU Count by Manufacturer', fontsize=12, fontweight='bold')
+        ax1.grid(True, alpha=0.3, axis='y')
+
+        # Average TFLOPS by manufacturer
+        ax2.bar(manufacturers, avg_tflops, color=mfr_colors, alpha=0.8, edgecolor='black')
+        ax2.set_ylabel('Average TFLOPS (FP32)', fontsize=11, fontweight='bold')
+        ax2.set_title('Average Performance by Manufacturer', fontsize=12, fontweight='bold')
+        ax2.grid(True, alpha=0.3, axis='y')
+
+        plt.tight_layout()
+
+        if output_path:
+            plt.savefig(output_path, dpi=300, bbox_inches='tight')
+        else:
+            plt.show()
+
+        plt.close()
+
+    def plot_gpu_price_performance(
+        self,
+        gpus: List,
+        output_path: Optional[Path] = None,
+    ) -> None:
+        """Plot GPU price vs performance scatter.
+
+        Args:
+            gpus: List of GPU metrics
+            output_path: Path to save the plot
+        """
+        data = []
+        for gpu in gpus:
+            if gpu.tflops_fp32 > 0 and gpu.launch_price_usd > 0:
+                data.append({
+                    'tflops': gpu.tflops_fp32,
+                    'price': gpu.launch_price_usd,
+                    'name': gpu.name,
+                    'year': gpu.year,
+                    'manufacturer': gpu.manufacturer
+                })
+
+        if not data:
+            return
+
+        tflops = [d['tflops'] for d in data]
+        prices = [d['price'] for d in data]
+        years = [d['year'] for d in data]
+        manufacturers = [d['manufacturer'] for d in data]
+
+        # Color by manufacturer
+        colors = []
+        for mfr in manufacturers:
+            if 'NVIDIA' in mfr:
+                colors.append('#76B900')
+            elif 'AMD' in mfr:
+                colors.append('#ED1C24')
+            elif 'Intel' in mfr:
+                colors.append('#0071C5')
+            else:
+                colors.append('#888888')
+
+        plt.figure(figsize=self.figsize)
+        scatter = plt.scatter(tflops, prices, s=100, c=colors, edgecolor='black',
+                            linewidth=1, alpha=0.7)
+
+        plt.xlabel('TFLOPS (FP32)', fontsize=12, fontweight='bold')
+        plt.ylabel('Launch Price (USD)', fontsize=12, fontweight='bold')
+        plt.title('GPU Price vs Performance', fontsize=14, fontweight='bold')
+        plt.grid(True, alpha=0.3)
+
+        # Add legend
+        from matplotlib.patches import Patch
+        legend_elements = [
+            Patch(facecolor='#76B900', label='NVIDIA'),
+            Patch(facecolor='#ED1C24', label='AMD'),
+            Patch(facecolor='#0071C5', label='Intel')
+        ]
+        plt.legend(handles=legend_elements, loc='upper left', fontsize=10)
+
+        plt.tight_layout()
+
+        if output_path:
+            plt.savefig(output_path, dpi=300, bbox_inches='tight')
+        else:
+            plt.show()
+
+        plt.close()
