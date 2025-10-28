@@ -15,6 +15,7 @@ from rich.text import Text
 
 from .hardware_analyzer import HardwareAnalyzer
 from .llm_analyzer import LLMAnalyzer
+from .gpu_analyzer import GPUAnalyzer
 from .moores_law import MooresLawAnalyzer
 from .visualizations import Plotter
 from .exports import Exporter
@@ -28,6 +29,7 @@ class CLI:
         self.console = Console()
         self.hw_analyzer = None
         self.llm_analyzer = None
+        self.gpu_analyzer = None
         self.moores_law = MooresLawAnalyzer()
         self.plotter = Plotter()
         self.exporter = Exporter()
@@ -53,22 +55,23 @@ class CLI:
         self.console.print("\n[bold cyan]Main Menu[/bold cyan]")
         self.console.print("[1] Hardware Analysis")
         self.console.print("[2] LLM Analysis")
-        self.console.print("[3] Moore's Law Analysis")
-        self.console.print("[4] Compare Hardware vs LLM Evolution")
-        self.console.print("[5] Export Data")
-        self.console.print("[6] Generate Visualizations")
+        self.console.print("[3] GPU Analysis")
+        self.console.print("[4] Moore's Law Analysis")
+        self.console.print("[5] Compare Hardware vs LLM vs GPU Evolution")
+        self.console.print("[6] Export Data")
+        self.console.print("[7] Generate Visualizations")
         self.console.print("[0] Exit")
         self.console.print()
 
         choice = Prompt.ask(
             "Select an option",
-            choices=["0", "1", "2", "3", "4", "5", "6"],
+            choices=["0", "1", "2", "3", "4", "5", "6", "7"],
             default="1"
         )
         return choice
 
     def load_data(self):
-        """Load hardware and LLM data."""
+        """Load hardware, LLM, and GPU data."""
         with Progress(
             SpinnerColumn(),
             TextColumn("[progress.description]{task.description}"),
@@ -81,6 +84,10 @@ class CLI:
             task2 = progress.add_task("[cyan]Loading LLM data...", total=None)
             self.llm_analyzer = LLMAnalyzer()
             progress.update(task2, completed=True)
+
+            task3 = progress.add_task("[cyan]Loading GPU data...", total=None)
+            self.gpu_analyzer = GPUAnalyzer()
+            progress.update(task3, completed=True)
 
         self.console.print("[green]Data loaded successfully![/green]\n")
 
@@ -383,6 +390,215 @@ class CLI:
         )
         self.console.print(panel)
 
+    def gpu_analysis_menu(self):
+        """GPU analysis submenu."""
+        while True:
+            self.console.print("\n[bold cyan]GPU Analysis Menu[/bold cyan]")
+            self.console.print("[1] View All GPUs")
+            self.console.print("[2] Calculate CAGR for All Metrics")
+            self.console.print("[3] Manufacturer Comparison")
+            self.console.print("[4] Performance Evolution")
+            self.console.print("[5] Memory Evolution")
+            self.console.print("[6] Efficiency Trends")
+            self.console.print("[7] Architectural Milestones")
+            self.console.print("[8] Summary Statistics")
+            self.console.print("[0] Back to Main Menu")
+            self.console.print()
+
+            choice = Prompt.ask("Select an option", choices=["0", "1", "2", "3", "4", "5", "6", "7", "8"])
+
+            if choice == "0":
+                break
+            elif choice == "1":
+                self.show_all_gpus()
+            elif choice == "2":
+                self.show_gpu_cagr()
+            elif choice == "3":
+                self.show_gpu_manufacturer_comparison()
+            elif choice == "4":
+                self.show_gpu_performance_evolution()
+            elif choice == "5":
+                self.show_gpu_memory_evolution()
+            elif choice == "6":
+                self.show_gpu_efficiency_trends()
+            elif choice == "7":
+                self.show_gpu_milestones()
+            elif choice == "8":
+                self.show_gpu_summary()
+
+    def show_all_gpus(self):
+        """Display all GPU models."""
+        table = Table(title="GPU Models", box=box.ROUNDED)
+        table.add_column("Year", style="cyan")
+        table.add_column("Name", style="green")
+        table.add_column("Manufacturer")
+        table.add_column("TFLOPS", justify="right", style="yellow")
+        table.add_column("VRAM", justify="right")
+        table.add_column("TDP (W)", justify="right")
+
+        for gpu in self.gpu_analyzer.gpus:
+            table.add_row(
+                str(gpu.year),
+                gpu.name[:35],
+                gpu.manufacturer,
+                f"{gpu.tflops_fp32:.2f}",
+                f"{gpu.vram_mb // 1024}GB",
+                f"{gpu.tdp_watts}W",
+            )
+
+        self.console.print(table)
+
+    def show_gpu_cagr(self):
+        """Display CAGR for GPU metrics."""
+        results = self.gpu_analyzer.calculate_all_cagrs()
+
+        table = Table(title="GPU CAGR Analysis", box=box.ROUNDED)
+        table.add_column("Metric", style="cyan")
+        table.add_column("Start Value", justify="right")
+        table.add_column("End Value", justify="right")
+        table.add_column("Growth Factor", justify="right", style="yellow")
+        table.add_column("CAGR %", justify="right", style="green")
+
+        for metric_name, result in results.items():
+            table.add_row(
+                metric_name.replace('_', ' ').title(),
+                f"{result.start_value:,.2f}",
+                f"{result.end_value:,.2f}",
+                f"{result.growth_factor:.2f}x",
+                f"{result.cagr_percent:.2f}%",
+            )
+
+        self.console.print(table)
+
+    def show_gpu_manufacturer_comparison(self):
+        """Display manufacturer comparison."""
+        comparison = self.gpu_analyzer.get_manufacturer_comparison()
+
+        table = Table(title="GPU Manufacturer Comparison", box=box.ROUNDED)
+        table.add_column("Manufacturer", style="cyan")
+        table.add_column("GPU Count", justify="right")
+        table.add_column("Avg TFLOPS", justify="right", style="yellow")
+        table.add_column("Avg VRAM (GB)", justify="right")
+        table.add_column("Avg TDP (W)", justify="right")
+        table.add_column("Ray Tracing GPUs", justify="right", style="green")
+
+        for mfr, stats in comparison.items():
+            table.add_row(
+                mfr,
+                str(stats['count']),
+                f"{stats['avg_tflops_fp32']:.2f}",
+                f"{stats['avg_vram_mb'] / 1024:.1f}",
+                f"{stats['avg_tdp_watts']:.0f}",
+                str(stats['ray_tracing_count']),
+            )
+
+        self.console.print(table)
+
+    def show_gpu_performance_evolution(self):
+        """Display GPU performance evolution."""
+        evolution = self.gpu_analyzer.get_performance_evolution()
+
+        table = Table(title="GPU Performance Evolution (Max per Year)", box=box.ROUNDED)
+        table.add_column("Year", style="cyan")
+        table.add_column("GPU", style="green")
+        table.add_column("Manufacturer")
+        table.add_column("TFLOPS", justify="right", style="yellow")
+
+        for item in evolution:
+            table.add_row(
+                str(item['year']),
+                item['gpu_name'][:40],
+                item['manufacturer'],
+                f"{item['tflops']:.2f}",
+            )
+
+        self.console.print(table)
+
+    def show_gpu_memory_evolution(self):
+        """Display GPU memory evolution."""
+        evolution = self.gpu_analyzer.get_memory_evolution()
+
+        table = Table(title="GPU Memory Evolution (Max per Year)", box=box.ROUNDED)
+        table.add_column("Year", style="cyan")
+        table.add_column("GPU", style="green")
+        table.add_column("Manufacturer")
+        table.add_column("VRAM", justify="right", style="yellow")
+
+        for item in evolution:
+            table.add_row(
+                str(item['year']),
+                item['gpu_name'][:40],
+                item['manufacturer'],
+                f"{item['vram_gb']:.1f} GB",
+            )
+
+        self.console.print(table)
+
+    def show_gpu_efficiency_trends(self):
+        """Display GPU efficiency trends."""
+        trends = self.gpu_analyzer.get_efficiency_trends()
+
+        for metric_name, data in trends.items():
+            if not data:
+                continue
+
+            table = Table(title=f"{metric_name.replace('_', ' ').title()}", box=box.SIMPLE)
+            table.add_column("Year", style="cyan")
+            table.add_column("GPU", style="green")
+            table.add_column("Manufacturer")
+            table.add_column("Value", justify="right", style="yellow")
+
+            for item in data[-10:]:  # Show last 10
+                table.add_row(
+                    str(item['year']),
+                    item['name'][:35],
+                    item['manufacturer'],
+                    f"{item['value']:.4f}",
+                )
+
+            self.console.print(table)
+
+    def show_gpu_milestones(self):
+        """Display architectural milestones."""
+        milestones = self.gpu_analyzer.get_architectural_milestones()
+
+        table = Table(title="GPU Architectural Milestones", box=box.ROUNDED)
+        table.add_column("Year", style="cyan")
+        table.add_column("GPU", style="green")
+        table.add_column("Manufacturer")
+        table.add_column("Architecture")
+        table.add_column("Milestone", style="yellow")
+
+        for m in milestones:
+            table.add_row(
+                str(m['year']),
+                m['name'][:35],
+                m['manufacturer'],
+                m['architecture'],
+                m['reasons'][0][:40],
+            )
+
+        self.console.print(table)
+
+    def show_gpu_summary(self):
+        """Display GPU summary statistics."""
+        summary = self.gpu_analyzer.get_summary_statistics()
+
+        panel = Panel(
+            f"[cyan]Total GPUs:[/cyan] {summary['total_gpus']}\n"
+            f"[cyan]Year Range:[/cyan] {summary['year_range']}\n"
+            f"[cyan]Manufacturers:[/cyan] {', '.join(summary['manufacturers'])}\n"
+            f"[cyan]NVIDIA:[/cyan] {summary['manufacturer_count'].get('NVIDIA', 0)} GPUs\n"
+            f"[cyan]AMD:[/cyan] {summary['manufacturer_count'].get('AMD', 0)} GPUs\n"
+            f"[cyan]Intel:[/cyan] {summary['manufacturer_count'].get('Intel', 0)} GPUs\n"
+            f"[cyan]Max TFLOPS:[/cyan] {summary['max_tflops']:.2f}\n"
+            f"[cyan]Max VRAM:[/cyan] {summary['max_vram_gb']:.1f} GB\n"
+            f"[cyan]Ray Tracing GPUs:[/cyan] {summary['ray_tracing_count']}",
+            title="GPU Summary",
+            border_style="cyan",
+        )
+        self.console.print(panel)
+
     def moores_law_menu(self):
         """Moore's Law analysis submenu."""
         while True:
@@ -512,12 +728,13 @@ class CLI:
             self.console.print("\n[bold cyan]Export Menu[/bold cyan]")
             self.console.print("[1] Export Hardware Data")
             self.console.print("[2] Export LLM Data")
-            self.console.print("[3] Export CAGR Analysis")
-            self.console.print("[4] Export Complete Analysis Report")
+            self.console.print("[3] Export GPU Data")
+            self.console.print("[4] Export CAGR Analysis")
+            self.console.print("[5] Export Complete Analysis Report")
             self.console.print("[0] Back to Main Menu")
             self.console.print()
 
-            choice = Prompt.ask("Select an option", choices=["0", "1", "2", "3", "4"])
+            choice = Prompt.ask("Select an option", choices=["0", "1", "2", "3", "4", "5"])
 
             if choice == "0":
                 break
@@ -526,8 +743,10 @@ class CLI:
             elif choice == "2":
                 self.export_llm_data()
             elif choice == "3":
-                self.export_cagr_analysis()
+                self.export_gpu_data()
             elif choice == "4":
+                self.export_cagr_analysis()
+            elif choice == "5":
                 self.export_complete_report()
 
     def export_hardware_data(self):
@@ -578,14 +797,40 @@ class CLI:
         except Exception as e:
             self.console.print(f"[red]Error exporting: {e}[/red]")
 
+    def export_gpu_data(self):
+        """Export GPU data to file."""
+        format_choice = Prompt.ask(
+            "Select format",
+            choices=["json", "csv", "markdown", "text"],
+            default="json"
+        )
+
+        data = self.gpu_analyzer.to_dict()
+
+        try:
+            if format_choice == "json":
+                path = self.exporter.export_json(data, "gpu_models.json")
+            elif format_choice == "csv":
+                path = self.exporter.export_csv(data, "gpu_models.csv")
+            elif format_choice == "markdown":
+                path = self.exporter.export_markdown(data, "gpu_models.md", "GPU Models")
+            elif format_choice == "text":
+                path = self.exporter.export_text(data, "gpu_models.txt", "GPU Models")
+
+            self.console.print(f"[green]✓ Exported to {path}[/green]")
+        except Exception as e:
+            self.console.print(f"[red]Error exporting: {e}[/red]")
+
     def export_cagr_analysis(self):
         """Export CAGR analysis."""
         hw_cagr = self.hw_analyzer.calculate_all_cagrs()
         llm_cagr = self.llm_analyzer.calculate_all_cagrs()
+        gpu_cagr = self.gpu_analyzer.calculate_all_cagrs()
 
         analysis_data = {
             "title": "CAGR Analysis Report",
             "hardware_cagr": {k: v.to_dict() for k, v in hw_cagr.items()},
+            "gpu_cagr": {k: v.to_dict() for k, v in gpu_cagr.items()},
             "llm_cagr": {k: v.to_dict() for k, v in llm_cagr.items()},
         }
 
@@ -612,8 +857,10 @@ class CLI:
 
             hw_cagr = self.hw_analyzer.calculate_all_cagrs()
             llm_cagr = self.llm_analyzer.calculate_all_cagrs()
+            gpu_cagr = self.gpu_analyzer.calculate_all_cagrs()
             hw_summary = self.hw_analyzer.get_summary_statistics()
             llm_summary = self.llm_analyzer.get_summary_statistics()
+            gpu_summary = self.gpu_analyzer.get_summary_statistics()
             chinchilla = self.llm_analyzer.analyze_chinchilla_optimal()
             moores_eras = self.moores_law.analyze_era_trends(self.hw_analyzer.systems)
 
@@ -622,8 +869,10 @@ class CLI:
                 "date_range": f"{self.hw_analyzer.systems[0].year}-{self.hw_analyzer.systems[-1].year}",
                 "hardware_summary": hw_summary,
                 "llm_summary": llm_summary,
+                "gpu_summary": gpu_summary,
                 "hardware_cagr": {k: v.to_dict() for k, v in hw_cagr.items()},
                 "llm_cagr": {k: v.to_dict() for k, v in llm_cagr.items()},
+                "gpu_cagr": {k: v.to_dict() for k, v in gpu_cagr.items()},
                 "chinchilla_analysis": chinchilla,
                 "moores_law_eras": moores_eras,
             }
@@ -654,10 +903,15 @@ class CLI:
             self.console.print("[5] LLM Context Window Evolution")
             self.console.print("[6] LLM Capability Radar Chart")
             self.console.print("[7] Hardware Growth Factors")
+            self.console.print("[8] GPU Performance Evolution")
+            self.console.print("[9] GPU Memory Evolution")
+            self.console.print("[10] GPU Efficiency Trends")
+            self.console.print("[11] GPU Manufacturer Comparison")
+            self.console.print("[12] GPU Price vs Performance")
             self.console.print("[0] Back to Main Menu")
             self.console.print()
 
-            choice = Prompt.ask("Select an option", choices=["0", "1", "2", "3", "4", "5", "6", "7"])
+            choice = Prompt.ask("Select an option", choices=["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"])
 
             if choice == "0":
                 break
@@ -675,6 +929,16 @@ class CLI:
                 self.plot_llm_capabilities()
             elif choice == "7":
                 self.plot_growth_factors()
+            elif choice == "8":
+                self.plot_gpu_performance()
+            elif choice == "9":
+                self.plot_gpu_memory()
+            elif choice == "10":
+                self.plot_gpu_efficiency()
+            elif choice == "11":
+                self.plot_gpu_manufacturer_comp()
+            elif choice == "12":
+                self.plot_gpu_price_performance()
 
     def plot_hardware_evolution(self):
         """Plot hardware metric evolution."""
@@ -794,12 +1058,81 @@ class CLI:
         except Exception as e:
             self.console.print(f"[red]Error creating plot: {e}[/red]")
 
+    def plot_gpu_performance(self):
+        """Plot GPU performance evolution."""
+        output_path = Path("output") / "gpu_performance_evolution.png"
+        output_path.parent.mkdir(exist_ok=True)
+
+        try:
+            self.plotter.plot_gpu_performance_evolution(
+                self.gpu_analyzer.gpus,
+                output_path
+            )
+            self.console.print(f"[green]✓ Plot saved to {output_path}[/green]")
+        except Exception as e:
+            self.console.print(f"[red]Error creating plot: {e}[/red]")
+
+    def plot_gpu_memory(self):
+        """Plot GPU memory evolution."""
+        output_path = Path("output") / "gpu_memory_evolution.png"
+        output_path.parent.mkdir(exist_ok=True)
+
+        try:
+            self.plotter.plot_gpu_memory_evolution(
+                self.gpu_analyzer.gpus,
+                output_path
+            )
+            self.console.print(f"[green]✓ Plot saved to {output_path}[/green]")
+        except Exception as e:
+            self.console.print(f"[red]Error creating plot: {e}[/red]")
+
+    def plot_gpu_efficiency(self):
+        """Plot GPU efficiency trends."""
+        output_path = Path("output") / "gpu_efficiency.png"
+        output_path.parent.mkdir(exist_ok=True)
+
+        try:
+            self.plotter.plot_gpu_efficiency(
+                self.gpu_analyzer.gpus,
+                output_path
+            )
+            self.console.print(f"[green]✓ Plot saved to {output_path}[/green]")
+        except Exception as e:
+            self.console.print(f"[red]Error creating plot: {e}[/red]")
+
+    def plot_gpu_manufacturer_comp(self):
+        """Plot GPU manufacturer comparison."""
+        comparison = self.gpu_analyzer.get_manufacturer_comparison()
+        output_path = Path("output") / "gpu_manufacturer_comparison.png"
+        output_path.parent.mkdir(exist_ok=True)
+
+        try:
+            self.plotter.plot_gpu_manufacturer_comparison(comparison, output_path)
+            self.console.print(f"[green]✓ Plot saved to {output_path}[/green]")
+        except Exception as e:
+            self.console.print(f"[red]Error creating plot: {e}[/red]")
+
+    def plot_gpu_price_performance(self):
+        """Plot GPU price vs performance."""
+        output_path = Path("output") / "gpu_price_performance.png"
+        output_path.parent.mkdir(exist_ok=True)
+
+        try:
+            self.plotter.plot_gpu_price_performance(
+                self.gpu_analyzer.gpus,
+                output_path
+            )
+            self.console.print(f"[green]✓ Plot saved to {output_path}[/green]")
+        except Exception as e:
+            self.console.print(f"[red]Error creating plot: {e}[/red]")
+
     def comparison_menu(self):
-        """Hardware vs LLM comparison submenu."""
-        self.console.print("\n[bold cyan]Hardware vs LLM Evolution Comparison[/bold cyan]\n")
+        """Hardware vs LLM vs GPU comparison submenu."""
+        self.console.print("\n[bold cyan]Hardware vs LLM vs GPU Evolution Comparison[/bold cyan]\n")
 
         hw_cagr = self.hw_analyzer.calculate_all_cagrs()
         llm_cagr = self.llm_analyzer.calculate_all_cagrs()
+        gpu_cagr = self.gpu_analyzer.calculate_all_cagrs()
 
         # Hardware summary
         self.console.print("[yellow]Hardware Evolution (1965-2024)[/yellow]")
@@ -814,6 +1147,21 @@ class CLI:
             )
 
         self.console.print(hw_table)
+        self.console.print()
+
+        # GPU summary
+        self.console.print("[yellow]GPU Evolution (1999-2024)[/yellow]")
+        gpu_table = Table(box=box.SIMPLE)
+        gpu_table.add_column("Metric", style="cyan")
+        gpu_table.add_column("CAGR %", justify="right", style="green")
+
+        for metric, result in gpu_cagr.items():
+            gpu_table.add_row(
+                metric.replace('_', ' ').title(),
+                f"{result.cagr_percent:.2f}%"
+            )
+
+        self.console.print(gpu_table)
         self.console.print()
 
         # LLM summary
@@ -834,10 +1182,12 @@ class CLI:
         # Key insights
         panel = Panel(
             "[cyan]Key Insights:[/cyan]\n"
-            f"• Hardware transistors grew {hw_cagr['cpu_transistors'].growth_factor:.1f}x over 59 years\n"
-            f"• LLM parameters grew {llm_cagr['parameters_billions'].growth_factor:.1f}x in just 6 years\n"
-            f"• LLM scaling is {llm_cagr['parameters_billions'].cagr_percent / hw_cagr['cpu_transistors'].cagr_percent:.1f}x faster than transistor scaling\n"
-            f"• Context windows grew {llm_cagr['context_window'].growth_factor:.0f}x since 2018",
+            f"• CPU transistors grew {hw_cagr['cpu_transistors'].growth_factor:.1f}x over 59 years ({hw_cagr['cpu_transistors'].cagr_percent:.1f}% CAGR)\n"
+            f"• GPU TFLOPS grew {gpu_cagr['tflops_fp32'].growth_factor:.1f}x over 25 years ({gpu_cagr['tflops_fp32'].cagr_percent:.1f}% CAGR)\n"
+            f"• GPU VRAM grew {gpu_cagr['vram_mb'].growth_factor:.0f}x over 25 years ({gpu_cagr['vram_mb'].cagr_percent:.1f}% CAGR)\n"
+            f"• LLM parameters grew {llm_cagr['parameters_billions'].growth_factor:.1f}x in just 6 years ({llm_cagr['parameters_billions'].cagr_percent:.1f}% CAGR)\n"
+            f"• LLM scaling is {llm_cagr['parameters_billions'].cagr_percent / hw_cagr['cpu_transistors'].cagr_percent:.1f}x faster than CPU transistor scaling\n"
+            f"• GPU performance scaling is {gpu_cagr['tflops_fp32'].cagr_percent / hw_cagr['cpu_transistors'].cagr_percent:.1f}x faster than CPU transistor scaling",
             title="Comparison Summary",
             border_style="yellow",
         )
@@ -862,12 +1212,14 @@ class CLI:
                 elif choice == "2":
                     self.llm_analysis_menu()
                 elif choice == "3":
-                    self.moores_law_menu()
+                    self.gpu_analysis_menu()
                 elif choice == "4":
-                    self.comparison_menu()
+                    self.moores_law_menu()
                 elif choice == "5":
-                    self.export_menu()
+                    self.comparison_menu()
                 elif choice == "6":
+                    self.export_menu()
+                elif choice == "7":
                     self.visualizations_menu()
 
         except KeyboardInterrupt:
