@@ -383,6 +383,468 @@ class CLI:
         )
         self.console.print(panel)
 
+    def moores_law_menu(self):
+        """Moore's Law analysis submenu."""
+        while True:
+            self.console.print("\n[bold cyan]Moore's Law Analysis Menu[/bold cyan]")
+            self.console.print("[1] Historical Adherence Analysis")
+            self.console.print("[2] Era Trends (5-year periods)")
+            self.console.print("[3] Future Predictions")
+            self.console.print("[4] Specific Year Comparison")
+            self.console.print("[0] Back to Main Menu")
+            self.console.print()
+
+            choice = Prompt.ask("Select an option", choices=["0", "1", "2", "3", "4"])
+
+            if choice == "0":
+                break
+            elif choice == "1":
+                self.show_moores_law_adherence()
+            elif choice == "2":
+                self.show_moores_law_eras()
+            elif choice == "3":
+                self.show_moores_law_predictions()
+            elif choice == "4":
+                self.show_moores_law_year_comparison()
+
+    def show_moores_law_adherence(self):
+        """Display Moore's Law historical adherence."""
+        results = self.moores_law.analyze_historical_adherence(self.hw_analyzer.systems)
+
+        table = Table(title="Moore's Law Historical Adherence", box=box.ROUNDED)
+        table.add_column("System", style="green")
+        table.add_column("Year", style="cyan")
+        table.add_column("Actual", justify="right")
+        table.add_column("Predicted", justify="right")
+        table.add_column("Accuracy %", justify="right", style="yellow")
+        table.add_column("Status", justify="center")
+
+        for result in results[-15:]:  # Show last 15
+            status_color = "green" if result['ahead_behind'] == "on_track" else "yellow" if result['ahead_behind'] == "ahead" else "red"
+
+            table.add_row(
+                result['system_name'][:30],
+                str(result['year']),
+                f"{result['actual_transistors']:,.0f}",
+                f"{result['predicted_transistors']:,.0f}",
+                f"{result['accuracy_percent']:.1f}%",
+                f"[{status_color}]{result['ahead_behind']}[/{status_color}]",
+            )
+
+        self.console.print(table)
+
+    def show_moores_law_eras(self):
+        """Display Moore's Law era analysis."""
+        results = self.moores_law.analyze_era_trends(self.hw_analyzer.systems, era_length=5)
+
+        table = Table(title="Moore's Law Era Analysis (5-year periods)", box=box.ROUNDED)
+        table.add_column("Era", style="cyan")
+        table.add_column("Systems", justify="right")
+        table.add_column("Doubling Period", justify="right", style="yellow")
+        table.add_column("Growth Rate %", justify="right")
+        table.add_column("Adherence", justify="center")
+
+        for result in results:
+            adherence_color = "green" if result['moores_law_adherence'] == "strong" else "yellow" if result['moores_law_adherence'] == "moderate" else "red"
+
+            table.add_row(
+                result['era_label'],
+                str(result['system_count']),
+                f"{result['doubling_period']:.2f} yrs",
+                f"{result['annual_growth_rate_percent']:.1f}%",
+                f"[{adherence_color}]{result['moores_law_adherence']}[/{adherence_color}]",
+            )
+
+        self.console.print(table)
+
+    def show_moores_law_predictions(self):
+        """Display Moore's Law future predictions."""
+        years_ahead = IntPrompt.ask("How many years ahead to predict?", default=10)
+
+        # Use latest system as base
+        base_system = self.hw_analyzer.systems[-1]
+        predictions = self.moores_law.predict_future(base_system, years_ahead)
+
+        table = Table(title=f"Moore's Law Predictions from {base_system.year}", box=box.ROUNDED)
+        table.add_column("Year", style="cyan")
+        table.add_column("Years Ahead", justify="right")
+        table.add_column("Predicted Transistors", justify="right", style="yellow")
+        table.add_column("Predicted Process (nm)", justify="right")
+        table.add_column("Doublings", justify="right")
+
+        for pred in predictions:
+            table.add_row(
+                str(pred['year']),
+                str(pred['years_from_base']),
+                f"{pred['predicted_transistors']:,}",
+                f"{pred['predicted_process_nm']:.1f}",
+                f"{pred['doublings_from_base']:.2f}",
+            )
+
+        self.console.print(table)
+
+    def show_moores_law_year_comparison(self):
+        """Display Moore's Law prediction vs reality for a specific year."""
+        year = IntPrompt.ask("Enter year to analyze", default=2020)
+
+        result = self.moores_law.compare_predictions_vs_reality(self.hw_analyzer.systems, year)
+
+        if result:
+            panel = Panel(
+                f"[cyan]Prediction Year:[/cyan] {result['prediction_year']}\n"
+                f"[cyan]Base System:[/cyan] {result['base_system']} ({result['base_year']})\n"
+                f"[cyan]Base Transistors:[/cyan] {result['base_transistors']:,}\n"
+                f"[cyan]Target System:[/cyan] {result['target_system']}\n"
+                f"[cyan]Actual Transistors:[/cyan] {result['actual_transistors']:,}\n"
+                f"[yellow]Predicted Transistors:[/yellow] {result['predicted_transistors']:,.0f}\n"
+                f"[green]Accuracy:[/green] {result['accuracy_percent']:.1f}%\n"
+                f"[cyan]Years Predicted:[/cyan] {result['years_predicted']}",
+                title="Moore's Law Comparison",
+                border_style="green",
+            )
+            self.console.print(panel)
+        else:
+            self.console.print(f"[red]No data available for year {year}[/red]")
+
+    def export_menu(self):
+        """Export data submenu."""
+        while True:
+            self.console.print("\n[bold cyan]Export Menu[/bold cyan]")
+            self.console.print("[1] Export Hardware Data")
+            self.console.print("[2] Export LLM Data")
+            self.console.print("[3] Export CAGR Analysis")
+            self.console.print("[4] Export Complete Analysis Report")
+            self.console.print("[0] Back to Main Menu")
+            self.console.print()
+
+            choice = Prompt.ask("Select an option", choices=["0", "1", "2", "3", "4"])
+
+            if choice == "0":
+                break
+            elif choice == "1":
+                self.export_hardware_data()
+            elif choice == "2":
+                self.export_llm_data()
+            elif choice == "3":
+                self.export_cagr_analysis()
+            elif choice == "4":
+                self.export_complete_report()
+
+    def export_hardware_data(self):
+        """Export hardware data to file."""
+        format_choice = Prompt.ask(
+            "Select format",
+            choices=["json", "csv", "markdown", "text"],
+            default="json"
+        )
+
+        data = self.hw_analyzer.to_dict()
+
+        try:
+            if format_choice == "json":
+                path = self.exporter.export_json(data, "hardware_systems.json")
+            elif format_choice == "csv":
+                path = self.exporter.export_csv(data, "hardware_systems.csv")
+            elif format_choice == "markdown":
+                path = self.exporter.export_markdown(data, "hardware_systems.md", "Hardware Systems")
+            elif format_choice == "text":
+                path = self.exporter.export_text(data, "hardware_systems.txt", "Hardware Systems")
+
+            self.console.print(f"[green]✓ Exported to {path}[/green]")
+        except Exception as e:
+            self.console.print(f"[red]Error exporting: {e}[/red]")
+
+    def export_llm_data(self):
+        """Export LLM data to file."""
+        format_choice = Prompt.ask(
+            "Select format",
+            choices=["json", "csv", "markdown", "text"],
+            default="json"
+        )
+
+        data = self.llm_analyzer.to_dict()
+
+        try:
+            if format_choice == "json":
+                path = self.exporter.export_json(data, "llm_models.json")
+            elif format_choice == "csv":
+                path = self.exporter.export_csv(data, "llm_models.csv")
+            elif format_choice == "markdown":
+                path = self.exporter.export_markdown(data, "llm_models.md", "LLM Models")
+            elif format_choice == "text":
+                path = self.exporter.export_text(data, "llm_models.txt", "LLM Models")
+
+            self.console.print(f"[green]✓ Exported to {path}[/green]")
+        except Exception as e:
+            self.console.print(f"[red]Error exporting: {e}[/red]")
+
+    def export_cagr_analysis(self):
+        """Export CAGR analysis."""
+        hw_cagr = self.hw_analyzer.calculate_all_cagrs()
+        llm_cagr = self.llm_analyzer.calculate_all_cagrs()
+
+        analysis_data = {
+            "title": "CAGR Analysis Report",
+            "hardware_cagr": {k: v.to_dict() for k, v in hw_cagr.items()},
+            "llm_cagr": {k: v.to_dict() for k, v in llm_cagr.items()},
+        }
+
+        try:
+            paths = self.exporter.export_analysis_report(
+                analysis_data,
+                "cagr_analysis",
+                ["json", "markdown", "text"]
+            )
+
+            for fmt, path in paths.items():
+                self.console.print(f"[green]✓ Exported {fmt}: {path}[/green]")
+        except Exception as e:
+            self.console.print(f"[red]Error exporting: {e}[/red]")
+
+    def export_complete_report(self):
+        """Export complete analysis report."""
+        with Progress(
+            SpinnerColumn(),
+            TextColumn("[progress.description]{task.description}"),
+            console=self.console,
+        ) as progress:
+            task = progress.add_task("[cyan]Generating complete report...", total=None)
+
+            hw_cagr = self.hw_analyzer.calculate_all_cagrs()
+            llm_cagr = self.llm_analyzer.calculate_all_cagrs()
+            hw_summary = self.hw_analyzer.get_summary_statistics()
+            llm_summary = self.llm_analyzer.get_summary_statistics()
+            chinchilla = self.llm_analyzer.analyze_chinchilla_optimal()
+            moores_eras = self.moores_law.analyze_era_trends(self.hw_analyzer.systems)
+
+            analysis_data = {
+                "title": "Complete Computing & LLM Evolution Analysis",
+                "date_range": f"{self.hw_analyzer.systems[0].year}-{self.hw_analyzer.systems[-1].year}",
+                "hardware_summary": hw_summary,
+                "llm_summary": llm_summary,
+                "hardware_cagr": {k: v.to_dict() for k, v in hw_cagr.items()},
+                "llm_cagr": {k: v.to_dict() for k, v in llm_cagr.items()},
+                "chinchilla_analysis": chinchilla,
+                "moores_law_eras": moores_eras,
+            }
+
+            progress.update(task, completed=True)
+
+        try:
+            paths = self.exporter.export_analysis_report(
+                analysis_data,
+                "complete_analysis_report",
+                ["json", "markdown", "text"]
+            )
+
+            self.console.print("\n[bold green]Complete Report Exported![/bold green]")
+            for fmt, path in paths.items():
+                self.console.print(f"  [{fmt}]: {path}")
+        except Exception as e:
+            self.console.print(f"[red]Error exporting: {e}[/red]")
+
+    def visualizations_menu(self):
+        """Visualizations submenu."""
+        while True:
+            self.console.print("\n[bold cyan]Visualizations Menu[/bold cyan]")
+            self.console.print("[1] Hardware Transistor Evolution")
+            self.console.print("[2] Moore's Law Comparison")
+            self.console.print("[3] CAGR Heatmap")
+            self.console.print("[4] LLM Parameter Scaling")
+            self.console.print("[5] LLM Context Window Evolution")
+            self.console.print("[6] LLM Capability Radar Chart")
+            self.console.print("[7] Hardware Growth Factors")
+            self.console.print("[0] Back to Main Menu")
+            self.console.print()
+
+            choice = Prompt.ask("Select an option", choices=["0", "1", "2", "3", "4", "5", "6", "7"])
+
+            if choice == "0":
+                break
+            elif choice == "1":
+                self.plot_hardware_evolution()
+            elif choice == "2":
+                self.plot_moores_law_comparison()
+            elif choice == "3":
+                self.plot_cagr_heatmap()
+            elif choice == "4":
+                self.plot_llm_parameters()
+            elif choice == "5":
+                self.plot_context_window()
+            elif choice == "6":
+                self.plot_llm_capabilities()
+            elif choice == "7":
+                self.plot_growth_factors()
+
+    def plot_hardware_evolution(self):
+        """Plot hardware metric evolution."""
+        metric = Prompt.ask(
+            "Enter metric to plot",
+            choices=["cpu_transistors", "cpu_clock_mhz", "ram_mb", "storage_mb", "performance_mips"],
+            default="cpu_transistors"
+        )
+
+        output_path = Path("output") / f"hardware_{metric}_evolution.png"
+        output_path.parent.mkdir(exist_ok=True)
+
+        try:
+            self.plotter.plot_hardware_evolution(
+                self.hw_analyzer.systems,
+                metric,
+                output_path,
+                log_scale=True
+            )
+            self.console.print(f"[green]✓ Plot saved to {output_path}[/green]")
+        except Exception as e:
+            self.console.print(f"[red]Error creating plot: {e}[/red]")
+
+    def plot_moores_law_comparison(self):
+        """Plot Moore's Law prediction vs actual."""
+        # Generate predictions for all years
+        base_system = self.hw_analyzer.systems[0]
+        predictions = []
+
+        for system in self.hw_analyzer.systems:
+            pred = self.moores_law.predict_transistors(
+                base_system.cpu_transistors,
+                base_system.year,
+                system.year
+            )
+            predictions.append(pred)
+
+        output_path = Path("output") / "moores_law_comparison.png"
+        output_path.parent.mkdir(exist_ok=True)
+
+        try:
+            self.plotter.plot_moores_law_comparison(
+                self.hw_analyzer.systems,
+                predictions,
+                output_path
+            )
+            self.console.print(f"[green]✓ Plot saved to {output_path}[/green]")
+        except Exception as e:
+            self.console.print(f"[red]Error creating plot: {e}[/red]")
+
+    def plot_cagr_heatmap(self):
+        """Plot CAGR heatmap."""
+        results = self.hw_analyzer.calculate_all_cagrs()
+        cagr_data = {k: v.cagr_percent for k, v in results.items()}
+
+        output_path = Path("output") / "cagr_heatmap.png"
+        output_path.parent.mkdir(exist_ok=True)
+
+        try:
+            self.plotter.plot_cagr_heatmap(cagr_data, output_path)
+            self.console.print(f"[green]✓ Plot saved to {output_path}[/green]")
+        except Exception as e:
+            self.console.print(f"[red]Error creating plot: {e}[/red]")
+
+    def plot_llm_parameters(self):
+        """Plot LLM parameter scaling."""
+        output_path = Path("output") / "llm_parameter_scaling.png"
+        output_path.parent.mkdir(exist_ok=True)
+
+        try:
+            self.plotter.plot_llm_parameter_scaling(
+                self.llm_analyzer.models,
+                output_path
+            )
+            self.console.print(f"[green]✓ Plot saved to {output_path}[/green]")
+        except Exception as e:
+            self.console.print(f"[red]Error creating plot: {e}[/red]")
+
+    def plot_context_window(self):
+        """Plot context window evolution."""
+        output_path = Path("output") / "context_window_evolution.png"
+        output_path.parent.mkdir(exist_ok=True)
+
+        try:
+            self.plotter.plot_context_window_evolution(
+                self.llm_analyzer.models,
+                output_path
+            )
+            self.console.print(f"[green]✓ Plot saved to {output_path}[/green]")
+        except Exception as e:
+            self.console.print(f"[red]Error creating plot: {e}[/red]")
+
+    def plot_llm_capabilities(self):
+        """Plot LLM capability radar chart."""
+        # Get latest 5 models
+        latest_models = sorted(self.llm_analyzer.models, key=lambda m: m.year, reverse=True)[:5]
+
+        output_path = Path("output") / "llm_capabilities_radar.png"
+        output_path.parent.mkdir(exist_ok=True)
+
+        try:
+            self.plotter.plot_llm_capability_radar(latest_models, output_path)
+            self.console.print(f"[green]✓ Plot saved to {output_path}[/green]")
+        except Exception as e:
+            self.console.print(f"[red]Error creating plot: {e}[/red]")
+
+    def plot_growth_factors(self):
+        """Plot hardware growth factors."""
+        results = self.hw_analyzer.calculate_all_cagrs()
+
+        output_path = Path("output") / "growth_factors.png"
+        output_path.parent.mkdir(exist_ok=True)
+
+        try:
+            self.plotter.plot_growth_factors(results, output_path)
+            self.console.print(f"[green]✓ Plot saved to {output_path}[/green]")
+        except Exception as e:
+            self.console.print(f"[red]Error creating plot: {e}[/red]")
+
+    def comparison_menu(self):
+        """Hardware vs LLM comparison submenu."""
+        self.console.print("\n[bold cyan]Hardware vs LLM Evolution Comparison[/bold cyan]\n")
+
+        hw_cagr = self.hw_analyzer.calculate_all_cagrs()
+        llm_cagr = self.llm_analyzer.calculate_all_cagrs()
+
+        # Hardware summary
+        self.console.print("[yellow]Hardware Evolution (1965-2024)[/yellow]")
+        hw_table = Table(box=box.SIMPLE)
+        hw_table.add_column("Metric", style="cyan")
+        hw_table.add_column("CAGR %", justify="right", style="green")
+
+        for metric, result in hw_cagr.items():
+            hw_table.add_row(
+                metric.replace('_', ' ').title(),
+                f"{result.cagr_percent:.2f}%"
+            )
+
+        self.console.print(hw_table)
+        self.console.print()
+
+        # LLM summary
+        self.console.print("[yellow]LLM Evolution (2018-2024)[/yellow]")
+        llm_table = Table(box=box.SIMPLE)
+        llm_table.add_column("Metric", style="cyan")
+        llm_table.add_column("CAGR %", justify="right", style="green")
+
+        for metric, result in llm_cagr.items():
+            llm_table.add_row(
+                metric.replace('_', ' ').title(),
+                f"{result.cagr_percent:.2f}%"
+            )
+
+        self.console.print(llm_table)
+        self.console.print()
+
+        # Key insights
+        panel = Panel(
+            "[cyan]Key Insights:[/cyan]\n"
+            f"• Hardware transistors grew {hw_cagr['cpu_transistors'].growth_factor:.1f}x over 59 years\n"
+            f"• LLM parameters grew {llm_cagr['parameters_billions'].growth_factor:.1f}x in just 6 years\n"
+            f"• LLM scaling is {llm_cagr['parameters_billions'].cagr_percent / hw_cagr['cpu_transistors'].cagr_percent:.1f}x faster than transistor scaling\n"
+            f"• Context windows grew {llm_cagr['context_window'].growth_factor:.0f}x since 2018",
+            title="Comparison Summary",
+            border_style="yellow",
+        )
+        self.console.print(panel)
+
+        Prompt.ask("\nPress Enter to continue", default="")
+
     def run(self):
         """Run the CLI application."""
         try:
@@ -400,13 +862,13 @@ class CLI:
                 elif choice == "2":
                     self.llm_analysis_menu()
                 elif choice == "3":
-                    self.console.print("[yellow]Moore's Law analysis coming soon![/yellow]")
+                    self.moores_law_menu()
                 elif choice == "4":
-                    self.console.print("[yellow]Comparison coming soon![/yellow]")
+                    self.comparison_menu()
                 elif choice == "5":
-                    self.console.print("[yellow]Export features coming soon![/yellow]")
+                    self.export_menu()
                 elif choice == "6":
-                    self.console.print("[yellow]Visualizations coming soon![/yellow]")
+                    self.visualizations_menu()
 
         except KeyboardInterrupt:
             self.console.print("\n\n[yellow]Interrupted by user[/yellow]")
