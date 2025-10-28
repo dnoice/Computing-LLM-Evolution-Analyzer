@@ -237,3 +237,155 @@ class ComparisonResult:
             'moores_law_predicted': self.moores_law_predicted,
             'moores_law_accuracy': self.moores_law_accuracy
         }
+
+
+@dataclass
+class GPUMetrics:
+    """GPU (Graphics Processing Unit) metrics and specifications."""
+
+    name: str
+    year: int
+    manufacturer: str
+    series: str  # e.g., "GeForce RTX", "Radeon RX", "Arc"
+
+    # Core Architecture
+    architecture: str  # e.g., "Ada Lovelace", "RDNA 3", "Alchemist"
+    process_nm: int  # Process node in nanometers
+    transistors_millions: int  # Number of transistors in millions
+    die_size_mm2: float  # Die size in square millimeters
+
+    # Compute Units
+    cuda_cores: Optional[int] = None  # NVIDIA CUDA cores
+    stream_processors: Optional[int] = None  # AMD stream processors
+    execution_units: Optional[int] = None  # Intel execution units
+    tensor_cores: Optional[int] = None  # Tensor cores for AI/ML
+    rt_cores: Optional[int] = None  # Ray tracing cores
+
+    # Clock Speeds (MHz)
+    base_clock_mhz: float = 0.0
+    boost_clock_mhz: float = 0.0
+
+    # Memory
+    vram_mb: int = 0  # Video RAM in MB
+    memory_type: str = ""  # e.g., "GDDR6", "GDDR6X", "HBM2"
+    memory_bus_width: int = 0  # Memory bus width in bits
+    memory_bandwidth_gbps: float = 0.0  # Memory bandwidth in GB/s
+    memory_clock_mhz: float = 0.0
+
+    # Performance
+    tflops_fp32: float = 0.0  # Single precision TFLOPS
+    tflops_fp16: float = 0.0  # Half precision TFLOPS
+    tflops_int8: float = 0.0  # INT8 TOPS for AI
+    ray_tracing_tflops: Optional[float] = None  # RT performance
+
+    # Power & Thermals
+    tdp_watts: int = 0  # Thermal Design Power
+    power_connectors: str = ""  # e.g., "8-pin + 8-pin"
+
+    # Economics
+    launch_price_usd: float = 0.0
+    price_per_tflop: Optional[float] = None
+
+    # Capabilities
+    directx_version: str = ""  # e.g., "12 Ultimate"
+    opengl_version: str = ""
+    vulkan_support: bool = False
+    ray_tracing_support: bool = False
+    dlss_support: bool = False  # NVIDIA DLSS
+    fsr_support: bool = False  # AMD FSR
+    xess_support: bool = False  # Intel XeSS
+
+    # Display
+    max_displays: int = 0
+    max_resolution: str = ""  # e.g., "8K @ 60Hz"
+
+    # Additional metadata
+    release_date: Optional[str] = None
+    notes: str = ""
+
+    def compute_efficiency_metrics(self) -> Dict[str, float]:
+        """Compute derived efficiency metrics."""
+        metrics = {}
+
+        # Compute cores (unified metric)
+        total_cores = 0
+        if self.cuda_cores:
+            total_cores = self.cuda_cores
+        elif self.stream_processors:
+            total_cores = self.stream_processors
+        elif self.execution_units:
+            total_cores = self.execution_units
+        metrics['total_compute_cores'] = total_cores
+
+        # Performance per watt
+        if self.tflops_fp32 > 0 and self.tdp_watts > 0:
+            metrics['tflops_per_watt'] = self.tflops_fp32 / self.tdp_watts
+
+        # Performance per dollar
+        if self.tflops_fp32 > 0 and self.launch_price_usd > 0:
+            metrics['tflops_per_dollar'] = self.tflops_fp32 / self.launch_price_usd
+            self.price_per_tflop = self.launch_price_usd / self.tflops_fp32
+            metrics['price_per_tflop'] = self.price_per_tflop
+
+        # Memory bandwidth per core
+        if total_cores > 0 and self.memory_bandwidth_gbps > 0:
+            metrics['bandwidth_per_core_mbps'] = (self.memory_bandwidth_gbps * 1000) / total_cores
+
+        # Transistor density
+        if self.transistors_millions > 0 and self.die_size_mm2 > 0:
+            metrics['transistor_density_per_mm2'] = (self.transistors_millions * 1_000_000) / self.die_size_mm2
+
+        # Performance density
+        if self.tflops_fp32 > 0 and self.die_size_mm2 > 0:
+            metrics['tflops_per_mm2'] = self.tflops_fp32 / self.die_size_mm2
+
+        return metrics
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert to dictionary."""
+        base_dict = {
+            'name': self.name,
+            'year': self.year,
+            'manufacturer': self.manufacturer,
+            'series': self.series,
+            'architecture': self.architecture,
+            'process_nm': self.process_nm,
+            'transistors_millions': self.transistors_millions,
+            'die_size_mm2': self.die_size_mm2,
+            'cuda_cores': self.cuda_cores,
+            'stream_processors': self.stream_processors,
+            'execution_units': self.execution_units,
+            'tensor_cores': self.tensor_cores,
+            'rt_cores': self.rt_cores,
+            'base_clock_mhz': self.base_clock_mhz,
+            'boost_clock_mhz': self.boost_clock_mhz,
+            'vram_mb': self.vram_mb,
+            'memory_type': self.memory_type,
+            'memory_bus_width': self.memory_bus_width,
+            'memory_bandwidth_gbps': self.memory_bandwidth_gbps,
+            'memory_clock_mhz': self.memory_clock_mhz,
+            'tflops_fp32': self.tflops_fp32,
+            'tflops_fp16': self.tflops_fp16,
+            'tflops_int8': self.tflops_int8,
+            'ray_tracing_tflops': self.ray_tracing_tflops,
+            'tdp_watts': self.tdp_watts,
+            'power_connectors': self.power_connectors,
+            'launch_price_usd': self.launch_price_usd,
+            'price_per_tflop': self.price_per_tflop,
+            'directx_version': self.directx_version,
+            'opengl_version': self.opengl_version,
+            'vulkan_support': self.vulkan_support,
+            'ray_tracing_support': self.ray_tracing_support,
+            'dlss_support': self.dlss_support,
+            'fsr_support': self.fsr_support,
+            'xess_support': self.xess_support,
+            'max_displays': self.max_displays,
+            'max_resolution': self.max_resolution,
+            'release_date': self.release_date,
+            'notes': self.notes,
+        }
+
+        # Add computed efficiency metrics
+        base_dict.update(self.compute_efficiency_metrics())
+
+        return base_dict
