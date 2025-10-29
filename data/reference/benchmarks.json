@@ -1,0 +1,206 @@
+{
+  "description": "Industry-standard benchmarks and reference measurements",
+  "version": "1.0.0",
+  "last_updated": "2024-10-29",
+
+  "llm_benchmarks": {
+    "description": "Standard LLM evaluation benchmarks",
+    "benchmarks": {
+      "MMLU": {
+        "name": "Massive Multitask Language Understanding",
+        "description": "57 subjects across STEM, humanities, social sciences",
+        "scale": "0-100%",
+        "human_expert_baseline": 89.8,
+        "random_baseline": 25.0,
+        "notes": "Gold standard for general knowledge evaluation"
+      },
+      "HumanEval": {
+        "name": "HumanEval Coding Benchmark",
+        "description": "164 hand-written programming problems",
+        "scale": "0-100%",
+        "human_expert_baseline": 90.0,
+        "random_baseline": 0.0,
+        "notes": "Standard coding capability test"
+      },
+      "GSM8K": {
+        "name": "Grade School Math 8K",
+        "description": "8,500 grade school math word problems",
+        "scale": "0-100%",
+        "human_expert_baseline": 95.0,
+        "random_baseline": 2.0,
+        "notes": "Mathematical reasoning test"
+      },
+      "HellaSwag": {
+        "name": "HellaSwag Common Sense",
+        "description": "Physical and temporal common sense reasoning",
+        "scale": "0-100%",
+        "human_baseline": 95.6,
+        "random_baseline": 25.0,
+        "notes": "Tests common sense reasoning"
+      },
+      "TruthfulQA": {
+        "name": "TruthfulQA",
+        "description": "Questions that humans might answer incorrectly due to misconceptions",
+        "scale": "0-100%",
+        "human_baseline": 94.0,
+        "gpt3_baseline": 27.6,
+        "notes": "Tests factual accuracy and truthfulness"
+      }
+    }
+  },
+
+  "gpu_benchmarks": {
+    "description": "Standard GPU performance benchmarks",
+    "benchmarks": {
+      "3DMark_TimeSpy": {
+        "name": "3DMark Time Spy",
+        "description": "DirectX 12 gaming benchmark",
+        "unit": "score",
+        "notes": "Industry standard for gaming performance"
+      },
+      "Geekbench_Compute": {
+        "name": "Geekbench Compute",
+        "description": "Cross-platform compute benchmark",
+        "unit": "score",
+        "apis": ["CUDA", "OpenCL", "Metal", "Vulkan"],
+        "notes": "Standardized compute performance measurement"
+      },
+      "MLPerf_Training": {
+        "name": "MLPerf Training",
+        "description": "ML model training benchmark",
+        "unit": "minutes to accuracy",
+        "models": ["ResNet-50", "BERT", "Mask R-CNN"],
+        "notes": "Standard for ML training performance"
+      },
+      "MLPerf_Inference": {
+        "name": "MLPerf Inference",
+        "description": "ML model inference benchmark",
+        "unit": "queries per second",
+        "models": ["ResNet-50", "SSD-MobileNet", "BERT"],
+        "notes": "Standard for ML inference performance"
+      }
+    }
+  },
+
+  "hardware_benchmarks": {
+    "description": "CPU and system benchmarks",
+    "benchmarks": {
+      "SPEC_CPU2017": {
+        "name": "SPEC CPU 2017",
+        "description": "Industry-standard CPU benchmark",
+        "subtests": ["SPECspeed 2017 Integer", "SPECspeed 2017 Floating Point"],
+        "notes": "Comprehensive CPU performance measurement"
+      },
+      "Geekbench_6": {
+        "name": "Geekbench 6",
+        "description": "Cross-platform CPU benchmark",
+        "subtests": ["Single-Core", "Multi-Core"],
+        "notes": "Widely used consumer CPU benchmark"
+      },
+      "Cinebench_R23": {
+        "name": "Cinebench R23",
+        "description": "Cinema 4D rendering benchmark",
+        "unit": "points",
+        "notes": "Popular rendering performance test"
+      },
+      "LINPACK": {
+        "name": "LINPACK Benchmark",
+        "description": "Floating point arithmetic benchmark",
+        "unit": "GFLOPS",
+        "notes": "Used for TOP500 supercomputer rankings"
+      }
+    }
+  },
+
+  "real_world_performance": {
+    "description": "Real-world performance metrics from production systems",
+    "llm_inference": {
+      "tokens_per_second": {
+        "A100_40GB": {
+          "model_7B": 120,
+          "model_13B": 80,
+          "model_70B": 25,
+          "notes": "Approximate tokens/sec on single GPU"
+        },
+        "H100_80GB": {
+          "model_7B": 300,
+          "model_13B": 200,
+          "model_70B": 60,
+          "model_175B": 15,
+          "notes": "Approximate tokens/sec on single GPU"
+        }
+      },
+      "batch_size_impact": {
+        "description": "Performance improvement with batch size",
+        "batch_1": 1.0,
+        "batch_8": 3.5,
+        "batch_32": 8.0,
+        "batch_128": 15.0,
+        "notes": "Relative throughput multiplier"
+      }
+    },
+    "training_throughput": {
+      "description": "Training throughput in tokens/sec",
+      "A100_40GB_8x": {
+        "model_7B": 45000,
+        "model_13B": 28000,
+        "model_70B": 6500,
+        "notes": "8x A100 40GB cluster with NVLink"
+      },
+      "H100_80GB_8x": {
+        "model_7B": 110000,
+        "model_13B": 72000,
+        "model_70B": 18000,
+        "model_175B": 5000,
+        "notes": "8x H100 80GB cluster with NVSwitch"
+      }
+    }
+  },
+
+  "efficiency_metrics": {
+    "description": "Standard efficiency measurements",
+    "performance_per_watt": {
+      "description": "Performance per watt ratios",
+      "unit": "GFLOPS/W",
+      "targets": {
+        "high_end_gpu_2024": 350,
+        "high_end_gpu_2020": 150,
+        "high_end_gpu_2016": 50,
+        "notes": "FP32 performance per watt"
+      }
+    },
+    "cost_per_tflop": {
+      "description": "Cost efficiency over time",
+      "unit": "USD/TFLOP",
+      "historical": {
+        "2016": 25.0,
+        "2020": 12.0,
+        "2024": 6.0,
+        "notes": "Consumer GPU MSRP / FP32 TFLOPS"
+      }
+    }
+  },
+
+  "scaling_laws": {
+    "description": "Empirical scaling laws for LLMs",
+    "chinchilla_scaling": {
+      "description": "Chinchilla optimal training",
+      "optimal_tokens_per_parameter": 20,
+      "formula": "optimal_tokens = 20 * parameters",
+      "reference": "Hoffmann et al. 2022"
+    },
+    "kaplan_scaling": {
+      "description": "Original GPT-3 scaling laws",
+      "compute_optimal_model_size": "formula: N ~ C^0.73",
+      "dataset_optimal": "formula: D ~ C^0.27",
+      "reference": "Kaplan et al. 2020",
+      "notes": "Superseded by Chinchilla findings"
+    },
+    "inference_cost_scaling": {
+      "description": "Inference cost scales with model size",
+      "cost_per_token_scaling": "approximately linear with parameters",
+      "latency_scaling": "approximately linear with model depth",
+      "notes": "Batching can amortize costs significantly"
+    }
+  }
+}

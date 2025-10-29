@@ -1,0 +1,139 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Cloud Instance Schema",
+  "description": "Schema for cloud GPU instance specifications and pricing",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": [
+      "provider", "instance_type", "instance_family", "year", "region",
+      "gpu_count", "gpu_model", "gpu_memory_gb",
+      "vcpus", "ram_gb", "storage_gb", "storage_type",
+      "network_bandwidth_gbps", "gpu_interconnect", "gpu_interconnect_bandwidth_gbps",
+      "tflops_fp32", "tflops_fp16", "tflops_int8", "tensor_cores",
+      "price_ondemand_hourly", "price_spot_hourly",
+      "price_1yr_reserved_hourly", "price_3yr_reserved_hourly",
+      "ml_optimized", "inference_optimized", "training_optimized", "supports_multi_node",
+      "storage_cost_per_gb_month", "egress_cost_per_gb",
+      "availability", "notes"
+    ],
+    "properties": {
+      "provider": {
+        "type": "string",
+        "enum": ["AWS", "Azure", "GCP", "Other"]
+      },
+      "instance_type": {
+        "type": "string",
+        "minLength": 1
+      },
+      "instance_family": {
+        "type": "string",
+        "minLength": 1
+      },
+      "year": {
+        "type": "integer",
+        "minimum": 2015,
+        "maximum": 2030
+      },
+      "region": {
+        "type": "string",
+        "minLength": 1
+      },
+      "gpu_count": {
+        "type": "integer",
+        "minimum": 0
+      },
+      "gpu_model": {
+        "type": "string"
+      },
+      "gpu_memory_gb": {
+        "type": "integer",
+        "minimum": 0
+      },
+      "vcpus": {
+        "type": "integer",
+        "minimum": 1
+      },
+      "ram_gb": {
+        "type": "number",
+        "minimum": 1
+      },
+      "storage_gb": {
+        "type": "integer",
+        "minimum": 0
+      },
+      "storage_type": {
+        "type": "string"
+      },
+      "network_bandwidth_gbps": {
+        "type": "number",
+        "minimum": 0
+      },
+      "gpu_interconnect": {
+        "type": "string"
+      },
+      "gpu_interconnect_bandwidth_gbps": {
+        "type": "number",
+        "minimum": 0
+      },
+      "tflops_fp32": {
+        "type": "number",
+        "minimum": 0
+      },
+      "tflops_fp16": {
+        "type": "number",
+        "minimum": 0
+      },
+      "tflops_int8": {
+        "type": "number",
+        "minimum": 0
+      },
+      "tensor_cores": {
+        "type": "boolean"
+      },
+      "price_ondemand_hourly": {
+        "type": "number",
+        "minimum": 0
+      },
+      "price_spot_hourly": {
+        "type": "number",
+        "minimum": 0
+      },
+      "price_1yr_reserved_hourly": {
+        "type": "number",
+        "minimum": 0
+      },
+      "price_3yr_reserved_hourly": {
+        "type": "number",
+        "minimum": 0
+      },
+      "ml_optimized": {
+        "type": "boolean"
+      },
+      "inference_optimized": {
+        "type": "boolean"
+      },
+      "training_optimized": {
+        "type": "boolean"
+      },
+      "supports_multi_node": {
+        "type": "boolean"
+      },
+      "storage_cost_per_gb_month": {
+        "type": "number",
+        "minimum": 0
+      },
+      "egress_cost_per_gb": {
+        "type": "number",
+        "minimum": 0
+      },
+      "availability": {
+        "type": "string",
+        "enum": ["GA", "Preview", "Limited", "Deprecated"]
+      },
+      "notes": {
+        "type": "string"
+      }
+    }
+  }
+}

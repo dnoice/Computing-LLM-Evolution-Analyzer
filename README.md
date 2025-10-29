@@ -226,6 +226,32 @@ Computing-LLM-Evolution-Analyzer/
 - Comprehensive metrics: GPU specs, pricing (on-demand, spot, reserved), TFLOPS, memory, interconnect
 - Training and inference-optimized configurations
 
+### Data Infrastructure
+
+The project includes a comprehensive data infrastructure with:
+
+- **📚 Complete Documentation**: Detailed README files for each dataset with usage examples, coverage statistics, and historical context
+- **✅ Validation Schemas**: JSON schemas for all datasets ensuring data quality and consistency
+- **📊 Reference Data**: Benchmarks, theoretical limits, and conversion factors for analysis
+- **🔍 Quality Tools**: Automated validation and statistics generation scripts
+- **📝 Source Attribution**: Complete documentation of data sources and methodology
+- **📈 Version Control**: Changelog tracking all dataset updates and improvements
+
+**Quick Links:**
+- [Data Directory Overview](data/README.md) - Comprehensive dataset documentation
+- [Validation Scripts](scripts/README.md) - Data quality and validation tools
+- [Data Sources](data/SOURCES.md) - Source attribution and methodology
+- [Changelog](data/CHANGELOG.md) - Version history and updates
+
+**Validate Data:**
+```bash
+# Validate all datasets
+python scripts/validate_data.py
+
+# Generate statistics report
+python scripts/data_statistics.py
+```
+
 ## Contributing
 
 Contributions are welcome! Please feel free to submit pull requests or open issues.

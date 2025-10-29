@@ -1,0 +1,251 @@
+{
+  "description": "Theoretical and physical limits for computing technologies",
+  "version": "1.0.0",
+  "last_updated": "2024-10-29",
+
+  "semiconductor_limits": {
+    "description": "Physical limits for semiconductor technology",
+    "process_node_limits": {
+      "silicon_atomic_limit": {
+        "value": 0.2,
+        "unit": "nm",
+        "description": "Silicon lattice constant (theoretical minimum)",
+        "notes": "Below 2nm, quantum effects dominate"
+      },
+      "practical_silicon_limit": {
+        "value": 1,
+        "unit": "nm",
+        "description": "Practical lower bound for silicon transistors",
+        "expected_year": 2030,
+        "notes": "Gate oxide thickness and quantum tunneling limits"
+      },
+      "current_node_2024": {
+        "value": 3,
+        "unit": "nm",
+        "description": "State of the art in 2024",
+        "manufacturers": ["TSMC", "Samsung"]
+      }
+    },
+    "transistor_density_limits": {
+      "current_2024": {
+        "value": 300,
+        "unit": "million transistors per mm²",
+        "node": "3nm",
+        "notes": "Apple M3, AMD Ryzen 9000"
+      },
+      "projected_2030": {
+        "value": 1000,
+        "unit": "million transistors per mm²",
+        "node": "1nm equivalent",
+        "notes": "Gate-all-around FETs, 3D stacking"
+      }
+    },
+    "clock_frequency_limits": {
+      "practical_limit_air_cooling": {
+        "value": 6000,
+        "unit": "MHz",
+        "power_watts": 300,
+        "notes": "Limited by power density and heat dissipation"
+      },
+      "theoretical_limit_silicon": {
+        "value": 10000,
+        "unit": "MHz",
+        "notes": "Limited by electron mobility in silicon",
+        "alternative_materials": ["Graphene", "Carbon nanotubes"]
+      }
+    }
+  },
+
+  "moores_law": {
+    "description": "Moore's Law predictions and deviations",
+    "original_formulation": {
+      "doubling_period": 24,
+      "unit": "months",
+      "metric": "transistor count",
+      "year": 1965,
+      "author": "Gordon Moore"
+    },
+    "revised_formulation": {
+      "doubling_period": 24,
+      "unit": "months",
+      "metric": "transistor count",
+      "year": 1975,
+      "notes": "Refined prediction, held until ~2015"
+    },
+    "current_trend_2020_2024": {
+      "doubling_period": 30,
+      "unit": "months",
+      "notes": "Slowing down due to physical limits"
+    },
+    "predicted_end": {
+      "year_range": "2025-2030",
+      "reason": "Physical and economic limits of silicon scaling",
+      "successors": ["3D stacking", "Photonics", "Quantum computing"]
+    }
+  },
+
+  "memory_limits": {
+    "description": "Memory technology limits",
+    "dram_scaling": {
+      "current_node_2024": 10,
+      "practical_limit": 5,
+      "unit": "nm",
+      "limit_reason": "Charge storage capacitance minimum",
+      "alternative": "MRAM, ReRAM, 3D stacking"
+    },
+    "bandwidth_limits": {
+      "ddr5_theoretical": 64,
+      "hbm3_theoretical": 819,
+      "unit": "GB/s per channel",
+      "future_tech": {
+        "hbm4_target": 1600,
+        "year": 2026,
+        "unit": "GB/s"
+      }
+    }
+  },
+
+  "power_efficiency_limits": {
+    "description": "Fundamental limits on power efficiency",
+    "landauer_limit": {
+      "value": 2.99e-21,
+      "unit": "Joules per bit operation",
+      "temperature": 300,
+      "unit_temp": "Kelvin",
+      "description": "Thermodynamic minimum energy to erase one bit",
+      "notes": "Current GPUs use ~1 million times more energy"
+    },
+    "practical_limits": {
+      "modern_gpu_2024": {
+        "value": 3e-12,
+        "unit": "Joules per FLOP",
+        "example": "RTX 4090",
+        "efficiency_gap": "1,000,000x above Landauer limit"
+      },
+      "future_target_2030": {
+        "value": 1e-12,
+        "unit": "Joules per FLOP",
+        "improvement_needed": "3x from 2024",
+        "notes": "Requires new materials and architectures"
+      }
+    }
+  },
+
+  "data_limits": {
+    "description": "Limits on available training data",
+    "text_data": {
+      "total_internet_text": {
+        "value": 50,
+        "unit": "trillion tokens",
+        "year": 2024,
+        "notes": "Estimate of all accessible internet text"
+      },
+      "high_quality_filtered": {
+        "value": 5,
+        "unit": "trillion tokens",
+        "notes": "After quality filtering and deduplication"
+      },
+      "currently_used": {
+        "value": 20,
+        "unit": "trillion tokens",
+        "model": "GPT-4o (estimated)",
+        "notes": "Frontier models approaching total available data"
+      }
+    },
+    "multimodal_data": {
+      "image_text_pairs": {
+        "value": 5,
+        "unit": "billion pairs",
+        "source": "LAION-5B and similar datasets"
+      },
+      "video_hours": {
+        "value": 1,
+        "unit": "billion hours",
+        "source": "YouTube and public videos",
+        "notes": "Quality and copyright limits availability"
+      }
+    }
+  },
+
+  "cost_limits": {
+    "description": "Economic limits on model scaling",
+    "training_costs": {
+      "gpt3_2020": {
+        "value": 4.6,
+        "unit": "million USD",
+        "parameters": 175
+      },
+      "gpt4_2023_estimated": {
+        "value": 100,
+        "unit": "million USD",
+        "parameters": 1760
+      },
+      "economic_ceiling": {
+        "value": 1000,
+        "unit": "million USD",
+        "notes": "Beyond this, ROI becomes questionable for commercial models"
+      }
+    },
+    "inference_costs": {
+      "cost_per_token_trend": {
+        "2020": 0.02,
+        "2024": 0.005,
+        "unit": "USD per 1000 tokens",
+        "trend": "Decreasing due to optimization and competition"
+      }
+    }
+  },
+
+  "cooling_limits": {
+    "description": "Heat dissipation limits",
+    "air_cooling_limit": {
+      "value": 300,
+      "unit": "watts per chip",
+      "notes": "Practical limit for consumer hardware"
+    },
+    "liquid_cooling_limit": {
+      "value": 600,
+      "unit": "watts per chip",
+      "notes": "Used in high-end GPUs (e.g., H100)"
+      },
+    "immersion_cooling": {
+      "value": 1000,
+      "unit": "watts per chip",
+      "notes": "Used in data centers, not practical for consumers"
+    },
+    "power_density_limit": {
+      "value": 100,
+      "unit": "watts per cm²",
+      "notes": "Above this, hotspots become problematic"
+    }
+  },
+
+  "alternative_computing": {
+    "description": "Post-silicon alternatives",
+    "quantum_computing": {
+      "status": "Research phase",
+      "current_qubits": 1000,
+      "error_corrected_target": 1000000,
+      "useful_applications": "Specialized algorithms only",
+      "timeline": "2030+ for practical applications"
+    },
+    "photonic_computing": {
+      "status": "Early development",
+      "advantages": ["Lower power", "Higher bandwidth"],
+      "challenges": ["Integration with electronics", "Manufacturing"],
+      "timeline": "2035+ for commercial products"
+    },
+    "neuromorphic_computing": {
+      "status": "Research and niche applications",
+      "efficiency_advantage": "1000x lower power for specific tasks",
+      "limitations": "Specialized applications only",
+      "timeline": "2025+ for edge AI devices"
+    },
+    "dna_computing": {
+      "status": "Theoretical/research only",
+      "advantages": ["Extreme density", "Parallel processing"],
+      "challenges": ["Speed", "Error rates", "Practicality"],
+      "timeline": "2040+ if ever"
+    }
+  }
+}

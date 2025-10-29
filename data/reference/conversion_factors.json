@@ -1,0 +1,243 @@
+{
+  "description": "Unit conversion factors and standard definitions",
+  "version": "1.0.0",
+  "last_updated": "2024-10-29",
+
+  "memory_units": {
+    "description": "Memory and storage unit conversions",
+    "bytes_to_bits": 8,
+    "kilobyte": {
+      "bytes": 1024,
+      "abbreviation": "KB",
+      "notes": "Binary kilobyte (KiB)"
+    },
+    "megabyte": {
+      "bytes": 1048576,
+      "kilobytes": 1024,
+      "abbreviation": "MB",
+      "notes": "Binary megabyte (MiB)"
+    },
+    "gigabyte": {
+      "bytes": 1073741824,
+      "megabytes": 1024,
+      "abbreviation": "GB",
+      "notes": "Binary gigabyte (GiB)"
+    },
+    "terabyte": {
+      "bytes": 1099511627776,
+      "gigabytes": 1024,
+      "abbreviation": "TB",
+      "notes": "Binary terabyte (TiB)"
+    }
+  },
+
+  "performance_units": {
+    "description": "Performance metric conversions",
+    "flops": {
+      "description": "Floating Point Operations Per Second",
+      "abbreviation": "FLOPS"
+    },
+    "gigaflops": {
+      "flops": 1e9,
+      "abbreviation": "GFLOPS"
+    },
+    "teraflops": {
+      "flops": 1e12,
+      "gigaflops": 1000,
+      "abbreviation": "TFLOPS"
+    },
+    "petaflops": {
+      "flops": 1e15,
+      "teraflops": 1000,
+      "abbreviation": "PFLOPS"
+    },
+    "mips": {
+      "description": "Million Instructions Per Second",
+      "abbreviation": "MIPS",
+      "notes": "CPU performance metric, varies by instruction mix"
+    }
+  },
+
+  "bandwidth_units": {
+    "description": "Data transfer rate conversions",
+    "gigabits_per_second": {
+      "bits_per_second": 1e9,
+      "abbreviation": "Gbps",
+      "bytes_per_second": 125000000,
+      "notes": "Network bandwidth typically measured in bits/s"
+    },
+    "gigabytes_per_second": {
+      "bytes_per_second": 1e9,
+      "abbreviation": "GB/s",
+      "bits_per_second": 8e9,
+      "notes": "Memory bandwidth typically measured in bytes/s"
+    }
+  },
+
+  "power_units": {
+    "description": "Power and energy conversions",
+    "watt": {
+      "description": "Unit of power (energy per time)",
+      "abbreviation": "W"
+    },
+    "kilowatt": {
+      "watts": 1000,
+      "abbreviation": "kW"
+    },
+    "kilowatt_hour": {
+      "description": "Unit of energy",
+      "watt_hours": 1000,
+      "joules": 3600000,
+      "abbreviation": "kWh",
+      "notes": "Common unit for electricity billing"
+    },
+    "joule": {
+      "description": "SI unit of energy",
+      "watt_seconds": 1,
+      "abbreviation": "J"
+    }
+  },
+
+  "time_units": {
+    "description": "Time conversions",
+    "second": {
+      "milliseconds": 1000,
+      "microseconds": 1000000,
+      "nanoseconds": 1e9,
+      "abbreviation": "s"
+    },
+    "minute": {
+      "seconds": 60,
+      "abbreviation": "min"
+    },
+    "hour": {
+      "minutes": 60,
+      "seconds": 3600,
+      "abbreviation": "hr"
+    },
+    "day": {
+      "hours": 24,
+      "seconds": 86400,
+      "abbreviation": "d"
+    },
+    "year": {
+      "days": 365.25,
+      "hours": 8766,
+      "seconds": 31557600,
+      "abbreviation": "yr",
+      "notes": "Average year including leap years"
+    }
+  },
+
+  "process_node_naming": {
+    "description": "Process node technology naming conventions",
+    "notes": "Modern nodes are marketing names, not actual feature sizes",
+    "equivalences": {
+      "tsmc_5nm": {
+        "actual_gate_pitch": 48,
+        "metal_pitch": 28,
+        "transistor_density": "~171M/mm²",
+        "notes": "TSMC N5"
+      },
+      "tsmc_3nm": {
+        "actual_gate_pitch": 48,
+        "metal_pitch": 24,
+        "transistor_density": "~292M/mm²",
+        "notes": "TSMC N3, similar gate pitch to 5nm"
+      },
+      "intel_7nm": {
+        "roughly_equivalent_to": "TSMC 5nm",
+        "notes": "Different measurement methodologies"
+      }
+    }
+  },
+
+  "llm_tokens": {
+    "description": "Token counting approximations",
+    "english_text": {
+      "tokens_per_word": 1.3,
+      "words_per_token": 0.77,
+      "notes": "Approximate for typical English text"
+    },
+    "code": {
+      "tokens_per_character": 0.3,
+      "notes": "Code is more token-dense than natural language"
+    },
+    "common_books": {
+      "tokens_per_page": 300,
+      "tokens_per_novel": 100000,
+      "notes": "Approximate for average novel"
+    }
+  },
+
+  "cost_conversions": {
+    "description": "Common cost metric conversions",
+    "inference_cost": {
+      "tokens_per_1k": 1000,
+      "tokens_per_1m": 1000000,
+      "notes": "API pricing typically per million tokens"
+    },
+    "cloud_compute": {
+      "hours_per_day": 24,
+      "hours_per_month": 730,
+      "hours_per_year": 8760,
+      "notes": "Average hours for billing calculations"
+    }
+  },
+
+  "gpu_compute_conversions": {
+    "description": "GPU compute operation conversions",
+    "fp32_to_fp16": {
+      "ratio": 2,
+      "notes": "FP16 typically 2x throughput of FP32 with tensor cores"
+    },
+    "fp16_to_int8": {
+      "ratio": 2,
+      "notes": "INT8 typically 2x throughput of FP16"
+    },
+    "tensor_core_speedup": {
+      "fp16_vs_cuda_cores": "8-16x",
+      "int8_vs_cuda_cores": "16-32x",
+      "notes": "Speedup varies by architecture and workload"
+    }
+  },
+
+  "inflation_adjustments": {
+    "description": "US Dollar inflation factors (base year: 2024)",
+    "note": "For historical price comparisons",
+    "factors": {
+      "1965": 9.48,
+      "1980": 3.67,
+      "1990": 2.21,
+      "2000": 1.70,
+      "2010": 1.35,
+      "2020": 1.13,
+      "2024": 1.00
+    },
+    "source": "US Bureau of Labor Statistics CPI",
+    "example": "A $100 item in 1980 = $367 in 2024 dollars"
+  },
+
+  "energy_cost": {
+    "description": "Electricity cost estimates",
+    "us_average_2024": {
+      "cost_per_kwh": 0.16,
+      "unit": "USD",
+      "notes": "US average residential electricity rate"
+    },
+    "data_center_2024": {
+      "cost_per_kwh": 0.07,
+      "unit": "USD",
+      "notes": "Typical data center rate with bulk pricing"
+    },
+    "calculation_example": {
+      "description": "Cost to run 400W GPU for 1 month",
+      "power_watts": 400,
+      "hours": 730,
+      "kwh": 292,
+      "cost_residential": 46.72,
+      "cost_datacenter": 20.44,
+      "currency": "USD"
+    }
+  }
+}
