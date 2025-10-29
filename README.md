@@ -182,11 +182,33 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Roadmap
 
-- [x] Add GPU analysis (✓ Completed)
-- [ ] Include cloud computing costs
+### Completed Features
+- [x] Hardware evolution analysis (CPU, RAM, Storage)
+- [x] GPU comprehensive analysis (TFLOPS, VRAM, efficiency)
+- [x] LLM scaling analysis
+- [x] Moore's Law analysis
+- [x] Interactive CLI with Rich integration
+- [x] CAGR calculations for all metrics
+- [x] Advanced visualizations (charts, heatmaps, radar plots)
+- [x] Multi-format exports (JSON, CSV, Markdown, Text)
+- [x] GPU manufacturer comparisons
+- [x] Economic analysis (cost per performance)
+
+### In Progress
+- [ ] Enhanced energy consumption analysis
+- [ ] Extended dataset coverage (2025+ models)
+
+### Planned Features
+- [ ] Cloud computing cost analysis (AWS, Azure, GCP)
 - [ ] Interactive web dashboard
-- [ ] Real-time data updates
-- [ ] Energy consumption analysis
+- [ ] Real-time data updates from APIs
+- [ ] Inference cost calculator
+- [ ] Carbon footprint analysis
+- [ ] Training cost estimator
+- [ ] Benchmark database integration
+- [ ] Custom dataset support
+- [ ] API endpoint for programmatic access
+- [ ] Comparative analysis reports (PDF generation)
 
 ## Version
 
