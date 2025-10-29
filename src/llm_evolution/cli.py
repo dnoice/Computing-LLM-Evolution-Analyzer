@@ -1301,18 +1301,31 @@ class CLI:
         self.console.print()
 
         # Key insights
+        llm_vs_cpu_ratio = llm_cagr['parameters_billions'].cagr_percent / hw_cagr['cpu_transistors'].cagr_percent
+        gpu_vs_cpu_ratio = gpu_cagr['tflops_fp32'].cagr_percent / hw_cagr['cpu_transistors'].cagr_percent
+
         panel = Panel(
             "[cyan]Key Insights:[/cyan]\n"
-            f"• CPU transistors grew {hw_cagr['cpu_transistors'].growth_factor:.1f}x over 59 years ({hw_cagr['cpu_transistors'].cagr_percent:.1f}% CAGR)\n"
-            f"• GPU TFLOPS grew {gpu_cagr['tflops_fp32'].growth_factor:.1f}x over 25 years ({gpu_cagr['tflops_fp32'].cagr_percent:.1f}% CAGR)\n"
-            f"• GPU VRAM grew {gpu_cagr['vram_mb'].growth_factor:.0f}x over 25 years ({gpu_cagr['vram_mb'].cagr_percent:.1f}% CAGR)\n"
-            f"• LLM parameters grew {llm_cagr['parameters_billions'].growth_factor:.1f}x in just 6 years ({llm_cagr['parameters_billions'].cagr_percent:.1f}% CAGR)\n"
-            f"• LLM scaling is {llm_cagr['parameters_billions'].cagr_percent / hw_cagr['cpu_transistors'].cagr_percent:.1f}x faster than CPU transistor scaling\n"
-            f"• GPU performance scaling is {gpu_cagr['tflops_fp32'].cagr_percent / hw_cagr['cpu_transistors'].cagr_percent:.1f}x faster than CPU transistor scaling",
+            f"• CPU transistors grew {hw_cagr['cpu_transistors'].growth_factor:.1f}x over [bold]59 years[/bold] ({hw_cagr['cpu_transistors'].cagr_percent:.1f}% CAGR)\n"
+            f"• GPU TFLOPS grew {gpu_cagr['tflops_fp32'].growth_factor:.1f}x over [bold]25 years[/bold] ({gpu_cagr['tflops_fp32'].cagr_percent:.1f}% CAGR)\n"
+            f"• GPU VRAM grew {gpu_cagr['vram_mb'].growth_factor:.0f}x over [bold]25 years[/bold] ({gpu_cagr['vram_mb'].cagr_percent:.1f}% CAGR)\n"
+            f"• LLM parameters grew {llm_cagr['parameters_billions'].growth_factor:.1f}x in just [bold]6 years[/bold] ({llm_cagr['parameters_billions'].cagr_percent:.1f}% CAGR)\n"
+            f"  [yellow]⚠[/yellow] LLM CAGR appears {llm_vs_cpu_ratio:.1f}x faster than CPU scaling, [italic]but this is temporary[/italic]\n"
+            f"• GPU performance CAGR is {gpu_vs_cpu_ratio:.1f}x CPU transistor CAGR (more sustainable)",
             title="Comparison Summary",
             border_style="yellow",
         )
         self.console.print(panel)
+
+        # Add important context about the comparison
+        self.console.print(
+            "\n[bold yellow]⚠ Important Context:[/bold yellow]\n"
+            "[yellow]The LLM scaling rate is NOT directly comparable to hardware trends because:[/yellow]\n"
+            "  1. [cyan]Different time periods:[/cyan] 6 years (LLM) vs 59 years (CPU) vs 25 years (GPU)\n"
+            "  2. [cyan]Temporary phase:[/cyan] LLM scaling represents initial research phase, not sustainable trend\n"
+            "  3. [cyan]Different constraints:[/cyan] Hardware limited by physics; LLMs limited by data, compute, and economics\n"
+            "  4. [cyan]Expected slowdown:[/cyan] LLM scaling will normalize to 20-50% CAGR as field matures\n"
+        )
 
         Prompt.ask("\nPress Enter to continue", default="")
 
