@@ -26,14 +26,50 @@ class CloudCostAnalyzer:
         self.load_data()
 
     def load_data(self) -> None:
-        """Load cloud instance data from JSON file."""
-        with open(self.data_path, 'r') as f:
-            data = json.load(f)
+        """Load cloud instance data from JSON file.
+
+        Raises:
+            FileNotFoundError: If data file doesn't exist
+            json.JSONDecodeError: If JSON is malformed
+            ValueError: If instance data is invalid
+        """
+        try:
+            with open(self.data_path, 'r') as f:
+                data = json.load(f)
+        except FileNotFoundError:
+            raise FileNotFoundError(
+                f"Cloud instance data file not found: {self.data_path}. "
+                f"Please ensure data/cloud/instances.json exists."
+            )
+        except json.JSONDecodeError as e:
+            raise json.JSONDecodeError(
+                f"Invalid JSON in {self.data_path}: {e.msg}",
+                e.doc,
+                e.pos
+            )
+
+        if not isinstance(data, list):
+            raise ValueError(f"Expected list of instances, got {type(data).__name__}")
+
+        if not data:
+            raise ValueError("Cloud instance data file is empty")
 
         self.instances = []
-        for item in data:
-            instance = CloudInstance(**item)
-            self.instances.append(instance)
+        errors = []
+
+        for idx, item in enumerate(data):
+            try:
+                instance = CloudInstance(**item)
+                self.instances.append(instance)
+            except (TypeError, ValueError) as e:
+                errors.append(f"Instance {idx} ({item.get('instance_type', 'unknown')}): {str(e)}")
+
+        if errors:
+            error_msg = "Errors loading cloud instances:\n" + "\n".join(errors)
+            raise ValueError(error_msg)
+
+        if not self.instances:
+            raise ValueError("No valid instances loaded from data file")
 
         # Sort by provider, then by price
         self.instances.sort(key=lambda x: (x.provider, x.price_ondemand_hourly))
@@ -74,7 +110,13 @@ class CloudCostAnalyzer:
 
         Returns:
             Comparison data across providers
+
+        Raises:
+            ValueError: If training_hours is invalid
         """
+        if training_hours <= 0:
+            raise ValueError(f"Training hours must be positive: {training_hours}")
+
         providers = ['AWS', 'Azure', 'GCP']
         comparison = {}
 
@@ -90,13 +132,17 @@ class CloudCostAnalyzer:
             best_cost = float('inf')
 
             for instance in training_capable:
-                cost_calc = instance.calculate_training_cost(
-                    training_hours=training_hours,
-                    use_spot=use_spot
-                )
-                if cost_calc['total_cost_usd'] < best_cost:
-                    best_cost = cost_calc['total_cost_usd']
-                    best_instance = instance
+                try:
+                    cost_calc = instance.calculate_training_cost(
+                        training_hours=training_hours,
+                        use_spot=use_spot
+                    )
+                    if cost_calc['total_cost_usd'] < best_cost:
+                        best_cost = cost_calc['total_cost_usd']
+                        best_instance = instance
+                except ValueError:
+                    # Skip instances that don't support requested pricing model
+                    continue
 
             if best_instance:
                 comparison[provider] = {
@@ -128,7 +174,19 @@ class CloudCostAnalyzer:
 
         Returns:
             Comparison data across providers
+
+        Raises:
+            ValueError: If inputs are invalid
         """
+        if requests_per_second < 0:
+            raise ValueError(f"RPS cannot be negative: {requests_per_second}")
+        if avg_tokens_per_request < 0:
+            raise ValueError(f"Tokens per request cannot be negative: {avg_tokens_per_request}")
+        if tokens_per_second_per_gpu <= 0:
+            raise ValueError(f"Tokens per second per GPU must be positive: {tokens_per_second_per_gpu}")
+        if days <= 0:
+            raise ValueError(f"Days must be positive: {days}")
+
         providers = ['AWS', 'Azure', 'GCP']
         comparison = {}
 
@@ -145,16 +203,20 @@ class CloudCostAnalyzer:
             best_calc = None
 
             for instance in inference_capable:
-                cost_calc = instance.calculate_inference_cost(
-                    requests_per_second=requests_per_second,
-                    avg_tokens_per_request=avg_tokens_per_request,
-                    tokens_per_second_per_gpu=tokens_per_second_per_gpu,
-                    days=days
-                )
-                if cost_calc['compute_cost_usd'] < best_cost:
-                    best_cost = cost_calc['compute_cost_usd']
-                    best_instance = instance
-                    best_calc = cost_calc
+                try:
+                    cost_calc = instance.calculate_inference_cost(
+                        requests_per_second=requests_per_second,
+                        avg_tokens_per_request=avg_tokens_per_request,
+                        tokens_per_second_per_gpu=tokens_per_second_per_gpu,
+                        days=days
+                    )
+                    if cost_calc['compute_cost_usd'] < best_cost:
+                        best_cost = cost_calc['compute_cost_usd']
+                        best_instance = instance
+                        best_calc = cost_calc
+                except ValueError:
+                    # Skip instances with invalid configurations
+                    continue
 
             if best_instance and best_calc:
                 comparison[provider] = {
@@ -180,11 +242,24 @@ class CloudCostAnalyzer:
 
         Returns:
             List of instances ranked by cost efficiency
+
+        Raises:
+            ValueError: If workload_type is invalid
         """
+        valid_workload_types = ['training', 'inference']
+        if workload_type not in valid_workload_types:
+            raise ValueError(
+                f"Invalid workload type: '{workload_type}'. "
+                f"Must be one of: {valid_workload_types}"
+            )
+
         if workload_type == 'training':
             candidates = self.get_training_instances()
         else:
             candidates = self.get_inference_instances()
+
+        if not candidates:
+            return []  # Return empty list if no instances match criteria
 
         ranking = []
         for instance in candidates:
@@ -252,35 +327,68 @@ class CloudCostAnalyzer:
 
         Returns:
             Cost estimate breakdown
-        """
-        # Calculate total FLOPs needed
-        total_flops = parameters_billions * training_tokens_billions * tflops_per_token_per_param * 1e9
 
-        # Convert to TFLOP-hours
-        total_tflop_hours = total_flops / 1e12
+        Raises:
+            ValueError: If inputs are invalid or no suitable instances found
+        """
+        # Validate inputs
+        if parameters_billions <= 0:
+            raise ValueError(f"Parameters must be positive: {parameters_billions}B")
+        if training_tokens_billions <= 0:
+            raise ValueError(f"Training tokens must be positive: {training_tokens_billions}B")
+        if tflops_per_token_per_param <= 0:
+            raise ValueError(f"FLOPs multiplier must be positive: {tflops_per_token_per_param}")
+
+        # Calculate total FLOPs needed
+        # Formula: params * tokens * 6 (FLOPs per token per parameter for forward+backward pass)
+        total_flops = parameters_billions * 1e9 * training_tokens_billions * 1e9 * tflops_per_token_per_param
+
+        # Convert to TFLOPs (total compute needed)
+        total_tflops = total_flops / 1e12
 
         # Find best instance
         if instance_type:
             instance = self.get_instance_by_type(instance_type)
             if not instance:
-                raise ValueError(f"Instance type {instance_type} not found")
+                raise ValueError(f"Instance type '{instance_type}' not found in dataset")
         else:
             # Use best training instance (A100 or H100)
             training_instances = self.get_training_instances()
+
+            if not training_instances:
+                raise ValueError("No training-optimized instances found in dataset")
+
             # Prefer H100 instances
             h100_instances = [i for i in training_instances if 'H100' in i.gpu_model]
             if h100_instances:
-                instance = max(h100_instances, key=lambda x: x.tflops_fp16)
+                instance = max(h100_instances, key=lambda x: x.tflops_fp16 if x.tflops_fp16 > 0 else 0)
             else:
                 a100_instances = [i for i in training_instances if 'A100' in i.gpu_model]
                 if a100_instances:
-                    instance = max(a100_instances, key=lambda x: x.tflops_fp16)
+                    instance = max(a100_instances, key=lambda x: x.tflops_fp16 if x.tflops_fp16 > 0 else 0)
                 else:
-                    instance = max(training_instances, key=lambda x: x.tflops_fp16)
+                    # Fallback to any instance with FP16 performance
+                    instances_with_fp16 = [i for i in training_instances if i.tflops_fp16 > 0]
+                    if not instances_with_fp16:
+                        raise ValueError("No instances with FP16 TFLOPS data available")
+                    instance = max(instances_with_fp16, key=lambda x: x.tflops_fp16)
+
+        # Validate instance has FP16 performance data
+        if instance.tflops_fp16 <= 0:
+            raise ValueError(
+                f"Instance {instance.instance_type} has no FP16 performance data. "
+                f"TFLOPS FP16: {instance.tflops_fp16}"
+            )
 
         # Calculate training time (assuming FP16 training with 50% utilization)
-        effective_tflops = instance.tflops_fp16 * 0.5
-        training_hours = total_tflop_hours / effective_tflops if effective_tflops > 0 else 0
+        # effective_tflops_per_second = TFLOPS rating * utilization
+        effective_tflops_per_second = instance.tflops_fp16 * 0.5
+
+        # Training time in seconds = total TFLOPs / TFLOPS per second
+        training_seconds = total_tflops / effective_tflops_per_second
+
+        # Convert to hours
+        training_hours = training_seconds / 3600
 
         # Calculate cost
         cost_result = instance.calculate_training_cost(
@@ -294,7 +402,7 @@ class CloudCostAnalyzer:
             'model_size_params': f"{parameters_billions}B",
             'training_tokens': f"{training_tokens_billions}B",
             'total_flops': total_flops,
-            'total_tflop_hours': total_tflop_hours,
+            'total_tflops': total_tflops,
             'provider': instance.provider,
             'instance_type': instance.instance_type,
             'gpu_model': instance.gpu_model,

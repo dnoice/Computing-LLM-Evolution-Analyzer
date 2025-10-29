@@ -402,6 +402,51 @@ class CloudInstance:
     year: int  # Year introduced or data collected
     region: str = "us-east-1"  # Default region for pricing
 
+    def __post_init__(self):
+        """Validate instance data after initialization."""
+        # Validate provider
+        valid_providers = ['AWS', 'Azure', 'GCP', 'aws', 'azure', 'gcp']
+        if self.provider and self.provider not in valid_providers:
+            # Normalize provider name
+            provider_lower = self.provider.lower()
+            if provider_lower in ['aws', 'amazon']:
+                self.provider = 'AWS'
+            elif provider_lower in ['azure', 'microsoft']:
+                self.provider = 'Azure'
+            elif provider_lower in ['gcp', 'google']:
+                self.provider = 'GCP'
+
+        # Validate year
+        if self.year < 2000 or self.year > 2030:
+            raise ValueError(f"Invalid year: {self.year}. Must be between 2000 and 2030")
+
+        # Validate numeric fields are non-negative
+        if self.gpu_count < 0:
+            raise ValueError(f"GPU count cannot be negative: {self.gpu_count}")
+        if self.gpu_memory_gb < 0:
+            raise ValueError(f"GPU memory cannot be negative: {self.gpu_memory_gb}")
+        if self.vcpus < 0:
+            raise ValueError(f"vCPUs cannot be negative: {self.vcpus}")
+        if self.ram_gb < 0:
+            raise ValueError(f"RAM cannot be negative: {self.ram_gb}")
+        if self.storage_gb < 0:
+            raise ValueError(f"Storage cannot be negative: {self.storage_gb}")
+        if self.price_ondemand_hourly < 0:
+            raise ValueError(f"On-demand price cannot be negative: {self.price_ondemand_hourly}")
+        if self.price_spot_hourly < 0:
+            raise ValueError(f"Spot price cannot be negative: {self.price_spot_hourly}")
+        if self.price_1yr_reserved_hourly < 0:
+            raise ValueError(f"Reserved price cannot be negative: {self.price_1yr_reserved_hourly}")
+        if self.price_3yr_reserved_hourly < 0:
+            raise ValueError(f"Reserved price cannot be negative: {self.price_3yr_reserved_hourly}")
+
+        # Validate availability
+        valid_availability = ['GA', 'Preview', 'Limited', 'Deprecated']
+        if self.availability not in valid_availability:
+            # Default to GA if not specified
+            if not self.availability:
+                self.availability = 'GA'
+
     # Hardware Configuration
     gpu_count: int = 0
     gpu_model: str = ""  # e.g., "A100", "V100", "H100"
@@ -494,7 +539,32 @@ class CloudInstance:
 
         Returns:
             Dictionary with cost breakdown
+
+        Raises:
+            ValueError: If inputs are invalid
         """
+        # Validate inputs
+        if training_hours < 0:
+            raise ValueError(f"Training hours cannot be negative: {training_hours}")
+        if storage_gb < 0:
+            raise ValueError(f"Storage cannot be negative: {storage_gb}")
+        if storage_months < 0:
+            raise ValueError(f"Storage months cannot be negative: {storage_months}")
+
+        # Check if spot pricing is available when requested
+        if use_spot and self.price_spot_hourly <= 0:
+            raise ValueError(
+                f"Spot pricing not available for {self.instance_type}. "
+                f"Spot price: ${self.price_spot_hourly}"
+            )
+
+        # Check if on-demand pricing is available
+        if not use_spot and self.price_ondemand_hourly <= 0:
+            raise ValueError(
+                f"On-demand pricing not available for {self.instance_type}. "
+                f"Price: ${self.price_ondemand_hourly}"
+            )
+
         hourly_rate = self.price_spot_hourly if use_spot else self.price_ondemand_hourly
         compute_cost = training_hours * hourly_rate
         storage_cost = storage_gb * self.storage_cost_per_gb_month * storage_months
@@ -527,11 +597,33 @@ class CloudInstance:
 
         Returns:
             Dictionary with cost breakdown
+
+        Raises:
+            ValueError: If inputs are invalid
         """
+        # Validate inputs
+        if requests_per_second < 0:
+            raise ValueError(f"RPS cannot be negative: {requests_per_second}")
+        if avg_tokens_per_request < 0:
+            raise ValueError(f"Tokens per request cannot be negative: {avg_tokens_per_request}")
+        if tokens_per_second_per_gpu <= 0:
+            raise ValueError(f"Tokens per second per GPU must be positive: {tokens_per_second_per_gpu}")
+        if hours_per_day < 0 or hours_per_day > 24:
+            raise ValueError(f"Hours per day must be between 0 and 24: {hours_per_day}")
+        if days < 0:
+            raise ValueError(f"Days cannot be negative: {days}")
+        if self.gpu_count <= 0:
+            raise ValueError(f"Instance must have at least 1 GPU. Current count: {self.gpu_count}")
+        if self.price_ondemand_hourly <= 0:
+            raise ValueError(f"On-demand price must be positive: ${self.price_ondemand_hourly}")
+
         # Calculate required GPUs
         total_tokens_per_second = requests_per_second * avg_tokens_per_request
         gpus_needed = total_tokens_per_second / tokens_per_second_per_gpu
-        instances_needed = max(1, int(gpus_needed / self.gpu_count) + 1)
+
+        # Fixed: Properly calculate instances needed with ceiling division
+        import math
+        instances_needed = max(1, math.ceil(gpus_needed / self.gpu_count))
 
         # Calculate costs
         total_hours = hours_per_day * days

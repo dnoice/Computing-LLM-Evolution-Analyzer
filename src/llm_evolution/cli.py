@@ -1278,16 +1278,29 @@ class CLI:
         """Compare cloud providers for training workload."""
         self.console.print("\n[bold cyan]Training Cost Comparison[/bold cyan]")
 
-        training_hours = IntPrompt.ask(
-            "Enter training time in hours",
-            default=100
-        )
-        use_spot = Confirm.ask("Use spot pricing?", default=True)
+        try:
+            training_hours = IntPrompt.ask(
+                "Enter training time in hours",
+                default=100
+            )
+            use_spot = Confirm.ask("Use spot pricing?", default=True)
 
-        comparison = self.cloud_cost_analyzer.compare_providers_for_training(
-            training_hours=training_hours,
-            use_spot=use_spot
-        )
+            comparison = self.cloud_cost_analyzer.compare_providers_for_training(
+                training_hours=training_hours,
+                use_spot=use_spot
+            )
+
+            if not comparison:
+                self.console.print("\n[yellow]No training instances found for the selected pricing model.[/yellow]")
+                if use_spot:
+                    self.console.print("[yellow]Try using on-demand pricing instead.[/yellow]")
+                Prompt.ask("\nPress Enter to continue", default="")
+                return
+
+        except ValueError as e:
+            self.console.print(f"\n[red]Error: {e}[/red]")
+            Prompt.ask("\nPress Enter to continue", default="")
+            return
 
         table = Table(title=f"Training Cost for {training_hours} Hours", box=box.ROUNDED)
         table.add_column("Provider", style="cyan")
@@ -1327,17 +1340,28 @@ class CLI:
         """Compare cloud providers for inference workload."""
         self.console.print("\n[bold cyan]Inference Cost Comparison[/bold cyan]")
 
-        rps = IntPrompt.ask("Enter requests per second", default=10)
-        tokens_per_request = IntPrompt.ask("Enter avg tokens per request", default=100)
-        tokens_per_sec_per_gpu = IntPrompt.ask("Enter tokens/sec per GPU", default=50)
-        days = IntPrompt.ask("Enter number of days", default=30)
+        try:
+            rps = IntPrompt.ask("Enter requests per second", default=10)
+            tokens_per_request = IntPrompt.ask("Enter avg tokens per request", default=100)
+            tokens_per_sec_per_gpu = IntPrompt.ask("Enter tokens/sec per GPU", default=50)
+            days = IntPrompt.ask("Enter number of days", default=30)
 
-        comparison = self.cloud_cost_analyzer.compare_providers_for_inference(
-            requests_per_second=rps,
-            avg_tokens_per_request=tokens_per_request,
-            tokens_per_second_per_gpu=tokens_per_sec_per_gpu,
-            days=days
-        )
+            comparison = self.cloud_cost_analyzer.compare_providers_for_inference(
+                requests_per_second=rps,
+                avg_tokens_per_request=tokens_per_request,
+                tokens_per_second_per_gpu=tokens_per_sec_per_gpu,
+                days=days
+            )
+
+            if not comparison:
+                self.console.print("\n[yellow]No inference instances found.[/yellow]")
+                Prompt.ask("\nPress Enter to continue", default="")
+                return
+
+        except ValueError as e:
+            self.console.print(f"\n[red]Error: {e}[/red]")
+            Prompt.ask("\nPress Enter to continue", default="")
+            return
 
         table = Table(title=f"Inference Cost for {days} Days", box=box.ROUNDED)
         table.add_column("Provider", style="cyan")
@@ -1449,15 +1473,21 @@ class CLI:
         """Estimate LLM training cost."""
         self.console.print("\n[bold cyan]LLM Training Cost Estimator[/bold cyan]")
 
-        params_billions = IntPrompt.ask("Enter model size in billions of parameters", default=7)
-        tokens_billions = IntPrompt.ask("Enter training tokens in billions", default=1000)
-        use_spot = Confirm.ask("Use spot pricing?", default=True)
+        try:
+            params_billions = IntPrompt.ask("Enter model size in billions of parameters", default=7)
+            tokens_billions = IntPrompt.ask("Enter training tokens in billions", default=1000)
+            use_spot = Confirm.ask("Use spot pricing?", default=True)
 
-        estimate = self.cloud_cost_analyzer.estimate_llm_training_cost(
-            parameters_billions=params_billions,
-            training_tokens_billions=tokens_billions,
-            use_spot=use_spot
-        )
+            estimate = self.cloud_cost_analyzer.estimate_llm_training_cost(
+                parameters_billions=params_billions,
+                training_tokens_billions=tokens_billions,
+                use_spot=use_spot
+            )
+
+        except ValueError as e:
+            self.console.print(f"\n[red]Error: {e}[/red]")
+            Prompt.ask("\nPress Enter to continue", default="")
+            return
 
         # Display results
         panel = Panel(
