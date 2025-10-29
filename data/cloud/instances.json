@@ -82,8 +82,8 @@
     "gpu_interconnect": "NVSwitch",
     "gpu_interconnect_bandwidth_gbps": 600.0,
     "tflops_fp32": 156.0,
-    "tflops_fp16": 312.0,
-    "tflops_int8": 624.0,
+    "tflops_fp16": 2496.0,
+    "tflops_int8": 4992.0,
     "tensor_cores": true,
     "price_ondemand_hourly": 32.77,
     "price_spot_hourly": 9.83,
@@ -96,7 +96,7 @@
     "storage_cost_per_gb_month": 0.10,
     "egress_cost_per_gb": 0.09,
     "availability": "GA",
-    "notes": "8x A100 40GB with ultra-high bandwidth networking"
+    "notes": "8x A100 40GB with ultra-high bandwidth networking (312 TFLOPS FP16 per GPU)"
   },
   {
     "provider": "AWS",
@@ -114,9 +114,9 @@
     "network_bandwidth_gbps": 3200.0,
     "gpu_interconnect": "NVSwitch",
     "gpu_interconnect_bandwidth_gbps": 900.0,
-    "tflops_fp32": 268.0,
-    "tflops_fp16": 1979.0,
-    "tflops_int8": 3958.0,
+    "tflops_fp32": 536.0,
+    "tflops_fp16": 8000.0,
+    "tflops_int8": 16000.0,
     "tensor_cores": true,
     "price_ondemand_hourly": 98.32,
     "price_spot_hourly": 29.50,
@@ -129,7 +129,7 @@
     "storage_cost_per_gb_month": 0.10,
     "egress_cost_per_gb": 0.09,
     "availability": "GA",
-    "notes": "Latest generation with 8x H100 80GB"
+    "notes": "Latest generation with 8x H100 80GB SXM5 (1000 TFLOPS FP16 per GPU, dense)"
   },
   {
     "provider": "AWS",
@@ -247,8 +247,8 @@
     "gpu_interconnect": "NVLink",
     "gpu_interconnect_bandwidth_gbps": 600.0,
     "tflops_fp32": 156.0,
-    "tflops_fp16": 312.0,
-    "tflops_int8": 624.0,
+    "tflops_fp16": 2496.0,
+    "tflops_int8": 4992.0,
     "tensor_cores": true,
     "price_ondemand_hourly": 27.20,
     "price_spot_hourly": 5.44,
@@ -261,7 +261,7 @@
     "storage_cost_per_gb_month": 0.12,
     "egress_cost_per_gb": 0.087,
     "availability": "GA",
-    "notes": "8x A100 40GB with InfiniBand"
+    "notes": "8x A100 40GB with InfiniBand (312 TFLOPS FP16 per GPU)"
   },
   {
     "provider": "Azure",
@@ -280,8 +280,8 @@
     "gpu_interconnect": "NVLink",
     "gpu_interconnect_bandwidth_gbps": 600.0,
     "tflops_fp32": 156.0,
-    "tflops_fp16": 312.0,
-    "tflops_int8": 624.0,
+    "tflops_fp16": 2496.0,
+    "tflops_int8": 4992.0,
     "tensor_cores": true,
     "price_ondemand_hourly": 32.77,
     "price_spot_hourly": 6.55,
@@ -294,7 +294,7 @@
     "storage_cost_per_gb_month": 0.12,
     "egress_cost_per_gb": 0.087,
     "availability": "GA",
-    "notes": "8x A100 80GB with double VRAM"
+    "notes": "8x A100 80GB with double VRAM (312 TFLOPS FP16 per GPU)"
   },
   {
     "provider": "Azure",
@@ -379,8 +379,8 @@
     "gpu_interconnect": "NVSwitch",
     "gpu_interconnect_bandwidth_gbps": 600.0,
     "tflops_fp32": 156.0,
-    "tflops_fp16": 312.0,
-    "tflops_int8": 624.0,
+    "tflops_fp16": 2496.0,
+    "tflops_int8": 4992.0,
     "tensor_cores": true,
     "price_ondemand_hourly": 33.22,
     "price_spot_hourly": 9.97,
@@ -393,7 +393,7 @@
     "storage_cost_per_gb_month": 0.10,
     "egress_cost_per_gb": 0.12,
     "availability": "GA",
-    "notes": "Top-tier 8x A100 80GB instance"
+    "notes": "Top-tier 8x A100 80GB instance (312 TFLOPS FP16 per GPU)"
   },
   {
     "provider": "GCP",
@@ -478,8 +478,8 @@
     "gpu_interconnect": "NVSwitch",
     "gpu_interconnect_bandwidth_gbps": 600.0,
     "tflops_fp32": 312.0,
-    "tflops_fp16": 624.0,
-    "tflops_int8": 1248.0,
+    "tflops_fp16": 4992.0,
+    "tflops_int8": 9984.0,
     "tensor_cores": true,
     "price_ondemand_hourly": 55.74,
     "price_spot_hourly": 16.72,
@@ -492,6 +492,6 @@
     "storage_cost_per_gb_month": 0.10,
     "egress_cost_per_gb": 0.12,
     "availability": "GA",
-    "notes": "Massive 16x A100 40GB for large-scale training"
+    "notes": "Massive 16x A100 40GB for large-scale training (312 TFLOPS FP16 per GPU)"
   }
 ]

@@ -293,17 +293,65 @@ class CLI:
         table.add_column("End Value", justify="right")
         table.add_column("Growth Factor", justify="right", style="yellow")
         table.add_column("CAGR %", justify="right", style="green")
+        table.add_column("Warning", justify="center")
 
+        extreme_cagrs = []
         for metric_name, result in results.items():
+            # Format values based on size
+            if result.start_value >= 1e15:
+                start_str = f"{result.start_value:.2e}"
+            else:
+                start_str = f"{result.start_value:,.2f}"
+
+            if result.end_value >= 1e15:
+                end_str = f"{result.end_value:.2e}"
+            else:
+                end_str = f"{result.end_value:,.2f}"
+
+            # Determine warning level
+            warning = ""
+            if result.cagr_percent > 500:
+                warning = "[red]⚠⚠⚠[/red]"
+                extreme_cagrs.append((metric_name, result.cagr_percent))
+            elif result.cagr_percent > 200:
+                warning = "[yellow]⚠⚠[/yellow]"
+                extreme_cagrs.append((metric_name, result.cagr_percent))
+            elif result.cagr_percent > 100:
+                warning = "[yellow]⚠[/yellow]"
+
             table.add_row(
                 metric_name.replace('_', ' ').title(),
-                f"{result.start_value:,.2f}",
-                f"{result.end_value:,.2f}",
+                start_str,
+                end_str,
                 f"{result.growth_factor:.2f}x",
                 f"{result.cagr_percent:.2f}%",
+                warning,
             )
 
         self.console.print(table)
+
+        # Add important warning for extreme CAGRs
+        if extreme_cagrs:
+            self.console.print("\n[bold red]⚠ CRITICAL REALITY CHECK:[/bold red]")
+            self.console.print(
+                "[yellow]The following growth rates are UNSUSTAINABLE and represent a historical anomaly "
+                "from the initial LLM scaling phase (2018-2024):[/yellow]\n"
+            )
+            for metric, cagr in extreme_cagrs:
+                self.console.print(f"  • [cyan]{metric.replace('_', ' ').title()}[/cyan]: {cagr:.0f}% CAGR")
+
+            self.console.print(
+                "\n[bold]Why these rates cannot continue:[/bold]\n"
+                "  1. [red]Training Compute:[/red] Already using largest GPU clusters (~100K GPUs)\n"
+                "  2. [red]Economic Limits:[/red] Cost scaling faster than value delivered\n"
+                "  3. [red]Data Limits:[/red] Running out of high-quality training data\n"
+                "  4. [red]Energy Limits:[/red] Power consumption becoming prohibitive\n"
+                "  5. [red]Diminishing Returns:[/red] Each doubling yields smaller capability gains\n"
+            )
+            self.console.print(
+                "[yellow]Expected future: Growth will slow to 20-50% CAGR as models focus on "
+                "efficiency, specialization, and inference optimization rather than pure scale.[/yellow]\n"
+            )
 
     def show_chinchilla_analysis(self):
         """Display Chinchilla optimal analysis."""
@@ -684,27 +732,93 @@ class CLI:
         """Display Moore's Law future predictions."""
         years_ahead = IntPrompt.ask("How many years ahead to predict?", default=10)
 
+        # Cap at reasonable maximum
+        if years_ahead > 50:
+            self.console.print(
+                f"[yellow]Warning: Predictions beyond 20 years are highly speculative. Capping at 50 years.[/yellow]"
+            )
+            years_ahead = min(years_ahead, 50)
+
         # Use latest system as base
         base_system = self.hw_analyzer.systems[-1]
         predictions = self.moores_law.predict_future(base_system, years_ahead)
+
+        # Add explanatory header
+        self.console.print(
+            f"\n[cyan]Base System:[/cyan] {base_system.name} "
+            f"({base_system.cpu_transistors:,} transistors, {base_system.cpu_process_nm}nm)\n"
+        )
 
         table = Table(title=f"Moore's Law Predictions from {base_system.year}", box=box.ROUNDED)
         table.add_column("Year", style="cyan")
         table.add_column("Years Ahead", justify="right")
         table.add_column("Predicted Transistors", justify="right", style="yellow")
-        table.add_column("Predicted Process (nm)", justify="right")
+        table.add_column("Process (nm)", justify="right")
         table.add_column("Doublings", justify="right")
+        table.add_column("Confidence", justify="center")
 
         for pred in predictions:
+            # Format transistor count - use scientific notation if very large
+            transistor_count = pred['predicted_transistors']
+            if transistor_count >= 1e15:
+                transistor_str = f"{transistor_count:.2e}"
+            else:
+                transistor_str = f"{transistor_count:,}"
+
+            # Color code based on confidence
+            confidence_colors = {
+                'high': 'green',
+                'medium': 'yellow',
+                'low': 'orange1',
+                'very_low': 'red'
+            }
+            confidence_color = confidence_colors.get(pred['confidence'], 'white')
+            confidence_icon = {
+                'high': '●●●',
+                'medium': '●●○',
+                'low': '●○○',
+                'very_low': '○○○'
+            }
+
+            # Add warning indicators
+            process_str = f"{pred['predicted_process_nm']:.1f}"
+            if pred['warning'] == 'physical_limit_reached':
+                process_str = f"[red]{process_str}*[/red]"
+
             table.add_row(
                 str(pred['year']),
                 str(pred['years_from_base']),
-                f"{pred['predicted_transistors']:,}",
-                f"{pred['predicted_process_nm']:.1f}",
+                transistor_str,
+                process_str,
                 f"{pred['doublings_from_base']:.2f}",
+                f"[{confidence_color}]{confidence_icon.get(pred['confidence'], '???')}[/{confidence_color}]",
             )
 
         self.console.print(table)
+
+        # Print warnings and notes
+        self.console.print("\n[bold]Legend:[/bold]")
+        self.console.print("  Confidence: [green]●●●[/green] High  [yellow]●●○[/yellow] Medium  [orange1]●○○[/orange1] Low  [red]○○○[/red] Very Low")
+        self.console.print("  [red]*[/red] = Physical/practical limit reached\n")
+
+        # Show important notes
+        has_warnings = any(p['note'] for p in predictions)
+        if has_warnings:
+            self.console.print("[bold yellow]Important Notes:[/bold yellow]")
+            notes_shown = set()
+            for pred in predictions:
+                if pred['note'] and pred['note'] not in notes_shown:
+                    self.console.print(f"  • {pred['note']}")
+                    notes_shown.add(pred['note'])
+            self.console.print()
+
+        # Reality check message for long predictions
+        if years_ahead > 20:
+            self.console.print(
+                "[bold red]Reality Check:[/bold red] Predictions beyond 2035 assume major paradigm shifts "
+                "(quantum computing, photonic chips, 3D stacking, neuromorphic hardware, etc.). "
+                "Traditional transistor-based Moore's Law is expected to end around 2025-2030.\n"
+            )
 
     def show_moores_law_year_comparison(self):
         """Display Moore's Law prediction vs reality for a specific year."""
@@ -1187,18 +1301,31 @@ class CLI:
         self.console.print()
 
         # Key insights
+        llm_vs_cpu_ratio = llm_cagr['parameters_billions'].cagr_percent / hw_cagr['cpu_transistors'].cagr_percent
+        gpu_vs_cpu_ratio = gpu_cagr['tflops_fp32'].cagr_percent / hw_cagr['cpu_transistors'].cagr_percent
+
         panel = Panel(
             "[cyan]Key Insights:[/cyan]\n"
-            f"• CPU transistors grew {hw_cagr['cpu_transistors'].growth_factor:.1f}x over 59 years ({hw_cagr['cpu_transistors'].cagr_percent:.1f}% CAGR)\n"
-            f"• GPU TFLOPS grew {gpu_cagr['tflops_fp32'].growth_factor:.1f}x over 25 years ({gpu_cagr['tflops_fp32'].cagr_percent:.1f}% CAGR)\n"
-            f"• GPU VRAM grew {gpu_cagr['vram_mb'].growth_factor:.0f}x over 25 years ({gpu_cagr['vram_mb'].cagr_percent:.1f}% CAGR)\n"
-            f"• LLM parameters grew {llm_cagr['parameters_billions'].growth_factor:.1f}x in just 6 years ({llm_cagr['parameters_billions'].cagr_percent:.1f}% CAGR)\n"
-            f"• LLM scaling is {llm_cagr['parameters_billions'].cagr_percent / hw_cagr['cpu_transistors'].cagr_percent:.1f}x faster than CPU transistor scaling\n"
-            f"• GPU performance scaling is {gpu_cagr['tflops_fp32'].cagr_percent / hw_cagr['cpu_transistors'].cagr_percent:.1f}x faster than CPU transistor scaling",
+            f"• CPU transistors grew {hw_cagr['cpu_transistors'].growth_factor:.1f}x over [bold]59 years[/bold] ({hw_cagr['cpu_transistors'].cagr_percent:.1f}% CAGR)\n"
+            f"• GPU TFLOPS grew {gpu_cagr['tflops_fp32'].growth_factor:.1f}x over [bold]25 years[/bold] ({gpu_cagr['tflops_fp32'].cagr_percent:.1f}% CAGR)\n"
+            f"• GPU VRAM grew {gpu_cagr['vram_mb'].growth_factor:.0f}x over [bold]25 years[/bold] ({gpu_cagr['vram_mb'].cagr_percent:.1f}% CAGR)\n"
+            f"• LLM parameters grew {llm_cagr['parameters_billions'].growth_factor:.1f}x in just [bold]6 years[/bold] ({llm_cagr['parameters_billions'].cagr_percent:.1f}% CAGR)\n"
+            f"  [yellow]⚠[/yellow] LLM CAGR appears {llm_vs_cpu_ratio:.1f}x faster than CPU scaling, [italic]but this is temporary[/italic]\n"
+            f"• GPU performance CAGR is {gpu_vs_cpu_ratio:.1f}x CPU transistor CAGR (more sustainable)",
             title="Comparison Summary",
             border_style="yellow",
         )
         self.console.print(panel)
+
+        # Add important context about the comparison
+        self.console.print(
+            "\n[bold yellow]⚠ Important Context:[/bold yellow]\n"
+            "[yellow]The LLM scaling rate is NOT directly comparable to hardware trends because:[/yellow]\n"
+            "  1. [cyan]Different time periods:[/cyan] 6 years (LLM) vs 59 years (CPU) vs 25 years (GPU)\n"
+            "  2. [cyan]Temporary phase:[/cyan] LLM scaling represents initial research phase, not sustainable trend\n"
+            "  3. [cyan]Different constraints:[/cyan] Hardware limited by physics; LLMs limited by data, compute, and economics\n"
+            "  4. [cyan]Expected slowdown:[/cyan] LLM scaling will normalize to 20-50% CAGR as field matures\n"
+        )
 
         Prompt.ask("\nPress Enter to continue", default="")
 
