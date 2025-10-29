@@ -389,3 +389,203 @@ class GPUMetrics:
         base_dict.update(self.compute_efficiency_metrics())
 
         return base_dict
+
+
+@dataclass
+class CloudInstance:
+    """Cloud compute instance metrics and pricing for ML workloads."""
+
+    # Provider and Instance Info
+    provider: str  # "AWS", "Azure", "GCP"
+    instance_type: str  # e.g., "p4d.24xlarge", "Standard_ND96asr_v4", "a2-ultragpu-8g"
+    instance_family: str  # e.g., "P4d", "ND A100 v4", "A2"
+    year: int  # Year introduced or data collected
+    region: str = "us-east-1"  # Default region for pricing
+
+    # Hardware Configuration
+    gpu_count: int = 0
+    gpu_model: str = ""  # e.g., "A100", "V100", "H100"
+    gpu_memory_gb: int = 0  # Per GPU
+    vcpus: int = 0
+    ram_gb: float = 0.0
+    storage_gb: int = 0
+    storage_type: str = ""  # e.g., "SSD", "NVMe"
+
+    # Network & Interconnect
+    network_bandwidth_gbps: float = 0.0
+    gpu_interconnect: str = ""  # e.g., "NVLink", "NVSwitch"
+    gpu_interconnect_bandwidth_gbps: float = 0.0
+
+    # Performance Metrics
+    tflops_fp32: float = 0.0  # Total for all GPUs
+    tflops_fp16: float = 0.0
+    tflops_int8: float = 0.0
+    tensor_cores: bool = False
+
+    # Pricing (USD per hour)
+    price_ondemand_hourly: float = 0.0
+    price_spot_hourly: float = 0.0  # Average spot price
+    price_1yr_reserved_hourly: float = 0.0
+    price_3yr_reserved_hourly: float = 0.0
+
+    # ML Capabilities
+    ml_optimized: bool = False
+    inference_optimized: bool = False
+    training_optimized: bool = False
+    supports_multi_node: bool = False
+
+    # Additional Costs
+    storage_cost_per_gb_month: float = 0.0
+    egress_cost_per_gb: float = 0.0
+
+    # Metadata
+    availability: str = "GA"  # "GA" (General Availability), "Preview", "Limited"
+    notes: str = ""
+
+    def compute_cost_metrics(self) -> Dict[str, float]:
+        """Compute derived cost and efficiency metrics."""
+        metrics = {}
+
+        # Cost per TFLOP (FP32)
+        if self.tflops_fp32 > 0 and self.price_ondemand_hourly > 0:
+            metrics['cost_per_tflop_hour'] = self.price_ondemand_hourly / self.tflops_fp32
+            metrics['tflops_per_dollar'] = self.tflops_fp32 / self.price_ondemand_hourly
+
+        # Cost per GPU
+        if self.gpu_count > 0 and self.price_ondemand_hourly > 0:
+            metrics['cost_per_gpu_hour'] = self.price_ondemand_hourly / self.gpu_count
+
+        # Cost per vCPU
+        if self.vcpus > 0 and self.price_ondemand_hourly > 0:
+            metrics['cost_per_vcpu_hour'] = self.price_ondemand_hourly / self.vcpus
+
+        # Cost per GB RAM
+        if self.ram_gb > 0 and self.price_ondemand_hourly > 0:
+            metrics['cost_per_gb_ram_hour'] = self.price_ondemand_hourly / self.ram_gb
+
+        # Spot discount percentage
+        if self.price_ondemand_hourly > 0 and self.price_spot_hourly > 0:
+            metrics['spot_discount_percent'] = (
+                (1 - self.price_spot_hourly / self.price_ondemand_hourly) * 100
+            )
+
+        # Reserved instance discount (1-year)
+        if self.price_ondemand_hourly > 0 and self.price_1yr_reserved_hourly > 0:
+            metrics['reserved_1yr_discount_percent'] = (
+                (1 - self.price_1yr_reserved_hourly / self.price_ondemand_hourly) * 100
+            )
+
+        return metrics
+
+    def calculate_training_cost(
+        self,
+        training_hours: float,
+        storage_gb: float = 0,
+        storage_months: float = 1,
+        use_spot: bool = False,
+    ) -> Dict[str, float]:
+        """Calculate cost for training a model.
+
+        Args:
+            training_hours: Total training time in hours
+            storage_gb: Storage required in GB
+            storage_months: How many months storage is needed
+            use_spot: Whether to use spot pricing
+
+        Returns:
+            Dictionary with cost breakdown
+        """
+        hourly_rate = self.price_spot_hourly if use_spot else self.price_ondemand_hourly
+        compute_cost = training_hours * hourly_rate
+        storage_cost = storage_gb * self.storage_cost_per_gb_month * storage_months
+
+        return {
+            'compute_cost_usd': compute_cost,
+            'storage_cost_usd': storage_cost,
+            'total_cost_usd': compute_cost + storage_cost,
+            'hourly_rate': hourly_rate,
+            'training_hours': training_hours,
+            'pricing_model': 'spot' if use_spot else 'on-demand',
+        }
+
+    def calculate_inference_cost(
+        self,
+        requests_per_second: float,
+        avg_tokens_per_request: int,
+        tokens_per_second_per_gpu: float,
+        hours_per_day: float = 24,
+        days: int = 30,
+    ) -> Dict[str, float]:
+        """Calculate cost for inference workload.
+
+        Args:
+            requests_per_second: Expected RPS
+            avg_tokens_per_request: Average tokens generated per request
+            tokens_per_second_per_gpu: Throughput per GPU
+            hours_per_day: Operating hours per day
+            days: Number of days
+
+        Returns:
+            Dictionary with cost breakdown
+        """
+        # Calculate required GPUs
+        total_tokens_per_second = requests_per_second * avg_tokens_per_request
+        gpus_needed = total_tokens_per_second / tokens_per_second_per_gpu
+        instances_needed = max(1, int(gpus_needed / self.gpu_count) + 1)
+
+        # Calculate costs
+        total_hours = hours_per_day * days
+        compute_cost = instances_needed * self.price_ondemand_hourly * total_hours
+
+        # Total requests
+        total_requests = requests_per_second * 3600 * total_hours
+
+        return {
+            'compute_cost_usd': compute_cost,
+            'instances_needed': instances_needed,
+            'gpus_needed': gpus_needed,
+            'total_requests': total_requests,
+            'cost_per_1k_requests': (compute_cost / total_requests) * 1000 if total_requests > 0 else 0,
+            'cost_per_1m_tokens': (compute_cost / (total_requests * avg_tokens_per_request)) * 1_000_000 if total_requests > 0 else 0,
+        }
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert to dictionary."""
+        base_dict = {
+            'provider': self.provider,
+            'instance_type': self.instance_type,
+            'instance_family': self.instance_family,
+            'year': self.year,
+            'region': self.region,
+            'gpu_count': self.gpu_count,
+            'gpu_model': self.gpu_model,
+            'gpu_memory_gb': self.gpu_memory_gb,
+            'vcpus': self.vcpus,
+            'ram_gb': self.ram_gb,
+            'storage_gb': self.storage_gb,
+            'storage_type': self.storage_type,
+            'network_bandwidth_gbps': self.network_bandwidth_gbps,
+            'gpu_interconnect': self.gpu_interconnect,
+            'gpu_interconnect_bandwidth_gbps': self.gpu_interconnect_bandwidth_gbps,
+            'tflops_fp32': self.tflops_fp32,
+            'tflops_fp16': self.tflops_fp16,
+            'tflops_int8': self.tflops_int8,
+            'tensor_cores': self.tensor_cores,
+            'price_ondemand_hourly': self.price_ondemand_hourly,
+            'price_spot_hourly': self.price_spot_hourly,
+            'price_1yr_reserved_hourly': self.price_1yr_reserved_hourly,
+            'price_3yr_reserved_hourly': self.price_3yr_reserved_hourly,
+            'ml_optimized': self.ml_optimized,
+            'inference_optimized': self.inference_optimized,
+            'training_optimized': self.training_optimized,
+            'supports_multi_node': self.supports_multi_node,
+            'storage_cost_per_gb_month': self.storage_cost_per_gb_month,
+            'egress_cost_per_gb': self.egress_cost_per_gb,
+            'availability': self.availability,
+            'notes': self.notes,
+        }
+
+        # Add computed cost metrics
+        base_dict.update(self.compute_cost_metrics())
+
+        return base_dict

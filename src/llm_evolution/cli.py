@@ -16,6 +16,7 @@ from rich.text import Text
 from .hardware_analyzer import HardwareAnalyzer
 from .llm_analyzer import LLMAnalyzer
 from .gpu_analyzer import GPUAnalyzer
+from .cloud_cost_analyzer import CloudCostAnalyzer
 from .moores_law import MooresLawAnalyzer
 from .visualizations import Plotter
 from .exports import Exporter
@@ -30,6 +31,7 @@ class CLI:
         self.hw_analyzer = None
         self.llm_analyzer = None
         self.gpu_analyzer = None
+        self.cloud_cost_analyzer = None
         self.moores_law = MooresLawAnalyzer()
         self.plotter = Plotter()
         self.exporter = Exporter()
@@ -38,8 +40,8 @@ class CLI:
         """Display application banner."""
         banner = Text()
         banner.append("Computing & LLM Evolution Analyzer\n", style="bold cyan")
-        banner.append("Version 2.0.0\n", style="dim")
-        banner.append("\nAnalyze hardware and LLM evolution over time", style="italic")
+        banner.append("Version 2.1.0\n", style="dim")
+        banner.append("\nAnalyze hardware, LLM evolution, and cloud costs", style="italic")
 
         panel = Panel(
             banner,
@@ -60,18 +62,19 @@ class CLI:
         self.console.print("[5] Compare Hardware vs LLM vs GPU Evolution")
         self.console.print("[6] Export Data")
         self.console.print("[7] Generate Visualizations")
+        self.console.print("[8] Cloud Cost Analysis")
         self.console.print("[0] Exit")
         self.console.print()
 
         choice = Prompt.ask(
             "Select an option",
-            choices=["0", "1", "2", "3", "4", "5", "6", "7"],
+            choices=["0", "1", "2", "3", "4", "5", "6", "7", "8"],
             default="1"
         )
         return choice
 
     def load_data(self):
-        """Load hardware, LLM, and GPU data."""
+        """Load hardware, LLM, GPU, and cloud cost data."""
         with Progress(
             SpinnerColumn(),
             TextColumn("[progress.description]{task.description}"),
@@ -88,6 +91,10 @@ class CLI:
             task3 = progress.add_task("[cyan]Loading GPU data...", total=None)
             self.gpu_analyzer = GPUAnalyzer()
             progress.update(task3, completed=True)
+
+            task4 = progress.add_task("[cyan]Loading cloud cost data...", total=None)
+            self.cloud_cost_analyzer = CloudCostAnalyzer()
+            progress.update(task4, completed=True)
 
         self.console.print("[green]Data loaded successfully![/green]\n")
 
@@ -1195,6 +1202,398 @@ class CLI:
 
         Prompt.ask("\nPress Enter to continue", default="")
 
+    def cloud_cost_analysis_menu(self):
+        """Cloud cost analysis submenu."""
+        while True:
+            self.console.print("\n[bold cyan]Cloud Cost Analysis Menu[/bold cyan]")
+            self.console.print("[1] View All Cloud Instances")
+            self.console.print("[2] Compare Providers for Training")
+            self.console.print("[3] Compare Providers for Inference")
+            self.console.print("[4] Cost Efficiency Ranking")
+            self.console.print("[5] Spot Instance Savings Analysis")
+            self.console.print("[6] Estimate LLM Training Cost")
+            self.console.print("[7] GPU Price Evolution")
+            self.console.print("[8] Provider Statistics")
+            self.console.print("[9] Compare Specific Instances")
+            self.console.print("[0] Back to Main Menu")
+            self.console.print()
+
+            choice = Prompt.ask(
+                "Select an option",
+                choices=["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"],
+                default="1"
+            )
+
+            if choice == "0":
+                break
+            elif choice == "1":
+                self._show_all_cloud_instances()
+            elif choice == "2":
+                self._compare_training_costs()
+            elif choice == "3":
+                self._compare_inference_costs()
+            elif choice == "4":
+                self._show_cost_efficiency()
+            elif choice == "5":
+                self._show_spot_savings()
+            elif choice == "6":
+                self._estimate_training_cost()
+            elif choice == "7":
+                self._show_gpu_price_evolution()
+            elif choice == "8":
+                self._show_provider_stats()
+            elif choice == "9":
+                self._compare_instances()
+
+    def _show_all_cloud_instances(self):
+        """Display all cloud instances."""
+        table = Table(title="Cloud Compute Instances", box=box.ROUNDED)
+        table.add_column("Provider", style="cyan")
+        table.add_column("Instance Type", style="green")
+        table.add_column("GPU Model", style="yellow")
+        table.add_column("GPU Count", justify="right")
+        table.add_column("GPU Memory", justify="right")
+        table.add_column("vCPUs", justify="right")
+        table.add_column("RAM (GB)", justify="right")
+        table.add_column("On-Demand $/hr", justify="right", style="magenta")
+        table.add_column("Spot $/hr", justify="right", style="green")
+
+        for instance in self.cloud_cost_analyzer.instances:
+            table.add_row(
+                instance.provider,
+                instance.instance_type,
+                instance.gpu_model,
+                str(instance.gpu_count),
+                f"{instance.gpu_memory_gb}GB",
+                str(instance.vcpus),
+                f"{instance.ram_gb:.0f}",
+                f"${instance.price_ondemand_hourly:.2f}",
+                f"${instance.price_spot_hourly:.2f}" if instance.price_spot_hourly > 0 else "N/A"
+            )
+
+        self.console.print(table)
+        Prompt.ask("\nPress Enter to continue", default="")
+
+    def _compare_training_costs(self):
+        """Compare cloud providers for training workload."""
+        self.console.print("\n[bold cyan]Training Cost Comparison[/bold cyan]")
+
+        training_hours = IntPrompt.ask(
+            "Enter training time in hours",
+            default=100
+        )
+        use_spot = Confirm.ask("Use spot pricing?", default=True)
+
+        comparison = self.cloud_cost_analyzer.compare_providers_for_training(
+            training_hours=training_hours,
+            use_spot=use_spot
+        )
+
+        table = Table(title=f"Training Cost for {training_hours} Hours", box=box.ROUNDED)
+        table.add_column("Provider", style="cyan")
+        table.add_column("Instance Type", style="green")
+        table.add_column("GPU Model", style="yellow")
+        table.add_column("GPU Count", justify="right")
+        table.add_column("Total TFLOPS", justify="right")
+        table.add_column("Total Cost", justify="right", style="magenta")
+        table.add_column("$/hour", justify="right")
+
+        for provider, data in sorted(comparison.items(), key=lambda x: x[1]['total_cost_usd']):
+            table.add_row(
+                provider,
+                data['instance_type'],
+                data['gpu_model'],
+                str(data['gpu_count']),
+                f"{data['total_tflops_fp32']:.1f}",
+                f"${data['total_cost_usd']:,.2f}",
+                f"${data['hourly_rate']:.2f}"
+            )
+
+        self.console.print(table)
+
+        # Visualize
+        output_path = Path("output/cloud_training_comparison.png")
+        output_path.parent.mkdir(exist_ok=True)
+        self.plotter.plot_cloud_cost_comparison(
+            comparison,
+            title=f"Training Cost Comparison ({training_hours} hours)",
+            output_path=output_path
+        )
+        self.console.print(f"\n[green]Visualization saved to {output_path}[/green]")
+
+        Prompt.ask("\nPress Enter to continue", default="")
+
+    def _compare_inference_costs(self):
+        """Compare cloud providers for inference workload."""
+        self.console.print("\n[bold cyan]Inference Cost Comparison[/bold cyan]")
+
+        rps = IntPrompt.ask("Enter requests per second", default=10)
+        tokens_per_request = IntPrompt.ask("Enter avg tokens per request", default=100)
+        tokens_per_sec_per_gpu = IntPrompt.ask("Enter tokens/sec per GPU", default=50)
+        days = IntPrompt.ask("Enter number of days", default=30)
+
+        comparison = self.cloud_cost_analyzer.compare_providers_for_inference(
+            requests_per_second=rps,
+            avg_tokens_per_request=tokens_per_request,
+            tokens_per_second_per_gpu=tokens_per_sec_per_gpu,
+            days=days
+        )
+
+        table = Table(title=f"Inference Cost for {days} Days", box=box.ROUNDED)
+        table.add_column("Provider", style="cyan")
+        table.add_column("Instance Type", style="green")
+        table.add_column("GPU Model", style="yellow")
+        table.add_column("Instances Needed", justify="right")
+        table.add_column("Total Cost", justify="right", style="magenta")
+        table.add_column("Cost/1K Requests", justify="right")
+        table.add_column("Cost/1M Tokens", justify="right")
+
+        for provider, data in sorted(comparison.items(), key=lambda x: x[1]['total_cost_usd']):
+            table.add_row(
+                provider,
+                data['instance_type'],
+                data['gpu_model'],
+                str(data['instances_needed']),
+                f"${data['total_cost_usd']:,.2f}",
+                f"${data['cost_per_1k_requests']:.4f}",
+                f"${data['cost_per_1m_tokens']:.2f}"
+            )
+
+        self.console.print(table)
+
+        # Visualize
+        output_path = Path("output/cloud_inference_comparison.png")
+        output_path.parent.mkdir(exist_ok=True)
+        self.plotter.plot_cloud_cost_comparison(
+            comparison,
+            title=f"Inference Cost Comparison ({days} days)",
+            output_path=output_path
+        )
+        self.console.print(f"\n[green]Visualization saved to {output_path}[/green]")
+
+        Prompt.ask("\nPress Enter to continue", default="")
+
+    def _show_cost_efficiency(self):
+        """Show cost efficiency ranking."""
+        workload = Prompt.ask(
+            "Select workload type",
+            choices=["training", "inference"],
+            default="training"
+        )
+
+        ranking = self.cloud_cost_analyzer.get_cost_efficiency_ranking(workload_type=workload)
+
+        table = Table(title=f"Cost Efficiency Ranking ({workload.title()})", box=box.ROUNDED)
+        table.add_column("Rank", justify="right", style="cyan")
+        table.add_column("Provider", style="cyan")
+        table.add_column("Instance Type", style="green")
+        table.add_column("GPU Model", style="yellow")
+        table.add_column("TFLOPS/$", justify="right", style="magenta")
+        table.add_column("On-Demand $/hr", justify="right")
+
+        for i, instance in enumerate(ranking[:15], 1):
+            table.add_row(
+                str(i),
+                instance['provider'],
+                instance['instance_type'],
+                instance['gpu_model'],
+                f"{instance['tflops_per_dollar']:.2f}",
+                f"${instance['price_ondemand_hourly']:.2f}"
+            )
+
+        self.console.print(table)
+
+        # Visualize
+        output_path = Path(f"output/cloud_efficiency_{workload}.png")
+        output_path.parent.mkdir(exist_ok=True)
+        self.plotter.plot_cost_efficiency_ranking(ranking, top_n=10, output_path=output_path)
+        self.console.print(f"\n[green]Visualization saved to {output_path}[/green]")
+
+        Prompt.ask("\nPress Enter to continue", default="")
+
+    def _show_spot_savings(self):
+        """Show spot instance savings analysis."""
+        savings = self.cloud_cost_analyzer.get_spot_savings_analysis()
+
+        table = Table(title="Spot Instance Savings Analysis", box=box.ROUNDED)
+        table.add_column("Provider", style="cyan")
+        table.add_column("Instance Type", style="green")
+        table.add_column("GPU Model", style="yellow")
+        table.add_column("On-Demand $/hr", justify="right")
+        table.add_column("Spot $/hr", justify="right")
+        table.add_column("Savings %", justify="right", style="green")
+        table.add_column("Annual Savings", justify="right", style="magenta")
+
+        for entry in savings[:12]:
+            table.add_row(
+                entry['provider'],
+                entry['instance_type'],
+                entry['gpu_model'],
+                f"${entry['ondemand_hourly']:.2f}",
+                f"${entry['spot_hourly']:.2f}",
+                f"{entry['savings_percent']:.1f}%",
+                f"${entry['annual_savings_usd']:,.0f}"
+            )
+
+        self.console.print(table)
+
+        # Visualize
+        output_path = Path("output/cloud_spot_savings.png")
+        output_path.parent.mkdir(exist_ok=True)
+        self.plotter.plot_spot_savings(savings, top_n=12, output_path=output_path)
+        self.console.print(f"\n[green]Visualization saved to {output_path}[/green]")
+
+        Prompt.ask("\nPress Enter to continue", default="")
+
+    def _estimate_training_cost(self):
+        """Estimate LLM training cost."""
+        self.console.print("\n[bold cyan]LLM Training Cost Estimator[/bold cyan]")
+
+        params_billions = IntPrompt.ask("Enter model size in billions of parameters", default=7)
+        tokens_billions = IntPrompt.ask("Enter training tokens in billions", default=1000)
+        use_spot = Confirm.ask("Use spot pricing?", default=True)
+
+        estimate = self.cloud_cost_analyzer.estimate_llm_training_cost(
+            parameters_billions=params_billions,
+            training_tokens_billions=tokens_billions,
+            use_spot=use_spot
+        )
+
+        # Display results
+        panel = Panel(
+            f"[cyan]Model Size:[/cyan] {estimate['model_size_params']}\n"
+            f"[cyan]Training Tokens:[/cyan] {estimate['training_tokens']}\n"
+            f"[cyan]Provider:[/cyan] {estimate['provider']}\n"
+            f"[cyan]Instance Type:[/cyan] {estimate['instance_type']}\n"
+            f"[cyan]GPU Model:[/cyan] {estimate['gpu_model']}\n"
+            f"[cyan]GPU Count:[/cyan] {estimate['gpu_count']}\n"
+            f"[cyan]Training Days:[/cyan] {estimate['training_days']:.1f}\n"
+            f"[cyan]Pricing Model:[/cyan] {estimate['pricing_model']}\n\n"
+            f"[magenta bold]Total Cost:[/magenta bold] ${estimate['total_cost_usd']:,.2f}\n"
+            f"[green]Compute Cost:[/green] ${estimate['compute_cost_usd']:,.2f}\n"
+            f"[green]Storage Cost:[/green] ${estimate['storage_cost_usd']:,.2f}\n"
+            f"[yellow]Hourly Rate:[/yellow] ${estimate['hourly_rate']:.2f}/hr",
+            title="Training Cost Estimate",
+            border_style="green"
+        )
+        self.console.print(panel)
+
+        # Visualize
+        output_path = Path("output/cloud_training_estimate.png")
+        output_path.parent.mkdir(exist_ok=True)
+        self.plotter.plot_training_cost_breakdown(estimate, output_path=output_path)
+        self.console.print(f"\n[green]Visualization saved to {output_path}[/green]")
+
+        Prompt.ask("\nPress Enter to continue", default="")
+
+    def _show_gpu_price_evolution(self):
+        """Show GPU price evolution over time."""
+        evolution = self.cloud_cost_analyzer.get_gpu_price_evolution()
+
+        table = Table(title="GPU Price Evolution", box=box.ROUNDED)
+        table.add_column("GPU Model", style="cyan")
+        table.add_column("Provider", style="green")
+        table.add_column("Year", justify="right")
+        table.add_column("Instance Type", style="yellow")
+        table.add_column("Price $/hr", justify="right", style="magenta")
+
+        for gpu_model, price_data in evolution.items():
+            for entry in price_data:
+                table.add_row(
+                    gpu_model,
+                    entry['provider'],
+                    str(entry['year']),
+                    entry['instance_type'],
+                    f"${entry['price_ondemand_hourly']:.2f}"
+                )
+
+        self.console.print(table)
+
+        # Visualize
+        output_path = Path("output/cloud_gpu_price_evolution.png")
+        output_path.parent.mkdir(exist_ok=True)
+        self.plotter.plot_gpu_price_evolution(evolution, output_path=output_path)
+        self.console.print(f"\n[green]Visualization saved to {output_path}[/green]")
+
+        Prompt.ask("\nPress Enter to continue", default="")
+
+    def _show_provider_stats(self):
+        """Show provider statistics."""
+        stats = self.cloud_cost_analyzer.get_provider_statistics()
+
+        for provider, data in stats.items():
+            panel = Panel(
+                f"[cyan]Instances:[/cyan] {data['instance_count']}\n"
+                f"[cyan]Avg Hourly Cost:[/cyan] ${data['avg_hourly_cost']:.2f}\n"
+                f"[cyan]Avg Spot Discount:[/cyan] {data['avg_spot_discount_percent']:.1f}%\n"
+                f"[cyan]Total GPUs:[/cyan] {data['total_gpus']}\n"
+                f"[cyan]Unique GPU Models:[/cyan] {data['unique_gpu_models']}\n"
+                f"[cyan]Training Instances:[/cyan] {data['training_instances']}\n"
+                f"[cyan]Inference Instances:[/cyan] {data['inference_instances']}\n"
+                f"[cyan]Price Range:[/cyan] ${data['price_range']['min']:.2f} - ${data['price_range']['max']:.2f}/hr\n"
+                f"[cyan]GPU Models:[/cyan] {', '.join(data['gpu_models'])}",
+                title=f"{provider} Statistics",
+                border_style="cyan"
+            )
+            self.console.print(panel)
+            self.console.print()
+
+        # Visualize
+        output_path = Path("output/cloud_provider_comparison.png")
+        output_path.parent.mkdir(exist_ok=True)
+        self.plotter.plot_provider_comparison_matrix(stats, output_path=output_path)
+        self.console.print(f"[green]Visualization saved to {output_path}[/green]")
+
+        Prompt.ask("\nPress Enter to continue", default="")
+
+    def _compare_instances(self):
+        """Compare specific instances."""
+        self.console.print("\n[bold cyan]Compare Specific Instances[/bold cyan]")
+        self.console.print("Enter instance types separated by commas")
+        self.console.print("Example: p5.48xlarge, Standard_ND96amsr_A100_v4, a2-ultragpu-8g")
+
+        instance_types_str = Prompt.ask("\nInstance types")
+        instance_types = [t.strip() for t in instance_types_str.split(',')]
+
+        comparison = self.cloud_cost_analyzer.compare_instance_specs(instance_types)
+
+        if not comparison:
+            self.console.print("[red]No instances found with those names[/red]")
+            return
+
+        table = Table(title="Instance Comparison", box=box.ROUNDED)
+        table.add_column("Attribute", style="cyan")
+        for instance in comparison:
+            table.add_column(f"{instance['provider']}\n{instance['instance_type']}", style="green")
+
+        attributes = [
+            ('GPU Model', 'gpu_model'),
+            ('GPU Count', 'gpu_count'),
+            ('GPU Memory/GPU', lambda d: f"{d['gpu_memory_gb']}GB"),
+            ('Total GPU Memory', lambda d: f"{d['total_gpu_memory_gb']}GB"),
+            ('vCPUs', 'vcpus'),
+            ('RAM', lambda d: f"{d['ram_gb']:.0f}GB"),
+            ('TFLOPS FP32', lambda d: f"{d['tflops_fp32']:.1f}"),
+            ('TFLOPS FP16', lambda d: f"{d['tflops_fp16']:.1f}"),
+            ('On-Demand $/hr', lambda d: f"${d['price_ondemand_hourly']:.2f}"),
+            ('Spot $/hr', lambda d: f"${d['price_spot_hourly']:.2f}"),
+            ('TFLOPS/$', lambda d: f"{d['tflops_per_dollar']:.2f}"),
+            ('Cost/GPU/hr', lambda d: f"${d['cost_per_gpu_hour']:.2f}"),
+        ]
+
+        for attr_name, attr_key in attributes:
+            row = [attr_name]
+            for instance in comparison:
+                if callable(attr_key):
+                    value = attr_key(instance)
+                else:
+                    value = str(instance[attr_key])
+                row.append(value)
+            table.add_row(*row)
+
+        self.console.print(table)
+        Prompt.ask("\nPress Enter to continue", default="")
+
     def run(self):
         """Run the CLI application."""
         try:
@@ -1221,6 +1620,8 @@ class CLI:
                     self.export_menu()
                 elif choice == "7":
                     self.visualizations_menu()
+                elif choice == "8":
+                    self.cloud_cost_analysis_menu()
 
         except KeyboardInterrupt:
             self.console.print("\n\n[yellow]Interrupted by user[/yellow]")
