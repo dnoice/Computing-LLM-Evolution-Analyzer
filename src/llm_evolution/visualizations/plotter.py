@@ -712,3 +712,347 @@ class Plotter:
             plt.show()
 
         plt.close()
+
+    def plot_cloud_cost_comparison(
+        self,
+        comparison_data: Dict[str, Dict[str, Any]],
+        title: str = "Cloud Provider Cost Comparison",
+        output_path: Optional[Path] = None,
+    ) -> None:
+        """Plot cost comparison across cloud providers."""
+        if not comparison_data:
+            return
+
+        providers = list(comparison_data.keys())
+        costs = [comparison_data[p]['total_cost_usd'] for p in providers]
+        instance_types = [comparison_data[p]['instance_type'] for p in providers]
+
+        colors = []
+        for provider in providers:
+            if 'AWS' in provider:
+                colors.append('#FF9900')
+            elif 'Azure' in provider:
+                colors.append('#0078D4')
+            elif 'GCP' in provider:
+                colors.append('#4285F4')
+            else:
+                colors.append('#888888')
+
+        plt.figure(figsize=self.figsize)
+        bars = plt.bar(providers, costs, color=colors, edgecolor='black', linewidth=1.5)
+
+        for bar, cost, instance_type in zip(bars, costs, instance_types):
+            height = bar.get_height()
+            plt.text(bar.get_x() + bar.get_width()/2., height,
+                    f'${cost:,.0f}\n{instance_type}',
+                    ha='center', va='bottom', fontsize=9)
+
+        plt.xlabel('Cloud Provider', fontsize=12, fontweight='bold')
+        plt.ylabel('Total Cost (USD)', fontsize=12, fontweight='bold')
+        plt.title(title, fontsize=14, fontweight='bold')
+        plt.grid(True, alpha=0.3, axis='y')
+        plt.tight_layout()
+
+        if output_path:
+            plt.savefig(output_path, dpi=300, bbox_inches='tight')
+        else:
+            plt.show()
+
+        plt.close()
+
+    def plot_cost_efficiency_ranking(
+        self,
+        ranking_data: List[Dict[str, Any]],
+        top_n: int = 10,
+        output_path: Optional[Path] = None,
+    ) -> None:
+        """Plot cost efficiency ranking for cloud instances."""
+        if not ranking_data:
+            return
+
+        data = ranking_data[:top_n]
+        labels = [f"{d['provider']}\n{d['instance_type']}" for d in data]
+        tflops_per_dollar = [d['tflops_per_dollar'] for d in data]
+
+        colors = []
+        for d in data:
+            if 'AWS' in d['provider']:
+                colors.append('#FF9900')
+            elif 'Azure' in d['provider']:
+                colors.append('#0078D4')
+            elif 'GCP' in d['provider']:
+                colors.append('#4285F4')
+            else:
+                colors.append('#888888')
+
+        plt.figure(figsize=(12, 8))
+        bars = plt.barh(range(len(labels)), tflops_per_dollar, color=colors,
+                       edgecolor='black', linewidth=1)
+
+        for i, (bar, value) in enumerate(zip(bars, tflops_per_dollar)):
+            plt.text(value, i, f' {value:.2f}', va='center', fontsize=9)
+
+        plt.yticks(range(len(labels)), labels, fontsize=9)
+        plt.xlabel('TFLOPS per Dollar', fontsize=12, fontweight='bold')
+        plt.title('Cloud Instance Cost Efficiency Ranking', fontsize=14, fontweight='bold')
+        plt.grid(True, alpha=0.3, axis='x')
+        plt.tight_layout()
+
+        if output_path:
+            plt.savefig(output_path, dpi=300, bbox_inches='tight')
+        else:
+            plt.show()
+
+        plt.close()
+
+    def plot_spot_savings(
+        self,
+        savings_data: List[Dict[str, Any]],
+        top_n: int = 12,
+        output_path: Optional[Path] = None,
+    ) -> None:
+        """Plot spot instance savings analysis."""
+        if not savings_data:
+            return
+
+        data = savings_data[:top_n]
+        labels = [f"{d['provider']}\n{d['instance_type']}" for d in data]
+        savings_percent = [d['savings_percent'] for d in data]
+        annual_savings = [d['annual_savings_usd'] for d in data]
+
+        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 8))
+
+        colors = []
+        for d in data:
+            if 'AWS' in d['provider']:
+                colors.append('#FF9900')
+            elif 'Azure' in d['provider']:
+                colors.append('#0078D4')
+            elif 'GCP' in d['provider']:
+                colors.append('#4285F4')
+            else:
+                colors.append('#888888')
+
+        bars1 = ax1.barh(range(len(labels)), savings_percent, color=colors,
+                        edgecolor='black', linewidth=1)
+        for i, (bar, value) in enumerate(zip(bars1, savings_percent)):
+            ax1.text(value, i, f' {value:.1f}%', va='center', fontsize=8)
+
+        ax1.set_yticks(range(len(labels)))
+        ax1.set_yticklabels(labels, fontsize=8)
+        ax1.set_xlabel('Savings Percentage', fontsize=11, fontweight='bold')
+        ax1.set_title('Spot vs On-Demand Savings (%)', fontsize=12, fontweight='bold')
+        ax1.grid(True, alpha=0.3, axis='x')
+
+        bars2 = ax2.barh(range(len(labels)), annual_savings, color=colors,
+                        edgecolor='black', linewidth=1)
+        for i, (bar, value) in enumerate(zip(bars2, annual_savings)):
+            ax2.text(value, i, f' ${value:,.0f}', va='center', fontsize=8)
+
+        ax2.set_yticks(range(len(labels)))
+        ax2.set_yticklabels(labels, fontsize=8)
+        ax2.set_xlabel('Annual Savings (USD)', fontsize=11, fontweight='bold')
+        ax2.set_title('Annual Savings (24/7 Usage)', fontsize=12, fontweight='bold')
+        ax2.grid(True, alpha=0.3, axis='x')
+
+        plt.tight_layout()
+
+        if output_path:
+            plt.savefig(output_path, dpi=300, bbox_inches='tight')
+        else:
+            plt.show()
+
+        plt.close()
+
+    def plot_gpu_price_evolution(
+        self,
+        evolution_data: Dict[str, List[Dict[str, Any]]],
+        output_path: Optional[Path] = None,
+    ) -> None:
+        """Plot GPU price evolution over time across providers."""
+        if not evolution_data:
+            return
+
+        plt.figure(figsize=(14, 8))
+
+        for gpu_model, price_data in evolution_data.items():
+            if not price_data:
+                continue
+
+            providers = {}
+            for entry in price_data:
+                provider = entry['provider']
+                if provider not in providers:
+                    providers[provider] = []
+                providers[provider].append(entry)
+
+            for provider, entries in providers.items():
+                years = [e['year'] for e in entries]
+                prices = [e['price_ondemand_hourly'] for e in entries]
+
+                if 'AWS' in provider:
+                    color = '#FF9900'
+                elif 'Azure' in provider:
+                    color = '#0078D4'
+                elif 'GCP' in provider:
+                    color = '#4285F4'
+                else:
+                    color = '#888888'
+
+                plt.plot(years, prices, marker='o', linewidth=2, markersize=8,
+                        label=f'{gpu_model} ({provider})', color=color)
+
+        plt.xlabel('Year', fontsize=12, fontweight='bold')
+        plt.ylabel('On-Demand Price (USD/hour)', fontsize=12, fontweight='bold')
+        plt.title('Cloud GPU Instance Price Evolution', fontsize=14, fontweight='bold')
+        plt.legend(fontsize=9, loc='best')
+        plt.grid(True, alpha=0.3)
+        plt.tight_layout()
+
+        if output_path:
+            plt.savefig(output_path, dpi=300, bbox_inches='tight')
+        else:
+            plt.show()
+
+        plt.close()
+
+    def plot_training_cost_breakdown(
+        self,
+        cost_estimate: Dict[str, Any],
+        output_path: Optional[Path] = None,
+    ) -> None:
+        """Plot LLM training cost breakdown."""
+        if not cost_estimate:
+            return
+
+        fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, figsize=(14, 10))
+
+        compute_cost = cost_estimate['compute_cost_usd']
+        storage_cost = cost_estimate['storage_cost_usd']
+
+        if compute_cost > 0 or storage_cost > 0:
+            costs = [compute_cost, storage_cost]
+            labels = ['Compute', 'Storage']
+            colors = ['#FF6B6B', '#4ECDC4']
+
+            ax1.pie(costs, labels=labels, autopct='%1.1f%%', startangle=90,
+                   colors=colors, textprops={'fontsize': 11, 'fontweight': 'bold'})
+            ax1.set_title('Cost Breakdown', fontsize=12, fontweight='bold')
+
+        details = [
+            ['Model Size', cost_estimate.get('model_size_params', 'N/A')],
+            ['Training Tokens', cost_estimate.get('training_tokens', 'N/A')],
+            ['Provider', cost_estimate.get('provider', 'N/A')],
+            ['Instance Type', cost_estimate.get('instance_type', 'N/A')],
+            ['GPU Model', cost_estimate.get('gpu_model', 'N/A')],
+            ['GPU Count', str(cost_estimate.get('gpu_count', 0))],
+            ['Training Days', f"{cost_estimate.get('training_days', 0):.1f}"],
+            ['Pricing Model', cost_estimate.get('pricing_model', 'N/A')],
+        ]
+
+        ax2.axis('tight')
+        ax2.axis('off')
+        table = ax2.table(cellText=details, cellLoc='left',
+                         colWidths=[0.5, 0.5], loc='center')
+        table.auto_set_font_size(False)
+        table.set_fontsize(10)
+        table.scale(1, 2)
+        ax2.set_title('Training Configuration', fontsize=12, fontweight='bold', pad=20)
+
+        pricing_model = cost_estimate.get('pricing_model', 'on-demand')
+        total_cost = cost_estimate.get('total_cost_usd', 0)
+
+        if pricing_model == 'spot':
+            ondemand_cost = total_cost / 0.3
+            costs = [ondemand_cost, total_cost]
+            labels = ['On-Demand\n(Estimated)', 'Spot\n(Actual)']
+        else:
+            costs = [total_cost]
+            labels = ['On-Demand']
+
+        bars = ax3.bar(labels, costs, color=['#FF9900', '#4ECDC4'][:len(costs)],
+                      edgecolor='black', linewidth=1.5)
+        for bar, cost in zip(bars, costs):
+            height = bar.get_height()
+            ax3.text(bar.get_x() + bar.get_width()/2., height,
+                    f'${cost:,.0f}', ha='center', va='bottom', fontsize=10,
+                    fontweight='bold')
+
+        ax3.set_ylabel('Total Cost (USD)', fontsize=11, fontweight='bold')
+        ax3.set_title('Pricing Model Comparison', fontsize=12, fontweight='bold')
+        ax3.grid(True, alpha=0.3, axis='y')
+
+        summary_text = f"""
+TOTAL TRAINING COST
+${total_cost:,.2f}
+
+Compute: ${compute_cost:,.2f}
+Storage: ${storage_cost:,.2f}
+
+Hourly Rate: ${cost_estimate.get('hourly_rate', 0):.2f}/hr
+Training Hours: {cost_estimate.get('training_hours', 0):.1f}
+        """
+
+        ax4.text(0.5, 0.5, summary_text.strip(), transform=ax4.transAxes,
+                fontsize=12, verticalalignment='center', horizontalalignment='center',
+                bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.5),
+                fontfamily='monospace', fontweight='bold')
+        ax4.axis('off')
+        ax4.set_title('Cost Summary', fontsize=12, fontweight='bold')
+
+        plt.suptitle(f'LLM Training Cost Analysis - {cost_estimate.get("model_size_params", "N/A")} Model',
+                    fontsize=14, fontweight='bold', y=0.98)
+        plt.tight_layout(rect=[0, 0, 1, 0.96])
+
+        if output_path:
+            plt.savefig(output_path, dpi=300, bbox_inches='tight')
+        else:
+            plt.show()
+
+        plt.close()
+
+    def plot_provider_comparison_matrix(
+        self,
+        provider_stats: Dict[str, Dict[str, Any]],
+        output_path: Optional[Path] = None,
+    ) -> None:
+        """Plot comparison matrix of provider statistics."""
+        if not provider_stats:
+            return
+
+        providers = list(provider_stats.keys())
+        metrics = ['instance_count', 'avg_hourly_cost', 'avg_spot_discount_percent',
+                  'training_instances', 'inference_instances']
+
+        matrix_data = []
+        metric_labels = []
+
+        for metric in metrics:
+            row = []
+            for provider in providers:
+                value = provider_stats[provider].get(metric, 0)
+                row.append(value)
+            matrix_data.append(row)
+            metric_labels.append(metric.replace('_', ' ').title())
+
+        normalized_data = []
+        for row in matrix_data:
+            max_val = max(row) if max(row) > 0 else 1
+            normalized_data.append([v / max_val for v in row])
+
+        plt.figure(figsize=(10, 6))
+        sns.heatmap(normalized_data, annot=[[f'{v:.1f}' for v in row] for row in matrix_data],
+                   fmt='s', cmap='YlOrRd', xticklabels=providers,
+                   yticklabels=metric_labels, cbar_kws={'label': 'Normalized Value'})
+
+        plt.title('Cloud Provider Comparison Matrix', fontsize=14, fontweight='bold')
+        plt.xlabel('Provider', fontsize=12, fontweight='bold')
+        plt.ylabel('Metric', fontsize=12, fontweight='bold')
+        plt.tight_layout()
+
+        if output_path:
+            plt.savefig(output_path, dpi=300, bbox_inches='tight')
+        else:
+            plt.show()
+
+        plt.close()
