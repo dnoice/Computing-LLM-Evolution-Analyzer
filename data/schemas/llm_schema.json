@@ -1,0 +1,120 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "LLM Model Schema",
+  "description": "Schema for Large Language Model specifications and capabilities",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": [
+      "name", "year", "organization",
+      "parameters_billions", "architecture_type",
+      "training_tokens_billions", "training_compute_flops", "training_days",
+      "context_window", "max_output_tokens",
+      "capability_score_reasoning", "capability_score_coding",
+      "capability_score_math", "capability_score_knowledge", "capability_score_multilingual",
+      "cost_per_1m_input_tokens", "cost_per_1m_output_tokens",
+      "release_date", "model_type", "open_source", "notes"
+    ],
+    "properties": {
+      "name": {
+        "type": "string",
+        "minLength": 1
+      },
+      "year": {
+        "type": "integer",
+        "minimum": 2017,
+        "maximum": 2030
+      },
+      "organization": {
+        "type": "string",
+        "minLength": 1
+      },
+      "parameters_billions": {
+        "type": "number",
+        "minimum": 0.01
+      },
+      "architecture_type": {
+        "type": "string"
+      },
+      "training_tokens_billions": {
+        "type": "number",
+        "minimum": 0.1
+      },
+      "training_compute_flops": {
+        "type": "number",
+        "minimum": 1e15
+      },
+      "training_days": {
+        "type": "integer",
+        "minimum": 1
+      },
+      "context_window": {
+        "type": "integer",
+        "minimum": 128
+      },
+      "max_output_tokens": {
+        "type": "integer",
+        "minimum": 128
+      },
+      "capability_score_reasoning": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 100
+      },
+      "capability_score_coding": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 100
+      },
+      "capability_score_math": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 100
+      },
+      "capability_score_knowledge": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 100
+      },
+      "capability_score_multilingual": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 100
+      },
+      "cost_per_1m_input_tokens": {
+        "type": "number",
+        "minimum": 0
+      },
+      "cost_per_1m_output_tokens": {
+        "type": "number",
+        "minimum": 0
+      },
+      "num_layers": {
+        "type": "integer",
+        "minimum": 1
+      },
+      "hidden_size": {
+        "type": "integer",
+        "minimum": 64
+      },
+      "attention_heads": {
+        "type": "integer",
+        "minimum": 1
+      },
+      "release_date": {
+        "type": "string",
+        "pattern": "^\\d{4}-\\d{2}$"
+      },
+      "model_type": {
+        "type": "string",
+        "enum": ["text", "multimodal"]
+      },
+      "open_source": {
+        "type": "boolean"
+      },
+      "notes": {
+        "type": "string"
+      }
+    }
+  }
+}

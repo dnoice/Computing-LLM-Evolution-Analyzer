@@ -1,0 +1,86 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Hardware System Schema",
+  "description": "Schema for historical computer system specifications",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": [
+      "name", "year", "manufacturer",
+      "cpu_name", "cpu_cores", "cpu_transistors", "cpu_clock_mhz", "cpu_process_nm",
+      "ram_mb", "storage_mb",
+      "performance_mips", "performance_flops",
+      "power_watts",
+      "architecture", "instruction_set", "notes"
+    ],
+    "properties": {
+      "name": {
+        "type": "string",
+        "minLength": 1
+      },
+      "year": {
+        "type": "integer",
+        "minimum": 1960,
+        "maximum": 2030
+      },
+      "manufacturer": {
+        "type": "string",
+        "minLength": 1
+      },
+      "cpu_name": {
+        "type": "string",
+        "minLength": 1
+      },
+      "cpu_cores": {
+        "type": "integer",
+        "minimum": 1
+      },
+      "cpu_transistors": {
+        "type": "integer",
+        "minimum": 1
+      },
+      "cpu_clock_mhz": {
+        "type": "number",
+        "minimum": 0.1
+      },
+      "cpu_process_nm": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 100000
+      },
+      "ram_mb": {
+        "type": "number",
+        "minimum": 0.0001
+      },
+      "storage_mb": {
+        "type": "number",
+        "minimum": 0.001
+      },
+      "performance_mips": {
+        "type": ["number", "null"],
+        "minimum": 0
+      },
+      "performance_flops": {
+        "type": ["number", "null"],
+        "minimum": 0
+      },
+      "power_watts": {
+        "type": "integer",
+        "minimum": 1
+      },
+      "price_usd": {
+        "type": "integer",
+        "minimum": 0
+      },
+      "architecture": {
+        "type": "string"
+      },
+      "instruction_set": {
+        "type": "string"
+      },
+      "notes": {
+        "type": "string"
+      }
+    }
+  }
+}
