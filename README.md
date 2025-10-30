@@ -170,13 +170,29 @@ for i, instance in enumerate(ranking[:5], 1):
 Computing-LLM-Evolution-Analyzer/
 ├── data/                      # Data files
 │   ├── hardware/
-│   │   └── systems.json      # Hardware specifications (1965-2024)
+│   │   ├── systems.json      # Hardware specifications (1965-2024)
+│   │   └── README.md         # Hardware dataset documentation
 │   ├── gpu/
-│   │   └── gpus.json         # GPU specifications (1999-2024)
+│   │   ├── gpus.json         # GPU specifications (1999-2024)
+│   │   └── README.md         # GPU dataset documentation
 │   ├── llm/
-│   │   └── models.json       # LLM specifications (2018-2024)
-│   └── cloud/
-│       └── instances.json    # Cloud instance pricing (AWS, Azure, GCP)
+│   │   ├── models.json       # LLM specifications (2018-2024)
+│   │   └── README.md         # LLM dataset documentation
+│   ├── cloud/
+│   │   ├── instances.json    # Cloud instance pricing (AWS, Azure, GCP)
+│   │   └── README.md         # Cloud dataset documentation
+│   ├── schemas/              # JSON validation schemas
+│   │   ├── hardware_schema.json
+│   │   ├── gpu_schema.json
+│   │   ├── llm_schema.json
+│   │   └── cloud_schema.json
+│   ├── reference/            # Reference data
+│   │   ├── benchmarks.json
+│   │   ├── theoretical_limits.json
+│   │   └── conversion_factors.json
+│   ├── README.md             # Data directory overview
+│   ├── SOURCES.md            # Data sources and attribution
+│   └── CHANGELOG.md          # Data version history
 ├── src/
 │   └── llm_evolution/        # Main package
 │       ├── models.py         # Data models
@@ -187,10 +203,24 @@ Computing-LLM-Evolution-Analyzer/
 │       ├── moores_law.py
 │       ├── cli.py            # Interactive CLI
 │       ├── visualizations/   # Plotting modules
-│       └── exports/          # Export modules
+│       ├── exports/          # Export modules
+│       ├── data/             # Data loading utilities
+│       └── utils/            # Utility functions
+├── scripts/                  # Data validation and utilities
+│   ├── validate_data.py      # Schema validation tool
+│   ├── data_statistics.py    # Statistics generation
+│   └── README.md             # Scripts documentation
+├── docs/                     # Documentation
+│   ├── audits/               # System audits
+│   └── PR-SUMMARY.md         # Project status
+├── examples/                 # Example scripts
+│   └── quick_analysis.py     # Quick start example
 ├── output/                   # Generated outputs
 ├── main.py                   # Main entry point
+├── setup.py                  # Package configuration
 ├── requirements.txt          # Dependencies
+├── CONTRIBUTING.md           # Contribution guidelines
+├── LICENSE                   # MIT License
 └── README.md                 # This file
 ```
 
@@ -201,13 +231,13 @@ Computing-LLM-Evolution-Analyzer/
 - Intel Pentium through Core i9 series
 - AMD Ryzen series
 - Apple M-series chips
-- 27 systems spanning 59 years
+- 30 systems spanning 59 years
 
 ### GPU Dataset (1999-2024)
-- NVIDIA: GeForce 256, GTX series, RTX 20/30/40 series (15 GPUs)
-- AMD: Radeon 7500, HD series, RX 5000/6000/7000 series (11 GPUs)
+- NVIDIA: GeForce 256, GTX series, RTX 20/30/40 series (18 GPUs)
+- AMD: Radeon 7500, HD series, RX 5000/6000/7000 series (9 GPUs)
 - Intel: Arc A770 (1 GPU)
-- 27 GPUs spanning 25 years
+- 28 GPUs spanning 25 years
 - Comprehensive metrics: TFLOPS, VRAM, transistors, process nodes, efficiency
 
 ### LLM Dataset (2018-2024)
@@ -216,13 +246,13 @@ Computing-LLM-Evolution-Analyzer/
 - LLaMA series (Meta)
 - Gemini series (Google)
 - Mistral models
-- 20 major models with comprehensive metrics
+- 22 major models with comprehensive metrics
 
-### Cloud Instance Dataset (2017-2023)
+### Cloud Instance Dataset (2017-2024)
 - **AWS**: P3, P4d, P5, G5, Inf2 instances (6 instance types)
 - **Azure**: NCv3, NDv4, ND A100 v4, NCasT4 v3 (4 instance types)
-- **GCP**: A2, N1, G2 instances (5 instance types)
-- 15 instances across 3 major cloud providers
+- **GCP**: A2, N1, G2 instances (7 instance types)
+- 17 instances across 3 major cloud providers
 - Comprehensive metrics: GPU specs, pricing (on-demand, spot, reserved), TFLOPS, memory, interconnect
 - Training and inference-optimized configurations
 

@@ -17,7 +17,7 @@ else:
 
 setup(
     name="llm-evolution-analyzer",
-    version="2.0.0",
+    version="2.1.0",
     author="Computing Evolution Team",
     author_email="contact@example.com",
     description="Comprehensive analysis tool for computing hardware and LLM evolution",
