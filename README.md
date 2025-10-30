@@ -260,33 +260,33 @@ Computing-LLM-Evolution-Analyzer/
 
 ## Data Included
 
-### Hardware Dataset (1965-2024)
+### Hardware Dataset (1965-2025)
 - IBM System/360, Intel 4004, Apple II, IBM PC
 - Intel Pentium through Core i9 series
-- AMD Ryzen series
+- AMD Ryzen series, AMD EPYC Turin (2025)
 - Apple M-series chips
-- 30 systems spanning 59 years
+- 49 systems spanning 60 years
 
 ### GPU Dataset (1999-2024)
-- NVIDIA: GeForce 256, GTX series, RTX 20/30/40 series (18 GPUs)
-- AMD: Radeon 7500, HD series, RX 5000/6000/7000 series (9 GPUs)
-- Intel: Arc A770 (1 GPU)
-- 28 GPUs spanning 25 years
+- NVIDIA: GeForce 256, GTX series, RTX 20/30/40 series
+- AMD: Radeon 7500, HD series, RX 5000/6000/7000 series
+- Intel: Arc A770
+- 40 GPUs spanning 25 years
 - Comprehensive metrics: TFLOPS, VRAM, transistors, process nodes, efficiency
 
 ### LLM Dataset (2018-2024)
 - BERT, GPT-2, GPT-3, GPT-3.5, GPT-4 series
-- Claude series (Anthropic)
-- LLaMA series (Meta)
+- Claude series (Anthropic) - including Claude Opus 4.1, Claude Sonnet 4.5
+- LLaMA series (Meta) - including Llama 3.3 70B
 - Gemini series (Google)
 - Mistral models
-- 22 major models with comprehensive metrics
+- 26 major models with comprehensive metrics
 
 ### Cloud Instance Dataset (2017-2024)
-- **AWS**: P3, P4d, P5, G5, Inf2 instances (6 instance types)
-- **Azure**: NCv3, NDv4, ND A100 v4, NCasT4 v3 (4 instance types)
-- **GCP**: A2, N1, G2 instances (7 instance types)
-- 17 instances across 3 major cloud providers
+- **AWS**: P3, P4d, P5, G5, Inf2 instances
+- **Azure**: NCv3, NDv4, ND A100 v4, NCasT4 v3
+- **GCP**: A2, N1, G2 instances
+- 22 instances across 3 major cloud providers
 - Comprehensive metrics: GPU specs, pricing (on-demand, spot, reserved), TFLOPS, memory, interconnect
 - Training and inference-optimized configurations
 
@@ -341,10 +341,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - [x] Training and inference cost estimation
 - [x] Spot instance savings analysis
 - [x] Provider comparison tools
-
-### In Progress
-- [ ] Enhanced energy consumption analysis
-- [ ] Extended dataset coverage (2025+ models)
+- [x] Enhanced energy consumption analysis (power_watts tracking across all systems)
+- [x] Extended dataset coverage (2025+ models including AMD EPYC Turin, Llama 3.3 70B, Claude Opus 4.1, Claude Sonnet 4.5)
 
 ### Recently Completed
 - [x] Interactive web dashboard (v1.0)
