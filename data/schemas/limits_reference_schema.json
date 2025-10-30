@@ -1,0 +1,83 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Computing Limits Reference Schema",
+  "description": "Schema for theoretical and physical limits in computing technologies",
+  "type": "object",
+  "required": ["description", "version", "last_updated"],
+  "properties": {
+    "description": {
+      "type": "string",
+      "description": "Brief description of the dataset"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Semantic version of the dataset"
+    },
+    "last_updated": {
+      "type": "string",
+      "format": "date",
+      "description": "Last update date in YYYY-MM-DD format"
+    },
+    "fundamental_physics_limits": {
+      "type": "object",
+      "description": "Limits imposed by fundamental physics"
+    },
+    "semiconductor_limits": {
+      "type": "object",
+      "description": "Physical limits for semiconductor technology"
+    },
+    "moores_law": {
+      "type": "object",
+      "description": "Moore's Law historical trends and projections"
+    },
+    "memory_limits": {
+      "type": "object",
+      "description": "Memory technology scaling limits"
+    },
+    "storage_limits": {
+      "type": "object",
+      "description": "Data storage density and endurance limits"
+    },
+    "power_efficiency_limits": {
+      "type": "object",
+      "description": "Fundamental and practical power efficiency limits"
+    },
+    "communication_limits": {
+      "type": "object",
+      "description": "Limits on data transmission and communication"
+    },
+    "parallelization_limits": {
+      "type": "object",
+      "description": "Limits on parallel computing scalability"
+    },
+    "data_limits": {
+      "type": "object",
+      "description": "Limits on available training and storage data"
+    },
+    "cost_limits": {
+      "type": "object",
+      "description": "Economic limits on technology scaling"
+    },
+    "cooling_limits": {
+      "type": "object",
+      "description": "Heat dissipation and thermal management limits"
+    },
+    "human_perception_limits": {
+      "type": "object",
+      "description": "Human sensory limits for display and audio technology"
+    },
+    "battery_limits": {
+      "type": "object",
+      "description": "Energy storage density limits"
+    },
+    "alternative_computing": {
+      "type": "object",
+      "description": "Post-silicon and alternative computing paradigms"
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Dataset metadata and usage notes"
+    }
+  }
+}
