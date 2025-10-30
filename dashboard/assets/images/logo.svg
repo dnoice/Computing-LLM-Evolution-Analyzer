@@ -5,7 +5,14 @@
       <stop offset="50%" style="stop-color:#8b5cf6;stop-opacity:1" />
       <stop offset="100%" style="stop-color:#06b6d4;stop-opacity:1" />
     </linearGradient>
+    <radialGradient id="circleGrad" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" style="stop-color:#8b5cf6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#3b82f6;stop-opacity:1" />
+    </radialGradient>
   </defs>
+
+  <!-- Background (for transparency context) -->
+  <rect x="0" y="0" width="200" height="200" fill="none"/>
 
   <!-- Chip outline -->
   <rect x="30" y="30" width="140" height="140" rx="10" fill="none" stroke="url(#grad1)" stroke-width="4"/>
@@ -42,16 +49,31 @@
   <line x1="130" y1="170" x2="130" y2="180" stroke="url(#grad1)" stroke-width="3"/>
   <line x1="150" y1="170" x2="150" y2="180" stroke="url(#grad1)" stroke-width="3"/>
 
-  <!-- Circuit pattern -->
-  <circle cx="70" cy="70" r="8" fill="url(#grad1)"/>
-  <circle cx="130" cy="70" r="8" fill="url(#grad1)"/>
-  <circle cx="100" cy="100" r="12" fill="url(#grad1)"/>
-  <circle cx="70" cy="130" r="8" fill="url(#grad1)"/>
-  <circle cx="130" cy="130" r="8" fill="url(#grad1)"/>
+  <!-- Connecting lines (drawn FIRST so circles cover them) -->
+  <line x1="70" y1="70" x2="100" y2="100" stroke="url(#grad1)" stroke-width="2.5" stroke-opacity="0.8"/>
+  <line x1="130" y1="70" x2="100" y2="100" stroke="url(#grad1)" stroke-width="2.5" stroke-opacity="0.8"/>
+  <line x1="70" y1="130" x2="100" y2="100" stroke="url(#grad1)" stroke-width="2.5" stroke-opacity="0.8"/>
+  <line x1="130" y1="130" x2="100" y2="100" stroke="url(#grad1)" stroke-width="2.5" stroke-opacity="0.8"/>
 
-  <!-- Connecting lines -->
-  <line x1="70" y1="70" x2="100" y2="100" stroke="url(#grad1)" stroke-width="2"/>
-  <line x1="130" y1="70" x2="100" y2="100" stroke="url(#grad1)" stroke-width="2"/>
-  <line x1="70" y1="130" x2="100" y2="100" stroke="url(#grad1)" stroke-width="2"/>
-  <line x1="130" y1="130" x2="100" y2="100" stroke="url(#grad1)" stroke-width="2"/>
+  <!-- Circuit pattern nodes (drawn AFTER lines so they're on top) -->
+  <!-- Outer circles with white opaque background + gradient fill -->
+  <circle cx="70" cy="70" r="8" fill="#ffffff" opacity="1"/>
+  <circle cx="70" cy="70" r="7" fill="url(#circleGrad)"/>
+
+  <circle cx="130" cy="70" r="8" fill="#ffffff" opacity="1"/>
+  <circle cx="130" cy="70" r="7" fill="url(#circleGrad)"/>
+
+  <circle cx="70" cy="130" r="8" fill="#ffffff" opacity="1"/>
+  <circle cx="70" cy="130" r="7" fill="url(#circleGrad)"/>
+
+  <circle cx="130" cy="130" r="8" fill="#ffffff" opacity="1"/>
+  <circle cx="130" cy="130" r="7" fill="url(#circleGrad)"/>
+
+  <!-- Center circle - LARGER and FULLY OPAQUE to hide crossing lines -->
+  <circle cx="100" cy="100" r="14" fill="#ffffff" opacity="1"/>
+  <circle cx="100" cy="100" r="12" fill="url(#circleGrad)"/>
+
+  <!-- Add subtle glow effect to center circle -->
+  <circle cx="100" cy="100" r="12" fill="url(#circleGrad)" opacity="0.9"/>
+  <circle cx="100" cy="100" r="10" fill="url(#grad1)" opacity="0.6"/>
 </svg>
