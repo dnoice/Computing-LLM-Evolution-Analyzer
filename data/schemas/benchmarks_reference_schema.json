@@ -1,0 +1,135 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Benchmarks Reference Dataset Schema",
+  "description": "Schema for industry-standard benchmarks and reference measurements",
+  "type": "object",
+  "required": ["description", "version", "last_updated"],
+  "properties": {
+    "description": {
+      "type": "string",
+      "description": "Brief description of the dataset"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Semantic version of the dataset"
+    },
+    "last_updated": {
+      "type": "string",
+      "format": "date",
+      "description": "Last update date in YYYY-MM-DD format"
+    },
+    "llm_benchmarks": {
+      "type": "object",
+      "description": "Standard LLM evaluation benchmarks",
+      "properties": {
+        "description": {"type": "string"},
+        "benchmarks": {
+          "type": "object",
+          "patternProperties": {
+            ".*": {
+              "type": "object",
+              "required": ["name", "description", "scale"],
+              "properties": {
+                "name": {"type": "string"},
+                "description": {"type": "string"},
+                "scale": {"type": "string"},
+                "human_expert_baseline": {"type": "number"},
+                "human_baseline": {"type": "number"},
+                "random_baseline": {"type": "number"},
+                "gpt3_baseline": {"type": "number"},
+                "notes": {"type": "string"},
+                "reference": {"type": "string"},
+                "url": {"type": "string", "format": "uri"}
+              }
+            }
+          }
+        }
+      }
+    },
+    "gpu_benchmarks": {
+      "type": "object",
+      "description": "Standard GPU performance benchmarks",
+      "properties": {
+        "description": {"type": "string"},
+        "benchmarks": {
+          "type": "object",
+          "patternProperties": {
+            ".*": {
+              "type": "object",
+              "required": ["name", "description"],
+              "properties": {
+                "name": {"type": "string"},
+                "description": {"type": "string"},
+                "unit": {"type": "string"},
+                "apis": {
+                  "type": "array",
+                  "items": {"type": "string"}
+                },
+                "models": {
+                  "type": "array",
+                  "items": {"type": "string"}
+                },
+                "notes": {"type": "string"},
+                "reference": {"type": "string"},
+                "url": {"type": "string", "format": "uri"}
+              }
+            }
+          }
+        }
+      }
+    },
+    "hardware_benchmarks": {
+      "type": "object",
+      "description": "CPU and system benchmarks",
+      "properties": {
+        "description": {"type": "string"},
+        "benchmarks": {
+          "type": "object",
+          "patternProperties": {
+            ".*": {
+              "type": "object",
+              "required": ["name", "description"],
+              "properties": {
+                "name": {"type": "string"},
+                "description": {"type": "string"},
+                "unit": {"type": "string"},
+                "subtests": {
+                  "type": "array",
+                  "items": {"type": "string"}
+                },
+                "notes": {"type": "string"},
+                "reference": {"type": "string"},
+                "url": {"type": "string", "format": "uri"}
+              }
+            }
+          }
+        }
+      }
+    },
+    "real_world_performance": {
+      "type": "object",
+      "description": "Real-world performance metrics from production systems",
+      "properties": {
+        "description": {"type": "string"},
+        "llm_inference": {"type": "object"},
+        "training_throughput": {"type": "object"},
+        "notes": {"type": "string"}
+      }
+    },
+    "efficiency_metrics": {
+      "type": "object",
+      "description": "Standard efficiency measurements",
+      "properties": {
+        "description": {"type": "string"}
+      }
+    },
+    "scaling_laws": {
+      "type": "object",
+      "description": "Empirical scaling laws and formulas",
+      "properties": {
+        "description": {"type": "string"}
+      }
+    }
+  }
+}
