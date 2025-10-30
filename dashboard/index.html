@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Interactive dashboard for analyzing the evolution of computing hardware, GPUs, and Large Language Models">
+    <meta name="author" content="Computing Evolution Team">
+    <title>Computing & LLM Evolution Analyzer - Interactive Dashboard</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+    <!-- AOS (Animate On Scroll) -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+
+    <!-- Alpine.js for interactivity -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js"></script>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="assets/css/custom.css">
+
+    <!-- Tailwind Config -->
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3b82f6',
+                        secondary: '#8b5cf6',
+                        accent: '#06b6d4',
+                        success: '#10b981',
+                        warning: '#f59e0b',
+                        danger: '#ef4444',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300" x-data="dashboardApp()">
+
+    <!-- Navigation -->
+    <nav class="bg-white dark:bg-gray-800 shadow-lg sticky top-0 z-50">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <!-- Logo & Title -->
+                <div class="flex items-center space-x-3">
+                    <div class="bg-gradient-to-br from-primary to-secondary p-2 rounded-lg">
+                        <i class="fas fa-microchip text-white text-2xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+                            Computing Evolution
+                        </h1>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">Interactive Analytics Dashboard</p>
+                    </div>
+                </div>
+
+                <!-- Navigation Links -->
+                <div class="hidden md:flex items-center space-x-6">
+                    <a href="#overview" class="nav-link">
+                        <i class="fas fa-chart-line mr-2"></i>Overview
+                    </a>
+                    <a href="#hardware" class="nav-link">
+                        <i class="fas fa-server mr-2"></i>Hardware
+                    </a>
+                    <a href="#gpu" class="nav-link">
+                        <i class="fas fa-display mr-2"></i>GPU
+                    </a>
+                    <a href="#llm" class="nav-link">
+                        <i class="fas fa-brain mr-2"></i>LLM
+                    </a>
+                    <a href="#cloud" class="nav-link">
+                        <i class="fas fa-cloud mr-2"></i>Cloud
+                    </a>
+                </div>
+
+                <!-- Dark Mode Toggle & Menu -->
+                <div class="flex items-center space-x-4">
+                    <button @click="toggleDarkMode()" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                        <i class="fas" :class="darkMode ? 'fa-sun' : 'fa-moon'"></i>
+                    </button>
+                    <button @click="mobileMenuOpen = !mobileMenuOpen" class="md:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
+                        <i class="fas" :class="mobileMenuOpen ? 'fa-times' : 'fa-bars'"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Mobile Menu -->
+            <div x-show="mobileMenuOpen" x-transition class="md:hidden pb-4">
+                <div class="flex flex-col space-y-2">
+                    <a href="#overview" class="mobile-nav-link" @click="mobileMenuOpen = false">
+                        <i class="fas fa-chart-line mr-2"></i>Overview
+                    </a>
+                    <a href="#hardware" class="mobile-nav-link" @click="mobileMenuOpen = false">
+                        <i class="fas fa-server mr-2"></i>Hardware
+                    </a>
+                    <a href="#gpu" class="mobile-nav-link" @click="mobileMenuOpen = false">
+                        <i class="fas fa-display mr-2"></i>GPU
+                    </a>
+                    <a href="#llm" class="mobile-nav-link" @click="mobileMenuOpen = false">
+                        <i class="fas fa-brain mr-2"></i>LLM
+                    </a>
+                    <a href="#cloud" class="mobile-nav-link" @click="mobileMenuOpen = false">
+                        <i class="fas fa-cloud mr-2"></i>Cloud
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-gradient py-20 px-4">
+        <div class="container mx-auto text-center" data-aos="fade-up">
+            <h2 class="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6">
+                <span class="bg-gradient-to-r from-blue-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">
+                    Computing Evolution
+                </span>
+            </h2>
+            <p class="text-xl sm:text-2xl text-gray-600 dark:text-gray-300 mb-8 max-w-3xl mx-auto">
+                Analyze 59 years of hardware evolution, GPU performance trends, LLM scaling laws, and cloud computing economics
+            </p>
+            <div class="flex flex-wrap justify-center gap-4">
+                <button @click="scrollToSection('overview')" class="btn-primary">
+                    <i class="fas fa-rocket mr-2"></i>Explore Data
+                </button>
+                <button @click="scrollToSection('comparison')" class="btn-secondary">
+                    <i class="fas fa-code-compare mr-2"></i>Compare Systems
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Quick Stats -->
+    <section id="overview" class="py-16 px-4 bg-white dark:bg-gray-800">
+        <div class="container mx-auto">
+            <h3 class="text-3xl font-bold mb-8 text-center" data-aos="fade-up">
+                <i class="fas fa-chart-bar text-primary mr-2"></i>
+                Dataset Overview
+            </h3>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Hardware Stats -->
+                <div class="stat-card" data-aos="fade-up" data-aos-delay="100">
+                    <div class="stat-icon bg-blue-500">
+                        <i class="fas fa-microchip"></i>
+                    </div>
+                    <div>
+                        <p class="stat-label">Hardware Systems</p>
+                        <p class="stat-value" x-text="stats.hardware.count"></p>
+                        <p class="stat-subtitle">1965 - 2024 (59 years)</p>
+                    </div>
+                </div>
+
+                <!-- GPU Stats -->
+                <div class="stat-card" data-aos="fade-up" data-aos-delay="200">
+                    <div class="stat-icon bg-purple-500">
+                        <i class="fas fa-display"></i>
+                    </div>
+                    <div>
+                        <p class="stat-label">GPU Models</p>
+                        <p class="stat-value" x-text="stats.gpu.count"></p>
+                        <p class="stat-subtitle">1999 - 2024 (25 years)</p>
+                    </div>
+                </div>
+
+                <!-- LLM Stats -->
+                <div class="stat-card" data-aos="fade-up" data-aos-delay="300">
+                    <div class="stat-icon bg-cyan-500">
+                        <i class="fas fa-brain"></i>
+                    </div>
+                    <div>
+                        <p class="stat-label">LLM Models</p>
+                        <p class="stat-value" x-text="stats.llm.count"></p>
+                        <p class="stat-subtitle">2018 - 2024 (6 years)</p>
+                    </div>
+                </div>
+
+                <!-- Cloud Stats -->
+                <div class="stat-card" data-aos="fade-up" data-aos-delay="400">
+                    <div class="stat-icon bg-green-500">
+                        <i class="fas fa-cloud"></i>
+                    </div>
+                    <div>
+                        <p class="stat-label">Cloud Instances</p>
+                        <p class="stat-value" x-text="stats.cloud.count"></p>
+                        <p class="stat-subtitle">AWS, Azure, GCP</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Moore's Law Section -->
+    <section class="py-16 px-4 bg-gray-50 dark:bg-gray-900">
+        <div class="container mx-auto">
+            <div class="text-center mb-12" data-aos="fade-up">
+                <h3 class="text-3xl font-bold mb-4">
+                    <i class="fas fa-chart-line text-secondary mr-2"></i>
+                    Moore's Law Analysis
+                </h3>
+                <p class="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+                    Track transistor density evolution and predict future trends with realistic slowdown modeling
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Chart -->
+                <div class="lg:col-span-2 card" data-aos="fade-right">
+                    <canvas id="mooresLawChart"></canvas>
+                </div>
+
+                <!-- Stats -->
+                <div class="space-y-4" data-aos="fade-left">
+                    <div class="card">
+                        <h4 class="text-lg font-semibold mb-4">
+                            <i class="fas fa-calculator text-primary mr-2"></i>
+                            Historical CAGR
+                        </h4>
+                        <div class="space-y-3">
+                            <div class="metric-item">
+                                <span class="metric-label">Transistors</span>
+                                <span class="metric-value text-blue-600" x-text="cagrData.transistors"></span>
+                            </div>
+                            <div class="metric-item">
+                                <span class="metric-label">Clock Speed</span>
+                                <span class="metric-value text-purple-600" x-text="cagrData.clockSpeed"></span>
+                            </div>
+                            <div class="metric-item">
+                                <span class="metric-label">Core Count</span>
+                                <span class="metric-value text-cyan-600" x-text="cagrData.cores"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20">
+                        <h4 class="text-lg font-semibold mb-2">
+                            <i class="fas fa-lightbulb text-warning mr-2"></i>
+                            Prediction Note
+                        </h4>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">
+                            Moore's Law is slowing down. Our predictions include realistic slowdown modeling and physical limits.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Hardware Evolution Section -->
+    <section id="hardware" class="py-16 px-4 bg-white dark:bg-gray-800">
+        <div class="container mx-auto">
+            <div class="text-center mb-12" data-aos="fade-up">
+                <h3 class="text-3xl font-bold mb-4">
+                    <i class="fas fa-server text-blue-500 mr-2"></i>
+                    Hardware Evolution
+                </h3>
+                <p class="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+                    59 years of computing hardware advancement from IBM System/360 to modern processors
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Transistor Evolution Chart -->
+                <div class="card" data-aos="fade-up" data-aos-delay="100">
+                    <h4 class="card-title">
+                        <i class="fas fa-microchip mr-2"></i>
+                        Transistor Count Evolution
+                    </h4>
+                    <canvas id="transistorChart"></canvas>
+                </div>
+
+                <!-- Performance Evolution Chart -->
+                <div class="card" data-aos="fade-up" data-aos-delay="200">
+                    <h4 class="card-title">
+                        <i class="fas fa-gauge-high mr-2"></i>
+                        Clock Speed Evolution
+                    </h4>
+                    <canvas id="clockSpeedChart"></canvas>
+                </div>
+
+                <!-- Memory Evolution Chart -->
+                <div class="card" data-aos="fade-up" data-aos-delay="300">
+                    <h4 class="card-title">
+                        <i class="fas fa-memory mr-2"></i>
+                        RAM Capacity Evolution
+                    </h4>
+                    <canvas id="ramChart"></canvas>
+                </div>
+
+                <!-- Price Trends Chart -->
+                <div class="card" data-aos="fade-up" data-aos-delay="400">
+                    <h4 class="card-title">
+                        <i class="fas fa-dollar-sign mr-2"></i>
+                        Price per Performance
+                    </h4>
+                    <canvas id="pricePerformanceChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- GPU Analysis Section -->
+    <section id="gpu" class="py-16 px-4 bg-gray-50 dark:bg-gray-900">
+        <div class="container mx-auto">
+            <div class="text-center mb-12" data-aos="fade-up">
+                <h3 class="text-3xl font-bold mb-4">
+                    <i class="fas fa-display text-purple-500 mr-2"></i>
+                    GPU Performance Analysis
+                </h3>
+                <p class="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+                    25 years of GPU evolution from NVIDIA, AMD, and Intel
+                </p>
+            </div>
+
+            <!-- GPU Filter Controls -->
+            <div class="card mb-6" data-aos="fade-up">
+                <div class="flex flex-wrap gap-4 items-center">
+                    <div class="flex items-center space-x-2">
+                        <i class="fas fa-filter text-primary"></i>
+                        <span class="font-semibold">Filter by:</span>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <button @click="gpuFilter = 'all'"
+                                :class="gpuFilter === 'all' ? 'btn-filter-active' : 'btn-filter'"
+                                class="btn-filter">
+                            All GPUs
+                        </button>
+                        <button @click="gpuFilter = 'nvidia'"
+                                :class="gpuFilter === 'nvidia' ? 'btn-filter-active' : 'btn-filter'">
+                            <i class="fab fa-nvidia mr-1"></i> NVIDIA
+                        </button>
+                        <button @click="gpuFilter = 'amd'"
+                                :class="gpuFilter === 'amd' ? 'btn-filter-active' : 'btn-filter'">
+                            AMD
+                        </button>
+                        <button @click="gpuFilter = 'intel'"
+                                :class="gpuFilter === 'intel' ? 'btn-filter-active' : 'btn-filter'">
+                            Intel
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- TFLOPS Evolution -->
+                <div class="card" data-aos="fade-up" data-aos-delay="100">
+                    <h4 class="card-title">
+                        <i class="fas fa-bolt mr-2"></i>
+                        Compute Performance (TFLOPS)
+                    </h4>
+                    <canvas id="gpuTflopsChart"></canvas>
+                </div>
+
+                <!-- VRAM Evolution -->
+                <div class="card" data-aos="fade-up" data-aos-delay="200">
+                    <h4 class="card-title">
+                        <i class="fas fa-memory mr-2"></i>
+                        VRAM Capacity
+                    </h4>
+                    <canvas id="gpuVramChart"></canvas>
+                </div>
+
+                <!-- Efficiency Chart -->
+                <div class="card" data-aos="fade-up" data-aos-delay="300">
+                    <h4 class="card-title">
+                        <i class="fas fa-leaf mr-2"></i>
+                        Power Efficiency (TFLOPS/Watt)
+                    </h4>
+                    <canvas id="gpuEfficiencyChart"></canvas>
+                </div>
+
+                <!-- Manufacturer Comparison -->
+                <div class="card" data-aos="fade-up" data-aos-delay="400">
+                    <h4 class="card-title">
+                        <i class="fas fa-code-compare mr-2"></i>
+                        Manufacturer Comparison
+                    </h4>
+                    <canvas id="gpuManufacturerChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- LLM Analysis Section -->
+    <section id="llm" class="py-16 px-4 bg-white dark:bg-gray-800">
+        <div class="container mx-auto">
+            <div class="text-center mb-12" data-aos="fade-up">
+                <h3 class="text-3xl font-bold mb-4">
+                    <i class="fas fa-brain text-cyan-500 mr-2"></i>
+                    Large Language Model Analysis
+                </h3>
+                <p class="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+                    Track the explosive growth of LLMs from BERT to GPT-4 and beyond
+                </p>
+            </div>
+
+            <!-- Warning Banner -->
+            <div class="card bg-gradient-to-r from-orange-50 to-red-50 dark:from-orange-900/20 dark:to-red-900/20 border-l-4 border-warning mb-6" data-aos="fade-up">
+                <div class="flex items-start space-x-3">
+                    <i class="fas fa-exclamation-triangle text-warning text-2xl mt-1"></i>
+                    <div>
+                        <h4 class="font-semibold text-lg mb-2">Reality Check: Unsustainable Growth Rates</h4>
+                        <p class="text-sm text-gray-700 dark:text-gray-300">
+                            The 1000%+ CAGR rates shown represent a historical anomaly from the initial LLM scaling phase (2018-2024).
+                            These rates cannot continue due to economic, energy, and data constraints. Expected future growth: 20-50% CAGR.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Parameter Scaling -->
+                <div class="card" data-aos="fade-up" data-aos-delay="100">
+                    <h4 class="card-title">
+                        <i class="fas fa-layer-group mr-2"></i>
+                        Parameter Scaling
+                    </h4>
+                    <canvas id="llmParametersChart"></canvas>
+                </div>
+
+                <!-- Training Compute -->
+                <div class="card" data-aos="fade-up" data-aos-delay="200">
+                    <h4 class="card-title">
+                        <i class="fas fa-server mr-2"></i>
+                        Training Compute (FLOPs)
+                    </h4>
+                    <canvas id="llmComputeChart"></canvas>
+                </div>
+
+                <!-- Context Window -->
+                <div class="card" data-aos="fade-up" data-aos-delay="300">
+                    <h4 class="card-title">
+                        <i class="fas fa-window-maximize mr-2"></i>
+                        Context Window Size
+                    </h4>
+                    <canvas id="llmContextChart"></canvas>
+                </div>
+
+                <!-- Capability Scores -->
+                <div class="card" data-aos="fade-up" data-aos-delay="400">
+                    <h4 class="card-title">
+                        <i class="fas fa-chart-radar mr-2"></i>
+                        Capability Scores (Latest Models)
+                    </h4>
+                    <canvas id="llmCapabilityChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Cloud Cost Analysis Section -->
+    <section id="cloud" class="py-16 px-4 bg-gray-50 dark:bg-gray-900">
+        <div class="container mx-auto">
+            <div class="text-center mb-12" data-aos="fade-up">
+                <h3 class="text-3xl font-bold mb-4">
+                    <i class="fas fa-cloud text-green-500 mr-2"></i>
+                    Cloud Computing Economics
+                </h3>
+                <p class="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+                    Compare AWS, Azure, and GCP pricing for ML training and inference workloads
+                </p>
+            </div>
+
+            <!-- Cost Calculator -->
+            <div class="card mb-6" data-aos="fade-up">
+                <h4 class="card-title mb-6">
+                    <i class="fas fa-calculator mr-2"></i>
+                    Training Cost Estimator
+                </h4>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div>
+                        <label class="input-label">Model Size (Billions)</label>
+                        <input type="number" x-model="costCalc.modelSize" class="input-field" min="1" max="1000">
+                    </div>
+                    <div>
+                        <label class="input-label">Training Tokens (Billions)</label>
+                        <input type="number" x-model="costCalc.trainingTokens" class="input-field" min="1" max="10000">
+                    </div>
+                    <div>
+                        <label class="input-label">Use Spot Instances</label>
+                        <select x-model="costCalc.useSpot" class="input-field">
+                            <option value="true">Yes (Save 50-70%)</option>
+                            <option value="false">No (On-Demand)</option>
+                        </select>
+                    </div>
+                </div>
+                <button @click="calculateCost()" class="btn-primary mt-4">
+                    <i class="fas fa-calculator mr-2"></i>
+                    Calculate Cost
+                </button>
+
+                <!-- Results -->
+                <div x-show="costCalc.results" x-transition class="mt-6 p-4 bg-gradient-to-r from-green-50 to-blue-50 dark:from-green-900/20 dark:to-blue-900/20 rounded-lg">
+                    <h5 class="font-semibold mb-3">Estimated Training Cost:</h5>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">Total Cost</p>
+                            <p class="text-2xl font-bold text-green-600" x-text="'$' + (costCalc.estimatedCost || 0).toLocaleString()"></p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">Training Days</p>
+                            <p class="text-2xl font-bold text-blue-600" x-text="(costCalc.trainingDays || 0) + ' days'"></p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">Best Provider</p>
+                            <p class="text-2xl font-bold text-purple-600" x-text="costCalc.bestProvider || 'AWS'"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Provider Comparison -->
+                <div class="card" data-aos="fade-up" data-aos-delay="100">
+                    <h4 class="card-title">
+                        <i class="fas fa-code-compare mr-2"></i>
+                        Cost Efficiency by Provider
+                    </h4>
+                    <canvas id="cloudProviderChart"></canvas>
+                </div>
+
+                <!-- Spot Savings -->
+                <div class="card" data-aos="fade-up" data-aos-delay="200">
+                    <h4 class="card-title">
+                        <i class="fas fa-piggy-bank mr-2"></i>
+                        Spot Instance Savings
+                    </h4>
+                    <canvas id="spotSavingsChart"></canvas>
+                </div>
+
+                <!-- Instance Comparison -->
+                <div class="card" data-aos="fade-up" data-aos-delay="300">
+                    <h4 class="card-title">
+                        <i class="fas fa-chart-bar mr-2"></i>
+                        Instance Type Comparison
+                    </h4>
+                    <canvas id="instanceComparisonChart"></canvas>
+                </div>
+
+                <!-- Cost Over Time -->
+                <div class="card" data-aos="fade-up" data-aos-delay="400">
+                    <h4 class="card-title">
+                        <i class="fas fa-chart-line mr-2"></i>
+                        GPU Pricing Trends
+                    </h4>
+                    <canvas id="pricingTrendsChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Comparison Tool Section -->
+    <section id="comparison" class="py-16 px-4 bg-white dark:bg-gray-800">
+        <div class="container mx-auto">
+            <div class="text-center mb-12" data-aos="fade-up">
+                <h3 class="text-3xl font-bold mb-4">
+                    <i class="fas fa-code-compare text-accent mr-2"></i>
+                    Interactive Comparison Tool
+                </h3>
+                <p class="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+                    Compare different systems, GPUs, or models side by side
+                </p>
+            </div>
+
+            <div class="card" data-aos="fade-up">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <div>
+                        <label class="input-label">Select Type</label>
+                        <select x-model="comparison.type" class="input-field">
+                            <option value="hardware">Hardware Systems</option>
+                            <option value="gpu">GPUs</option>
+                            <option value="llm">LLM Models</option>
+                            <option value="cloud">Cloud Instances</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="input-label">Comparison Metric</label>
+                        <select x-model="comparison.metric" class="input-field">
+                            <option value="performance">Performance</option>
+                            <option value="efficiency">Efficiency</option>
+                            <option value="cost">Cost</option>
+                            <option value="growth">Growth Rate</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="h-96">
+                    <canvas id="comparisonChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-gray-300 py-12 px-4">
+        <div class="container mx-auto">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+                <div>
+                    <h4 class="text-white font-bold mb-4 flex items-center">
+                        <i class="fas fa-microchip text-primary mr-2"></i>
+                        Computing Evolution
+                    </h4>
+                    <p class="text-sm">
+                        Interactive analytics for computing hardware, GPU, and LLM evolution spanning 59 years of technology advancement.
+                    </p>
+                </div>
+                <div>
+                    <h4 class="text-white font-bold mb-4">Data Coverage</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><i class="fas fa-check text-success mr-2"></i>30 Hardware Systems</li>
+                        <li><i class="fas fa-check text-success mr-2"></i>28 GPU Models</li>
+                        <li><i class="fas fa-check text-success mr-2"></i>22 LLM Models</li>
+                        <li><i class="fas fa-check text-success mr-2"></i>17 Cloud Instances</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-white font-bold mb-4">Features</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><i class="fas fa-chart-line text-primary mr-2"></i>Moore's Law Analysis</li>
+                        <li><i class="fas fa-chart-bar text-primary mr-2"></i>CAGR Calculations</li>
+                        <li><i class="fas fa-calculator text-primary mr-2"></i>Cost Estimators</li>
+                        <li><i class="fas fa-code-compare text-primary mr-2"></i>Comparison Tools</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-white font-bold mb-4">Resources</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="#" class="hover:text-primary transition-colors"><i class="fas fa-book mr-2"></i>Documentation</a></li>
+                        <li><a href="#" class="hover:text-primary transition-colors"><i class="fas fa-database mr-2"></i>Data Sources</a></li>
+                        <li><a href="https://github.com" class="hover:text-primary transition-colors"><i class="fab fa-github mr-2"></i>GitHub</a></li>
+                        <li><a href="#" class="hover:text-primary transition-colors"><i class="fas fa-download mr-2"></i>Export Data</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 pt-8 text-center text-sm">
+                <p>&copy; 2024 Computing Evolution Team. Licensed under MIT License.</p>
+                <p class="mt-2 text-gray-500">Built with <i class="fas fa-heart text-red-500"></i> using Tailwind CSS, Chart.js, and Alpine.js</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Custom Scripts -->
+    <script src="assets/js/main.js"></script>
+    <script src="assets/js/charts.js"></script>
+    <script src="assets/js/data-loader.js"></script>
+</body>
+</html>

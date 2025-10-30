@@ -67,9 +67,30 @@ pip install -r requirements.txt
 
 ## Usage
 
+### Interactive Web Dashboard
+
+Launch the beautiful web dashboard for the best experience:
+
+```bash
+cd dashboard
+python serve.py
+```
+
+Then open your browser to `http://localhost:8000`
+
+**Features:**
+- Beautiful, responsive design with dark mode
+- Interactive charts powered by Chart.js
+- Real-time data filtering and comparisons
+- Mobile-first responsive layout
+- Cost calculator for LLM training
+- Moore's Law predictions with visualizations
+
+See [dashboard/README.md](dashboard/README.md) for more details.
+
 ### Interactive CLI Mode
 
-Run the main application:
+Run the command-line application:
 
 ```bash
 python main.py
@@ -168,60 +189,73 @@ for i, instance in enumerate(ranking[:5], 1):
 
 ```
 Computing-LLM-Evolution-Analyzer/
-├── data/                      # Data files
+├── dashboard/                # Interactive web dashboard
+│   ├── index.html           # Main dashboard page
+│   ├── serve.py             # Development server
+│   ├── README.md            # Dashboard documentation
+│   └── assets/
+│       ├── css/
+│       │   └── custom.css   # Custom styles with CSS variables
+│       ├── js/
+│       │   ├── main.js      # Alpine.js app logic
+│       │   ├── charts.js    # Chart.js configurations
+│       │   └── data-loader.js  # Data loading utilities
+│       └── images/
+│           └── logo.svg     # SVG logo
+├── data/                    # Data files
 │   ├── hardware/
-│   │   ├── systems.json      # Hardware specifications (1965-2024)
-│   │   └── README.md         # Hardware dataset documentation
+│   │   ├── systems.json    # Hardware specifications (1965-2024)
+│   │   └── README.md       # Hardware dataset documentation
 │   ├── gpu/
-│   │   ├── gpus.json         # GPU specifications (1999-2024)
-│   │   └── README.md         # GPU dataset documentation
+│   │   ├── gpus.json       # GPU specifications (1999-2024)
+│   │   └── README.md       # GPU dataset documentation
 │   ├── llm/
-│   │   ├── models.json       # LLM specifications (2018-2024)
-│   │   └── README.md         # LLM dataset documentation
+│   │   ├── models.json     # LLM specifications (2018-2024)
+│   │   └── README.md       # LLM dataset documentation
 │   ├── cloud/
-│   │   ├── instances.json    # Cloud instance pricing (AWS, Azure, GCP)
-│   │   └── README.md         # Cloud dataset documentation
-│   ├── schemas/              # JSON validation schemas
+│   │   ├── instances.json  # Cloud instance pricing (AWS, Azure, GCP)
+│   │   └── README.md       # Cloud dataset documentation
+│   ├── schemas/            # JSON validation schemas
 │   │   ├── hardware_schema.json
 │   │   ├── gpu_schema.json
 │   │   ├── llm_schema.json
 │   │   └── cloud_schema.json
-│   ├── reference/            # Reference data
+│   ├── reference/          # Reference data
 │   │   ├── benchmarks.json
 │   │   ├── theoretical_limits.json
 │   │   └── conversion_factors.json
-│   ├── README.md             # Data directory overview
-│   ├── SOURCES.md            # Data sources and attribution
-│   └── CHANGELOG.md          # Data version history
+│   ├── README.md           # Data directory overview
+│   ├── SOURCES.md          # Data sources and attribution
+│   └── CHANGELOG.md        # Data version history
 ├── src/
-│   └── llm_evolution/        # Main package
-│       ├── models.py         # Data models
+│   └── llm_evolution/      # Main package
+│       ├── models.py       # Data models
 │       ├── hardware_analyzer.py
 │       ├── gpu_analyzer.py
 │       ├── llm_analyzer.py
 │       ├── cloud_cost_analyzer.py  # Cloud cost analysis
 │       ├── moores_law.py
-│       ├── cli.py            # Interactive CLI
-│       ├── visualizations/   # Plotting modules
-│       ├── exports/          # Export modules
-│       ├── data/             # Data loading utilities
-│       └── utils/            # Utility functions
-├── scripts/                  # Data validation and utilities
-│   ├── validate_data.py      # Schema validation tool
-│   ├── data_statistics.py    # Statistics generation
-│   └── README.md             # Scripts documentation
-├── docs/                     # Documentation
-│   ├── audits/               # System audits
-│   └── PR-SUMMARY.md         # Project status
-├── examples/                 # Example scripts
-│   └── quick_analysis.py     # Quick start example
-├── output/                   # Generated outputs
-├── main.py                   # Main entry point
-├── setup.py                  # Package configuration
-├── requirements.txt          # Dependencies
-├── CONTRIBUTING.md           # Contribution guidelines
-├── LICENSE                   # MIT License
-└── README.md                 # This file
+│       ├── cli.py          # Interactive CLI
+│       ├── visualizations/ # Plotting modules
+│       ├── exports/        # Export modules
+│       ├── data/           # Data loading utilities
+│       └── utils/          # Utility functions
+├── scripts/                # Data validation and utilities
+│   ├── validate_data.py    # Schema validation tool
+│   ├── data_statistics.py  # Statistics generation
+│   └── README.md           # Scripts documentation
+├── docs/                   # Documentation
+│   ├── audits/             # System audits
+│   └── PR-SUMMARY.md       # Project status
+├── examples/               # Example scripts
+│   └── quick_analysis.py   # Quick start example
+├── output/                 # Generated outputs
+├── main.py                 # Main entry point
+├── setup.py                # Package configuration
+├── requirements.txt        # Dependencies
+├── CONTRIBUTING.md         # Contribution guidelines
+├── LICENSE                 # MIT License
+└── README.md               # This file
 ```
 
 ## Data Included
@@ -312,8 +346,16 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - [ ] Enhanced energy consumption analysis
 - [ ] Extended dataset coverage (2025+ models)
 
+### Recently Completed
+- [x] Interactive web dashboard (v1.0)
+  - Beautiful responsive design with Tailwind CSS
+  - Chart.js visualizations for all analyzers
+  - Dark mode support
+  - Mobile-first design
+  - Interactive cost calculator
+  - Real-time filtering and comparisons
+
 ### Planned Features
-- [ ] Interactive web dashboard
 - [ ] Real-time data updates from APIs
 - [ ] Carbon footprint analysis
 - [ ] Benchmark database integration

@@ -140,3 +140,5 @@ output/*
 *.jpg
 *.jpeg
 *.html
+# Exception: Allow dashboard HTML files
+!dashboard/**/*.html
