@@ -1,251 +1,1108 @@
 {
   "description": "Theoretical and physical limits for computing technologies",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "last_updated": "2024-10-29",
+
+  "fundamental_physics_limits": {
+    "description": "Hard limits imposed by the laws of physics",
+    
+    "speed_of_light": {
+      "value": 299792458,
+      "unit": "meters per second",
+      "in_vacuum": true,
+      "practical_implications": {
+        "signal_delay_1cm": "0.033 nanoseconds",
+        "signal_delay_1m": "3.3 nanoseconds",
+        "signal_delay_1000km": "3.3 milliseconds",
+        "notes": "Minimum latency between components. Limits CPU clock speeds and distributed computing."
+      },
+      "light_travel_per_ghz_cycle": {
+        "at_1ghz": "30 cm",
+        "at_3ghz": "10 cm",
+        "at_5ghz": "6 cm",
+        "notes": "At 5 GHz, light travels only 6cm per clock cycle. This fundamentally limits how large a synchronous chip can be."
+      }
+    },
+    
+    "heisenberg_uncertainty": {
+      "principle": "ΔE·Δt ≥ ℏ/2",
+      "implication": "Cannot measure energy precisely in arbitrarily short time",
+      "practical_impact": "Limits minimum switching time and energy of transistors",
+      "notes": "Quantum effects become dominant below ~5nm feature sizes"
+    },
+    
+    "bekenstein_bound": {
+      "description": "Maximum information density in a physical system",
+      "formula": "I ≤ 2πRE/(ℏc·ln2)",
+      "practical_value": "~1.4e69 bits per kg per meter",
+      "notes": "Theoretical upper bound on storage density. Practical limits are many orders of magnitude lower.",
+      "example": "1 liter sphere could theoretically store ~10^31 bits, but black hole would form"
+    },
+    
+    "landauer_limit": {
+      "value": 2.99e-21,
+      "unit": "Joules per bit erasure",
+      "temperature_k": 300,
+      "formula": "kT·ln(2)",
+      "description": "Thermodynamic minimum energy to erase one bit of information at room temperature",
+      "practical_gap": "Current computing is ~1 million times above this limit",
+      "notes": "Applies to irreversible computation. Reversible computation could theoretically avoid this limit."
+    },
+    
+    "shot_noise_limit": {
+      "description": "Quantum noise in electrical signals",
+      "implication": "Limits minimum detectable signal in communications and sensors",
+      "practical_impact": "Affects analog computing, sensors, and high-speed communications"
+    }
+  },
 
   "semiconductor_limits": {
     "description": "Physical limits for semiconductor technology",
+    
     "process_node_limits": {
-      "silicon_atomic_limit": {
-        "value": 0.2,
+      "silicon_atomic_spacing": {
+        "value": 0.543,
         "unit": "nm",
-        "description": "Silicon lattice constant (theoretical minimum)",
-        "notes": "Below 2nm, quantum effects dominate"
+        "description": "Silicon lattice constant",
+        "notes": "Fundamental physical size of silicon crystal structure"
+      },
+      "gate_oxide_limit": {
+        "current_thickness": "0.5-1.0",
+        "minimum_practical": "0.3",
+        "unit": "nm",
+        "limit_reason": "Below this, quantum tunneling causes excessive leakage current",
+        "notes": "High-k dielectrics (HfO2) help reduce tunneling"
       },
       "practical_silicon_limit": {
-        "value": 1,
+        "value_range": "0.5-1.0",
         "unit": "nm",
-        "description": "Practical lower bound for silicon transistors",
-        "expected_year": 2030,
-        "notes": "Gate oxide thickness and quantum tunneling limits"
+        "description": "Practical lower bound for planar silicon transistors",
+        "expected_timeframe": "2028-2032",
+        "notes": "Quantum effects and variability dominate. GAA and nanosheets extend scaling."
       },
-      "current_node_2024": {
+      "current_production_2024": {
         "value": 3,
-        "unit": "nm",
-        "description": "State of the art in 2024",
-        "manufacturers": ["TSMC", "Samsung"]
+        "unit": "nm (marketing name)",
+        "actual_features": "24nm metal pitch, 48nm gate pitch",
+        "manufacturers": ["TSMC N3", "Samsung 3nm GAA"],
+        "transistor_density": "250-300 MTr/mm²",
+        "notes": "Node names are marketing terms, not actual feature sizes"
+      },
+      "announced_2025_2026": {
+        "value": 2,
+        "unit": "nm (marketing name)",
+        "manufacturers": ["TSMC N2", "Intel 18A"],
+        "technology": "Gate-all-around (GAA) nanosheets",
+        "notes": "Production beginning 2025-2026"
       }
     },
+    
     "transistor_density_limits": {
-      "current_2024": {
-        "value": 300,
+      "current_best_2024": {
+        "value": "250-300",
         "unit": "million transistors per mm²",
-        "node": "3nm",
-        "notes": "Apple M3, AMD Ryzen 9000"
+        "node": "3nm class",
+        "examples": ["Apple M3/M4", "Qualcomm Snapdragon 8 Gen 3"]
+      },
+      "projected_2027": {
+        "value": "400-500",
+        "unit": "million transistors per mm²",
+        "node": "2nm class",
+        "technology": "GAA, improved density"
       },
       "projected_2030": {
-        "value": 1000,
+        "value": "700-1000",
         "unit": "million transistors per mm²",
         "node": "1nm equivalent",
-        "notes": "Gate-all-around FETs, 3D stacking"
+        "technology": "Advanced GAA, 3D stacking, new materials",
+        "uncertainty": "High - depends on breakthrough technologies"
+      },
+      "theoretical_limit_2d": {
+        "value": "~10000",
+        "unit": "million transistors per mm²",
+        "notes": "Approaching atomic scale. 3D stacking extends this further."
       }
     },
+    
     "clock_frequency_limits": {
-      "practical_limit_air_cooling": {
-        "value": 6000,
+      "current_consumer_max_2024": {
+        "value": "5700-6200",
         "unit": "MHz",
-        "power_watts": 300,
-        "notes": "Limited by power density and heat dissipation"
+        "examples": ["Intel i9-14900KS", "AMD Ryzen 9 7950X3D"],
+        "power_range": "200-300 watts",
+        "cooling": "High-end air or liquid"
       },
-      "theoretical_limit_silicon": {
-        "value": 10000,
+      "practical_limit_air_cooling": {
+        "value": "6000-6500",
         "unit": "MHz",
-        "notes": "Limited by electron mobility in silicon",
-        "alternative_materials": ["Graphene", "Carbon nanotubes"]
+        "power_watts": "250-350",
+        "limit_reason": "Power density and heat dissipation with consumer cooling"
+      },
+      "practical_limit_exotic_cooling": {
+        "value": "7000-9000",
+        "unit": "MHz",
+        "cooling": "LN2, phase change",
+        "notes": "Overclocking records, not practical for daily use"
+      },
+      "theoretical_silicon_limit": {
+        "value": "10000-20000",
+        "unit": "MHz",
+        "limit_reason": "Electron mobility in silicon, RC delays, power density",
+        "notes": "Would require revolutionary cooling and power delivery"
+      },
+      "alternative_materials": {
+        "graphene": "Potential 1 THz (1,000,000 MHz), but no practical transistors yet",
+        "carbon_nanotubes": "100+ GHz demonstrated in lab",
+        "notes": "Manufacturing at scale remains unsolved"
+      }
+    },
+    
+    "interconnect_limits": {
+      "rc_delay": {
+        "description": "Resistance-capacitance delay in wires",
+        "impact": "Becomes dominant at small feature sizes",
+        "notes": "Limits clock frequency and requires sophisticated routing"
+      },
+      "electromigration": {
+        "description": "Metal atoms migrate under current, causing wire failure",
+        "impact": "Limits current density in wires",
+        "typical_limit": "1-2 mA/μm² for copper",
+        "notes": "Worse at higher temperatures, limits chip power density"
+      },
+      "crosstalk": {
+        "description": "Signal interference between adjacent wires",
+        "impact": "Requires spacing and shielding, reducing density",
+        "notes": "Worse at smaller geometries and higher frequencies"
       }
     }
   },
 
   "moores_law": {
-    "description": "Moore's Law predictions and deviations",
-    "original_formulation": {
-      "doubling_period": 24,
+    "description": "Moore's Law historical trends and current status",
+    
+    "original_formulation_1965": {
+      "doubling_period": 12,
       "unit": "months",
-      "metric": "transistor count",
+      "metric": "Component count at minimum cost per component",
       "year": 1965,
-      "author": "Gordon Moore"
+      "author": "Gordon Moore",
+      "notes": "Original observation based on 1959-1965 data"
     },
-    "revised_formulation": {
+    
+    "revised_formulation_1975": {
       "doubling_period": 24,
       "unit": "months",
-      "metric": "transistor count",
+      "metric": "Transistor count",
       "year": 1975,
-      "notes": "Refined prediction, held until ~2015"
+      "notes": "This became the commonly cited version, held approximately until ~2012"
     },
-    "current_trend_2020_2024": {
-      "doubling_period": 30,
+    
+    "historical_periods": {
+      "golden_age_1975_2005": {
+        "doubling_period": 24,
+        "unit": "months",
+        "notes": "Dennard scaling: performance doubled with each generation"
+      },
+      "post_dennard_2005_2015": {
+        "doubling_period": 24,
+        "unit": "months",
+        "notes": "Transistor density doubled, but clock speeds plateaued due to power"
+      },
+      "slowing_2015_2024": {
+        "doubling_period": "30-36",
+        "unit": "months",
+        "notes": "Physical and economic barriers slowing progression"
+      }
+    },
+    
+    "current_trend_2024": {
+      "transistor_doubling_period": "36-42",
       "unit": "months",
-      "notes": "Slowing down due to physical limits"
+      "notes": "Slowing significantly due to physical limits and economics",
+      "cost_per_transistor": "No longer decreasing for leading-edge nodes"
     },
-    "predicted_end": {
-      "year_range": "2025-2030",
-      "reason": "Physical and economic limits of silicon scaling",
-      "successors": ["3D stacking", "Photonics", "Quantum computing"]
+    
+    "projected_trajectory": {
+      "2025_2030": {
+        "doubling_period": "48+",
+        "unit": "months",
+        "notes": "Transition to 3D stacking and alternative scaling methods"
+      },
+      "post_2030": {
+        "status": "End of traditional 2D scaling",
+        "alternatives": [
+          "3D chip stacking",
+          "Chiplets and advanced packaging",
+          "New materials (2D materials, III-V semiconductors)",
+          "New transistor types (CFET, nanosheets)",
+          "Beyond-CMOS: photonics, quantum, neuromorphic"
+        ]
+      }
+    },
+    
+    "dennard_scaling": {
+      "description": "Power density stays constant as transistors shrink",
+      "period": "1974-2005",
+      "end_reason": "Leakage current and voltage scaling limits",
+      "impact": "End of 'free' performance gains, led to multi-core era",
+      "notes": "This is what actually ended around 2005, not Moore's Law itself"
     }
   },
 
   "memory_limits": {
-    "description": "Memory technology limits",
+    "description": "Memory technology scaling limits",
+    
     "dram_scaling": {
-      "current_node_2024": 10,
-      "practical_limit": 5,
+      "current_node_2024": "10-12",
+      "near_term_limit": "8-10",
+      "practical_limit": "6-8",
+      "theoretical_limit": "5",
       "unit": "nm",
-      "limit_reason": "Charge storage capacitance minimum",
-      "alternative": "MRAM, ReRAM, 3D stacking"
+      "limit_reason": "Minimum capacitance for reliable charge storage",
+      "alternatives": ["3D stacking (HBM)", "MRAM", "ReRAM", "PCM"],
+      "notes": "DRAM scaling slower than logic due to capacitance requirements"
     },
+    
+    "sram_scaling": {
+      "current_size": "0.020-0.030",
+      "practical_limit": "0.010",
+      "unit": "μm² per bit",
+      "limit_reason": "6-transistor cell requires minimum area for stability",
+      "notes": "SRAM doesn't scale as well as logic. Cache size limited."
+    },
+    
+    "nand_flash_scaling": {
+      "current_layers": "200+",
+      "near_term": "300+",
+      "practical_limit": "400-500",
+      "unit": "layers in 3D NAND",
+      "limit_reason": "Aspect ratio and etching depth challenges",
+      "current_cell_type": "QLC (4 bits/cell), PLC (5 bits/cell) emerging",
+      "endurance_tradeoff": "More bits/cell = lower endurance",
+      "notes": "Scaling via stacking, not shrinking"
+    },
+    
     "bandwidth_limits": {
-      "ddr5_theoretical": 64,
-      "hbm3_theoretical": 819,
-      "unit": "GB/s per channel",
-      "future_tech": {
-        "hbm4_target": 1600,
-        "year": 2026,
-        "unit": "GB/s"
+      "ddr5_max_2024": {
+        "value": 64,
+        "unit": "GB/s per channel",
+        "speed": "6400 MT/s",
+        "notes": "Current high-end consumer"
+      },
+      "ddr5_theoretical": {
+        "value": "80+",
+        "unit": "GB/s per channel",
+        "speed": "8800+ MT/s",
+        "notes": "Planned future speeds"
+      },
+      "hbm3_current": {
+        "value": "819",
+        "unit": "GB/s per stack (1024-bit)",
+        "speed": "6.4 Gbps per pin",
+        "stacks": "Up to 12 stacks per package"
+      },
+      "hbm3e": {
+        "value": "1150",
+        "unit": "GB/s per stack",
+        "speed": "9.2 Gbps per pin",
+        "year": 2024,
+        "notes": "Used in H200 GPU"
+      },
+      "hbm4_planned": {
+        "value": "1600-2000",
+        "unit": "GB/s per stack",
+        "year": "2026-2027",
+        "notes": "Next generation HBM"
+      },
+      "theoretical_electrical_limit": {
+        "value": "~3000",
+        "unit": "GB/s per stack",
+        "notes": "Limited by electrical signaling physics. Optical interconnects needed beyond this."
       }
+    },
+    
+    "capacity_per_chip": {
+      "dram_2024": "32 GB per die (single)",
+      "dram_practical_limit": "64-128 GB per die with stacking",
+      "ssd_2024": "2 TB per package (1-4 dies)",
+      "ssd_practical_limit": "10-20 TB per package",
+      "notes": "Capacity limited by die cost and physics"
+    }
+  },
+
+  "storage_limits": {
+    "description": "Data storage density and endurance limits",
+    
+    "magnetic_storage": {
+      "current_hdd_2024": {
+        "value": "2.0-2.5",
+        "unit": "TB per platter",
+        "technology": "PMR (Perpendicular), early HAMR",
+        "areal_density": "~1.5 Tb/in²"
+      },
+      "hamr_near_term": {
+        "value": "4-6",
+        "unit": "TB per platter",
+        "technology": "HAMR (Heat-Assisted)",
+        "areal_density": "3-5 Tb/in²",
+        "notes": "Seagate shipping, WD developing"
+      },
+      "mamr_alternative": {
+        "value": "3-4",
+        "unit": "TB per platter",
+        "technology": "MAMR (Microwave-Assisted)",
+        "notes": "Western Digital's alternative to HAMR"
+      },
+      "theoretical_magnetic_limit": {
+        "value": "10-20",
+        "unit": "Tb/in²",
+        "limit_reason": "Superparamagnetic effect - grains too small become unstable",
+        "notes": "May require multi-actuator and new recording methods"
+      }
+    },
+    
+    "solid_state_storage": {
+      "slc_endurance": "100,000 P/E cycles",
+      "mlc_endurance": "10,000 P/E cycles",
+      "tlc_endurance": "3,000 P/E cycles",
+      "qlc_endurance": "1,000 P/E cycles",
+      "plc_endurance": "500-1,000 P/E cycles (estimated)",
+      "notes": "More bits per cell = lower endurance. Tradeoff between capacity and longevity.",
+      "wear_leveling": "Essential to extend practical lifespan"
+    },
+    
+    "optical_storage": {
+      "blu_ray": "25-128 GB per disc",
+      "archival_optical": "300-1000 GB per disc (experimental)",
+      "limit_reason": "Diffraction limit of blue laser",
+      "notes": "Limited by wavelength of light. Research into multi-layer and holographic storage."
+    },
+    
+    "dna_storage": {
+      "density": "215 petabytes per gram (theoretical)",
+      "current_achieved": "~200 TB per gram",
+      "read_speed": "Very slow (seconds to minutes)",
+      "write_speed": "Very slow (hours to days)",
+      "cost": "Extremely expensive ($1000+ per MB)",
+      "error_rate": "High, requires redundancy",
+      "longevity": "Thousands of years if stored properly",
+      "status": "Research/archival proof-of-concept only",
+      "practical_timeline": "2030s+ for niche archival use if ever"
     }
   },
 
   "power_efficiency_limits": {
-    "description": "Fundamental limits on power efficiency",
-    "landauer_limit": {
-      "value": 2.99e-21,
+    "description": "Fundamental and practical power efficiency limits",
+    
+    "landauer_limit_detailed": {
+      "value_at_300k": 2.99e-21,
+      "value_at_273k": 2.73e-21,
+      "value_at_77k": 7.70e-22,
       "unit": "Joules per bit operation",
-      "temperature": 300,
-      "unit_temp": "Kelvin",
-      "description": "Thermodynamic minimum energy to erase one bit",
-      "notes": "Current GPUs use ~1 million times more energy"
+      "formula": "E = kT·ln(2), where k = Boltzmann constant",
+      "k_boltzmann": 1.380649e-23,
+      "description": "Thermodynamic minimum energy for irreversible computation",
+      "reversible_computing": "Could theoretically avoid this limit, but extremely difficult in practice"
     },
-    "practical_limits": {
-      "modern_gpu_2024": {
-        "value": 3e-12,
-        "unit": "Joules per FLOP",
-        "example": "RTX 4090",
-        "efficiency_gap": "1,000,000x above Landauer limit"
+    
+    "current_efficiency": {
+      "modern_cpu_2024": {
+        "value": "1e-14 to 1e-13",
+        "unit": "Joules per operation",
+        "examples": ["Apple M3", "Intel Lunar Lake"],
+        "gap_from_landauer": "~10,000x above theoretical minimum"
       },
-      "future_target_2030": {
-        "value": 1e-12,
+      "modern_gpu_2024": {
+        "value": "1e-12 to 3e-12",
+        "unit": "Joules per FLOP (FP32)",
+        "examples": ["RTX 4090", "H100"],
+        "gap_from_landauer": "~1,000,000x above theoretical minimum"
+      },
+      "mobile_soc_2024": {
+        "value": "3e-14 to 1e-13",
+        "unit": "Joules per operation",
+        "examples": ["Snapdragon 8 Gen 3", "Apple A17 Pro"],
+        "notes": "More efficient due to optimization for power"
+      }
+    },
+    
+    "projected_efficiency": {
+      "2030_target": {
+        "value": "3e-13 to 1e-13",
         "unit": "Joules per FLOP",
-        "improvement_needed": "3x from 2024",
-        "notes": "Requires new materials and architectures"
+        "improvement_factor": "2-3x from 2024",
+        "notes": "Requires advanced process nodes, new architectures"
+      },
+      "2040_optimistic": {
+        "value": "1e-14",
+        "unit": "Joules per FLOP",
+        "improvement_factor": "100x from 2024",
+        "notes": "Would require revolutionary advances in materials or architectures",
+        "still_above_landauer": "~10,000x gap remains"
+      }
+    },
+    
+    "efficiency_breakdown": {
+      "transistor_switching": "40-60% of energy",
+      "leakage_current": "20-40% of energy",
+      "interconnect": "10-20% of energy",
+      "clock_distribution": "5-15% of energy",
+      "notes": "Approximate breakdown for modern processors"
+    }
+  },
+
+  "communication_limits": {
+    "description": "Limits on data transmission and networking",
+    
+    "speed_of_light_delays": {
+      "fiber_optic_speed": {
+        "value": 200000000,
+        "unit": "m/s",
+        "percentage_c": 67,
+        "notes": "~67% speed of light due to refractive index"
+      },
+      "practical_latencies": {
+        "same_city": "1-5 ms",
+        "cross_country_us": "30-60 ms",
+        "us_to_europe": "80-120 ms",
+        "us_to_asia": "120-200 ms",
+        "around_world": "200-300 ms",
+        "notes": "Minimum latencies set by physics. Routing adds overhead."
+      },
+      "theoretical_minimum_latency": {
+        "new_york_london": "19 ms",
+        "san_francisco_tokyo": "35 ms",
+        "notes": "Direct fiber path at 67% speed of light. Never achievable due to routing."
+      }
+    },
+    
+    "optical_fiber_capacity": {
+      "current_single_mode": {
+        "value": "100-400",
+        "unit": "Gbps per wavelength",
+        "total_capacity": "10-100 Tbps with WDM",
+        "notes": "Wavelength Division Multiplexing (WDM) uses multiple wavelengths"
+      },
+      "theoretical_shannon_limit": {
+        "value": "100+",
+        "unit": "Tbps per fiber",
+        "notes": "Limited by Shannon capacity: C = B·log₂(1+SNR), depends on fiber properties and amplifiers"
+      },
+      "space_division_multiplexing": {
+        "value": "1+",
+        "unit": "Pbps",
+        "technology": "Multi-core and multi-mode fibers",
+        "status": "Research phase"
+      }
+    },
+    
+    "wireless_limits": {
+      "shannon_hartley": {
+        "formula": "C = B·log₂(1+SNR)",
+        "description": "Maximum data rate given bandwidth and signal-to-noise ratio",
+        "implication": "Fundamental limit on wireless capacity"
+      },
+      "spectrum_scarcity": {
+        "problem": "Limited usable electromagnetic spectrum",
+        "low_frequency": "Better propagation, more congested",
+        "high_frequency": "More bandwidth, worse propagation, higher attenuation",
+        "mmwave_5g": "24-100 GHz, high capacity but very short range"
+      },
+      "practical_ranges": {
+        "wifi_6_indoor": "30-100 Mbps at 50m",
+        "5g_mmwave": "1-5 Gbps at <100m",
+        "5g_sub6": "100-500 Mbps at 1km",
+        "notes": "Real-world performance highly dependent on environment"
+      }
+    },
+    
+    "chip_interconnect_limits": {
+      "on_chip_bandwidth": {
+        "current_2024": "1-5 TB/s",
+        "notes": "Between compute units within a chip"
+      },
+      "chip_to_chip": {
+        "pcie_5_x16": "128 GB/s",
+        "nvlink_4": "900 GB/s (bidirectional)",
+        "ucie": "2+ Tb/s (emerging standard)",
+        "notes": "Off-chip bandwidth is major bottleneck"
+      },
+      "future_optical": {
+        "technology": "Silicon photonics",
+        "potential": "10+ Tb/s",
+        "status": "Research and early commercial",
+        "timeline": "2030s for mainstream adoption"
+      }
+    }
+  },
+
+  "parallelization_limits": {
+    "description": "Limits on parallel computing scalability",
+    
+    "amdahls_law": {
+      "formula": "Speedup = 1 / [(1-P) + P/N]",
+      "description": "Theoretical speedup limited by serial portion of code",
+      "p_definition": "P = fraction of code that can be parallelized",
+      "n_definition": "N = number of processors",
+      "key_insight": "Serial portions limit maximum speedup",
+      "examples": {
+        "90_percent_parallel": "Max 10x speedup regardless of cores",
+        "95_percent_parallel": "Max 20x speedup",
+        "99_percent_parallel": "Max 100x speedup",
+        "notes": "Even small serial fractions severely limit scaling"
+      }
+    },
+    
+    "gustafsons_law": {
+      "formula": "Speedup = N - (1-P)(N-1)",
+      "description": "Scaled speedup when problem size increases with processors",
+      "advantage": "More optimistic than Amdahl for large problems",
+      "notes": "Assumes parallelizable work scales with processors"
+    },
+    
+    "practical_scaling_limits": {
+      "memory_bandwidth": {
+        "issue": "Multiple cores compete for memory access",
+        "impact": "Performance scales sublinearly with cores",
+        "mitigation": "Large caches, HBM, careful data placement"
+      },
+      "cache_coherence": {
+        "issue": "Overhead of keeping caches synchronized",
+        "impact": "Grows with core count",
+        "scaling_limit": "Practical limit ~100-1000 cores per coherence domain"
+      },
+      "synchronization": {
+        "issue": "Locks, barriers, and coordination overhead",
+        "impact": "Serial bottleneck increases with cores",
+        "notes": "Can dominate runtime for fine-grained parallelism"
+      },
+      "load_balancing": {
+        "issue": "Uneven work distribution",
+        "impact": "Some cores idle while others work",
+        "notes": "Dynamic load balancing adds overhead"
+      }
+    },
+    
+    "gpu_parallelism": {
+      "current_cores_2024": {
+        "consumer": "10,000-16,000 CUDA cores (RTX 4090)",
+        "datacenter": "18,000-20,000 cores (H100)",
+        "notes": "Effective for massively parallel workloads"
+      },
+      "limits": {
+        "memory_bandwidth": "Major bottleneck for many workloads",
+        "divergence": "Conditional branches reduce efficiency",
+        "occupancy": "Limited by register and shared memory per thread"
       }
     }
   },
 
   "data_limits": {
-    "description": "Limits on available training data",
+    "description": "Limits on available training data and data growth",
+    
     "text_data": {
-      "total_internet_text": {
-        "value": 50,
+      "total_internet_text_2024": {
+        "value": "40-60",
         "unit": "trillion tokens",
-        "year": 2024,
-        "notes": "Estimate of all accessible internet text"
+        "uncertainty": "High - depends on what counts as 'accessible'",
+        "notes": "Includes all web pages, but much is duplicate or low quality"
       },
       "high_quality_filtered": {
-        "value": 5,
+        "value": "3-10",
         "unit": "trillion tokens",
-        "notes": "After quality filtering and deduplication"
+        "criteria": "English, deduplicated, quality filtered",
+        "notes": "Suitable for language model training"
       },
-      "currently_used": {
-        "value": 20,
-        "unit": "trillion tokens",
-        "model": "GPT-4o (estimated)",
-        "notes": "Frontier models approaching total available data"
+      "estimated_frontier_model_usage": {
+        "gpt4_estimated": "10-15 trillion tokens",
+        "claude_3_estimated": "10-20 trillion tokens",
+        "notes": "Estimates vary widely. Models use filtered, high-quality subset.",
+        "uncertainty": "Very high - companies don't disclose exact training data"
+      },
+      "data_scarcity_timeline": {
+        "issue": "High-quality text data being exhausted",
+        "timeframe": "2024-2027",
+        "implications": "Need for synthetic data, data efficiency, multimodal training"
       }
     },
+    
     "multimodal_data": {
       "image_text_pairs": {
-        "value": 5,
-        "unit": "billion pairs",
-        "source": "LAION-5B and similar datasets"
+        "laion_5b": "5.85 billion pairs",
+        "total_estimated": "10-20 billion high-quality pairs",
+        "notes": "Limited by copyright, quality, and captioning"
       },
-      "video_hours": {
-        "value": 1,
-        "unit": "billion hours",
-        "source": "YouTube and public videos",
-        "notes": "Quality and copyright limits availability"
+      "video_data": {
+        "youtube_total": "1+ billion hours",
+        "high_quality_subset": "100-500 million hours estimated",
+        "notes": "Copyright and processing costs limit usage"
+      },
+      "code_data": {
+        "github_public": "100+ million repositories",
+        "tokens_estimated": "2-5 trillion tokens",
+        "notes": "Limited by licensing and quality"
       }
+    },
+    
+    "synthetic_data": {
+      "description": "AI-generated data for training",
+      "current_use": "10-30% of training data (estimated)",
+      "concerns": [
+        "Model collapse - degradation from training on synthetic data",
+        "Bias amplification",
+        "Copyright and attribution issues"
+      ],
+      "notes": "Increasingly important as natural data plateaus"
+    },
+    
+    "data_creation_rate": {
+      "global_data_2024": "~120 zettabytes",
+      "annual_growth": "~25-30%",
+      "notes": "Most new data is video, images, and IoT sensors - not all useful for AI training"
     }
   },
 
   "cost_limits": {
-    "description": "Economic limits on model scaling",
-    "training_costs": {
-      "gpt3_2020": {
-        "value": 4.6,
-        "unit": "million USD",
-        "parameters": 175
+    "description": "Economic limits on technology scaling and model development",
+    
+    "chip_fabrication_costs": {
+      "fab_cost_2024": {
+        "leading_edge": "20-30 billion USD",
+        "mature_node": "5-10 billion USD",
+        "notes": "Cost of building a new advanced semiconductor fab"
       },
-      "gpt4_2023_estimated": {
-        "value": 100,
-        "unit": "million USD",
-        "parameters": 1760
+      "mask_set_cost": {
+        "5nm_3nm": "20-30 million USD",
+        "7nm": "10-15 million USD",
+        "notes": "Non-recurring engineering cost for chip design"
       },
-      "economic_ceiling": {
-        "value": 1000,
-        "unit": "million USD",
-        "notes": "Beyond this, ROI becomes questionable for commercial models"
+      "wafer_cost": {
+        "3nm": "15,000-20,000 USD per wafer",
+        "5nm": "12,000-17,000 USD per wafer",
+        "7nm": "9,000-12,000 USD per wafer",
+        "notes": "Costs increasing per wafer even as yield improves"
       }
     },
-    "inference_costs": {
-      "cost_per_token_trend": {
-        "2020": 0.02,
-        "2024": 0.005,
-        "unit": "USD per 1000 tokens",
-        "trend": "Decreasing due to optimization and competition"
+    
+    "llm_training_costs": {
+      "note": "Estimates vary widely and are often speculative. Companies rarely disclose actual costs.",
+      "gpt3_2020_estimated": {
+        "value": "4-12",
+        "unit": "million USD",
+        "parameters": "175 billion",
+        "uncertainty": "High - based on estimated compute"
+      },
+      "palm_2022_estimated": {
+        "value": "20-40",
+        "unit": "million USD",
+        "parameters": "540 billion",
+        "uncertainty": "Very high"
+      },
+      "gpt4_2023_estimated": {
+        "value": "50-200",
+        "unit": "million USD",
+        "parameters": "Unknown (rumored 1-2 trillion)",
+        "uncertainty": "Extremely high - highly speculative"
+      },
+      "frontier_model_2024_estimated": {
+        "value": "100-500",
+        "unit": "million USD",
+        "notes": "Includes compute, data, engineering, iteration",
+        "uncertainty": "Extremely high"
+      },
+      "components": {
+        "compute": "50-70% of cost",
+        "data": "10-20%",
+        "engineering": "10-20%",
+        "infrastructure": "10-15%"
+      }
+    },
+    
+    "economic_limits": {
+      "training_cost_ceiling": {
+        "value": "1-2",
+        "unit": "billion USD",
+        "timeframe": "Late 2020s",
+        "reason": "ROI becomes questionable, investor limits",
+        "notes": "May be pushed higher if models prove sufficiently valuable"
+      },
+      "inference_cost_trends": {
+        "cost_reduction": "50-70% per year 2020-2024",
+        "drivers": "Competition, optimization, better hardware",
+        "limit": "Cannot drop below hardware + electricity costs",
+        "floor": "Approaching hardware efficiency limits"
       }
     }
   },
 
   "cooling_limits": {
-    "description": "Heat dissipation limits",
-    "air_cooling_limit": {
-      "value": 300,
-      "unit": "watts per chip",
-      "notes": "Practical limit for consumer hardware"
-    },
-    "liquid_cooling_limit": {
-      "value": 600,
-      "unit": "watts per chip",
-      "notes": "Used in high-end GPUs (e.g., H100)"
+    "description": "Heat dissipation and thermal management limits",
+    
+    "air_cooling": {
+      "consumer_practical": {
+        "value": "200-300",
+        "unit": "watts per chip",
+        "examples": ["Desktop CPUs", "High-end consumer GPUs"],
+        "notes": "Tower coolers, large fans"
       },
-    "immersion_cooling": {
-      "value": 1000,
-      "unit": "watts per chip",
-      "notes": "Used in data centers, not practical for consumers"
+      "absolute_air_cooling": {
+        "value": "350-400",
+        "unit": "watts per chip",
+        "notes": "Large heat sink required, noisy",
+        "examples": "Overclocked CPUs with extreme air cooling"
+      }
     },
-    "power_density_limit": {
-      "value": 100,
-      "unit": "watts per cm²",
-      "notes": "Above this, hotspots become problematic"
+    
+    "liquid_cooling": {
+      "aio_consumer": {
+        "value": "300-450",
+        "unit": "watts per chip",
+        "notes": "All-in-one liquid coolers, common for high-end CPUs"
+      },
+      "custom_loop": {
+        "value": "450-700",
+        "unit": "watts per chip",
+        "notes": "Custom water cooling loops"
+      },
+      "datacenter_liquid": {
+        "value": "600-1000",
+        "unit": "watts per chip",
+        "examples": ["H100 (700W)", "MI300X (750W)"],
+        "notes": "Direct-to-chip liquid cooling"
+      }
+    },
+    
+    "immersion_cooling": {
+      "single_phase": {
+        "value": "1000-1500",
+        "unit": "watts per chip",
+        "fluid": "Dielectric liquid (mineral oil, engineered fluids)",
+        "notes": "Hardware submerged in non-conductive fluid"
+      },
+      "two_phase": {
+        "value": "1500-2000",
+        "unit": "watts per chip",
+        "fluid": "Engineered fluids (e.g., 3M Novec)",
+        "notes": "Liquid evaporates and condenses, very efficient",
+        "cost": "Very expensive, used in HPC and crypto mining"
+      }
+    },
+    
+    "power_density_limits": {
+      "practical_silicon": {
+        "value": "100-150",
+        "unit": "watts per cm²",
+        "notes": "Above this, thermal management becomes extremely difficult"
+      },
+      "hotspot_limit": {
+        "value": "200-300",
+        "unit": "watts per cm²",
+        "notes": "Local hot spots can exceed average, cause failures"
+      },
+      "thermal_interface": {
+        "limit": "Thermal interface material (TIM) resistance is significant bottleneck",
+        "notes": "Gap between die and heat spreader/cooler"
+      }
+    },
+    
+    "temperature_limits": {
+      "consumer_cpu_max": "95-100°C (thermal throttling)",
+      "consumer_gpu_max": "90-95°C (thermal throttling)",
+      "datacenter_cpu_max": "85-90°C (target for reliability)",
+      "datacenter_gpu_max": "85-90°C (target for reliability)",
+      "hbm_memory_max": "85-95°C (critical for reliability)",
+      "notes": "Higher temps reduce lifespan and reliability significantly"
+    }
+  },
+
+  "human_perception_limits": {
+    "description": "Limits of human sensory perception for display and audio technology",
+    
+    "visual_limits": {
+      "angular_resolution": {
+        "value": "1",
+        "unit": "arcminute",
+        "equivalent_at_viewing_distance": "0.3mm at 1 meter",
+        "notes": "Beyond this, individual pixels not distinguishable"
+      },
+      "retina_display": {
+        "definition": "300+ PPI at typical viewing distance",
+        "phone": "400-500 PPI at 30cm",
+        "monitor": "200-250 PPI at 60cm",
+        "notes": "Apple's marketing term, based on angular resolution"
+      },
+      "8k_overkill": {
+        "4k_sufficient_at": "1.5x screen height viewing distance",
+        "8k_required_for": "Closer than 0.75x screen height",
+        "notes": "8K provides no benefit for typical TV viewing distances (2-3x height)"
+      },
+      "refresh_rate": {
+        "film_standard": "24 fps (perceived as motion)",
+        "tv_standard": "60 Hz",
+        "gaming_smooth": "120-144 Hz",
+        "esports": "240-360 Hz",
+        "human_limit": "500-1000 Hz (debated)",
+        "notes": "Diminishing returns above 120Hz for most people"
+      },
+      "dynamic_range": {
+        "sdr": "100-200 nits",
+        "hdr10": "1000-4000 nits",
+        "human_perception": "14-20 stops",
+        "notes": "Humans can perceive very wide dynamic range, but not simultaneously"
+      },
+      "color_depth": {
+        "visible_colors": "10 million (estimated)",
+        "8bit_per_channel": "16.7 million RGB combinations",
+        "10bit_per_channel": "1.07 billion combinations",
+        "notes": "10-bit sufficient for most, 8-bit shows banding in gradients"
+      }
+    },
+    
+    "audio_limits": {
+      "frequency_range": {
+        "human_hearing": "20 Hz - 20,000 Hz",
+        "adult_typical": "20 Hz - 16,000 Hz",
+        "notes": "High frequency hearing degrades with age"
+      },
+      "sample_rate": {
+        "cd_quality": "44.1 kHz (covers 20kHz via Nyquist)",
+        "studio": "96-192 kHz",
+        "benefit_above_48khz": "Debated, imperceptible to most",
+        "notes": "48kHz sufficient for human hearing range"
+      },
+      "bit_depth": {
+        "cd_quality": "16-bit (96 dB dynamic range)",
+        "professional": "24-bit (144 dB dynamic range)",
+        "human_perception": "120-140 dB (pain threshold at ~130 dB)",
+        "notes": "16-bit sufficient for most listening environments"
+      }
+    }
+  },
+
+  "battery_limits": {
+    "description": "Energy storage density limits",
+    
+    "current_technology_2024": {
+      "lithium_ion": {
+        "gravimetric": "250-300",
+        "volumetric": "650-750",
+        "unit_gravimetric": "Wh/kg",
+        "unit_volumetric": "Wh/L",
+        "cycle_life": "500-2000 cycles to 80% capacity",
+        "examples": ["NMC", "NCA", "LFP"]
+      },
+      "lithium_polymer": {
+        "gravimetric": "200-250",
+        "volumetric": "500-650",
+        "unit_gravimetric": "Wh/kg",
+        "unit_volumetric": "Wh/L",
+        "advantages": "Flexible form factor",
+        "notes": "Common in phones and drones"
+      }
+    },
+    
+    "near_term_technology": {
+      "silicon_anode": {
+        "gravimetric": "350-400",
+        "unit": "Wh/kg",
+        "timeline": "2024-2026",
+        "advantages": "10x capacity of graphite anode",
+        "challenges": "Volume expansion during charging"
+      },
+      "solid_state": {
+        "gravimetric": "400-500",
+        "unit": "Wh/kg",
+        "timeline": "2025-2030",
+        "advantages": "Higher safety, no thermal runaway",
+        "challenges": "Manufacturing at scale, cost",
+        "notes": "Multiple companies (Toyota, QuantumScape) targeting production"
+      }
+    },
+    
+    "future_technology": {
+      "lithium_sulfur": {
+        "gravimetric_theoretical": "2600",
+        "gravimetric_practical": "400-600",
+        "unit": "Wh/kg",
+        "timeline": "2030+",
+        "challenges": "Cycle life, polysulfide shuttle",
+        "notes": "Research phase"
+      },
+      "lithium_air": {
+        "gravimetric_theoretical": "3500",
+        "gravimetric_practical": "800-1000",
+        "unit": "Wh/kg",
+        "timeline": "2035+ if ever",
+        "challenges": "Efficiency, cycle life, engineering",
+        "notes": "Very early research"
+      }
+    },
+    
+    "theoretical_limits": {
+      "hydrogen_fuel_cell": {
+        "gravimetric": "33,000",
+        "unit": "Wh/kg (for H2)",
+        "system_practical": "1000-2000 Wh/kg",
+        "notes": "Storage tank and system weight reduces practical density"
+      },
+      "gasoline_energy": {
+        "gravimetric": "12,000",
+        "unit": "Wh/kg",
+        "notes": "Chemical energy in gasoline. Batteries unlikely to match."
+      },
+      "thermodynamic_electrochemical": {
+        "estimated": "5000-10000",
+        "unit": "Wh/kg",
+        "notes": "Theoretical limit for electrochemical storage based on atomic masses"
+      }
+    },
+    
+    "charging_limits": {
+      "current_fast_charging": "100-350 kW (vehicles)",
+      "battery_degradation": "Fast charging reduces cycle life",
+      "heat_generation": "Limits practical charging speed",
+      "notes": "Tradeoff between charging speed and battery longevity"
     }
   },
 
   "alternative_computing": {
-    "description": "Post-silicon alternatives",
+    "description": "Post-silicon and alternative computing paradigms",
+    
     "quantum_computing": {
-      "status": "Research phase",
-      "current_qubits": 1000,
-      "error_corrected_target": 1000000,
-      "useful_applications": "Specialized algorithms only",
-      "timeline": "2030+ for practical applications"
+      "status": "Research phase, early commercial offerings",
+      "current_systems_2024": {
+        "ibm_condor": "1121 qubits",
+        "atom_computing": "1180 qubits",
+        "google_willow": "105 qubits (but better error correction)",
+        "notes": "Qubit count alone doesn't determine capability"
+      },
+      "error_correction_threshold": {
+        "physical_qubits_per_logical": "100-10,000",
+        "error_rate_required": "<0.1% per operation",
+        "current_error_rates": "0.1-1% per operation",
+        "notes": "Need ~1 million physical qubits for useful error-corrected systems"
+      },
+      "useful_applications": [
+        "Specialized algorithms (Shor's, Grover's)",
+        "Quantum chemistry simulation",
+        "Optimization problems (limited cases)",
+        "Cryptography (breaking RSA/ECC)"
+      ],
+      "limitations": [
+        "Decoherence times (microseconds to milliseconds)",
+        "Error rates still too high",
+        "Limited connectivity between qubits",
+        "Extreme cooling requirements (millikelvin)"
+      ],
+      "timeline": {
+        "useful_error_corrected": "2030-2035",
+        "cryptographic_threat": "2030-2040",
+        "general_purpose": "Beyond 2050 if ever",
+        "notes": "Extremely uncertain timeline"
+      }
     },
+    
     "photonic_computing": {
-      "status": "Early development",
-      "advantages": ["Lower power", "Higher bandwidth"],
-      "challenges": ["Integration with electronics", "Manufacturing"],
-      "timeline": "2035+ for commercial products"
+      "status": "Early commercial and research",
+      "advantages": [
+        "Lower power for specific operations",
+        "Higher bandwidth",
+        "Less heat generation",
+        "Faster interconnects"
+      ],
+      "current_applications": [
+        "Optical interconnects in datacenters",
+        "Matrix multiplication accelerators",
+        "Neural network inference"
+      ],
+      "challenges": [
+        "Integration with electronic components",
+        "Manufacturing complexity",
+        "Limited to specific operation types",
+        "Lack of optical memory"
+      ],
+      "companies": ["Lightmatter", "Luminous Computing", "Ayar Labs"],
+      "timeline": "2025-2030 for niche applications, 2035+ for broader adoption"
     },
+    
     "neuromorphic_computing": {
-      "status": "Research and niche applications",
-      "efficiency_advantage": "1000x lower power for specific tasks",
-      "limitations": "Specialized applications only",
-      "timeline": "2025+ for edge AI devices"
+      "status": "Research and specialized products",
+      "design": "Brain-inspired, spiking neural networks",
+      "efficiency_advantage": "10-1000x lower power for specific tasks",
+      "current_chips": {
+        "intel_loihi_2": "1 million neurons",
+        "ibm_truenorth": "1 million neurons",
+        "notes": "Specialized for pattern recognition, sensory processing"
+      },
+      "limitations": [
+        "Requires different programming paradigm",
+        "Limited to specific task types",
+        "No general-purpose computing",
+        "Small developer ecosystem"
+      ],
+      "applications": [
+        "Edge AI (power-constrained)",
+        "Sensor fusion",
+        "Robotics",
+        "IoT devices"
+      ],
+      "timeline": "2025-2030 for edge AI, general adoption uncertain"
     },
+    
+    "analog_computing": {
+      "status": "Research revival for specific applications",
+      "advantages": [
+        "Lower power for certain operations",
+        "Continuous values",
+        "Potential for in-memory computing"
+      ],
+      "applications": [
+        "Matrix multiplication",
+        "Neural network acceleration",
+        "Signal processing"
+      ],
+      "challenges": [
+        "Precision limited by noise",
+        "Difficult to program",
+        "Limited to specific operations",
+        "Poor for general computing"
+      ],
+      "timeline": "2025-2030 as accelerators, not general-purpose"
+    },
+    
     "dna_computing": {
       "status": "Theoretical/research only",
-      "advantages": ["Extreme density", "Parallel processing"],
-      "challenges": ["Speed", "Error rates", "Practicality"],
-      "timeline": "2040+ if ever"
+      "advantages": [
+        "Extreme parallelism (10^18 operations/s theoretical)",
+        "Very high density",
+        "Low power"
+      ],
+      "challenges": [
+        "Extremely slow (hours to days)",
+        "High error rates",
+        "Requires wet lab",
+        "Cannot do sequential computation efficiently",
+        "Completely impractical for general computing"
+      ],
+      "best_use_cases": [
+        "Massively parallel search problems",
+        "Data storage (archival only)"
+      ],
+      "timeline": "Research curiosity, no practical computing timeline"
+    },
+    
+    "molecular_computing": {
+      "status": "Theoretical research",
+      "timeline": "2040+ if ever, no clear path",
+      "notes": "Various proposals, all highly speculative"
     }
+  },
+
+  "metadata": {
+    "uncertainty_note": "Many values in this dataset are theoretical limits, projections, or estimates. Actual future development may differ significantly. Values marked as 'estimated' or with ranges have substantial uncertainty.",
+    "projection_caution": "Technology projections beyond 5 years are highly speculative. Economic, geopolitical, and scientific factors can dramatically change trajectories.",
+    "sources": "Based on physics principles, academic research, industry roadmaps (IRDS), and expert estimates. Specific sources should be consulted for critical applications.",
+    "alternative_computing_note": "Most alternative computing paradigms are specialized for specific tasks and unlikely to replace general-purpose silicon computing in the foreseeable future.",
+    "cost_estimates": "Cost estimates for AI training and chip fabrication vary widely and are often based on incomplete information. Treat as rough order-of-magnitude only."
   }
 }
