@@ -1,0 +1,79 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Unit Conversions Reference Schema",
+  "description": "Schema for unit conversion factors and standard definitions",
+  "type": "object",
+  "required": ["description", "version", "last_updated"],
+  "properties": {
+    "description": {
+      "type": "string",
+      "description": "Brief description of the dataset"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Semantic version of the dataset"
+    },
+    "last_updated": {
+      "type": "string",
+      "format": "date",
+      "description": "Last update date in YYYY-MM-DD format"
+    },
+    "memory_units": {
+      "type": "object",
+      "description": "Memory and storage unit conversions"
+    },
+    "performance_units": {
+      "type": "object",
+      "description": "Performance metric conversions"
+    },
+    "bandwidth_units": {
+      "type": "object",
+      "description": "Data transfer rate conversions"
+    },
+    "power_units": {
+      "type": "object",
+      "description": "Power and energy conversions"
+    },
+    "time_units": {
+      "type": "object",
+      "description": "Time conversions"
+    },
+    "temperature_units": {
+      "type": "object",
+      "description": "Temperature conversions and formulas"
+    },
+    "length_units": {
+      "type": "object",
+      "description": "Length and distance conversions"
+    },
+    "process_node_naming": {
+      "type": "object",
+      "description": "Semiconductor process node naming conventions"
+    },
+    "llm_tokens": {
+      "type": "object",
+      "description": "Token counting approximations for various content types"
+    },
+    "cost_conversions": {
+      "type": "object",
+      "description": "Common cost metric conversions"
+    },
+    "gpu_compute_conversions": {
+      "type": "object",
+      "description": "GPU compute operation conversions and precision relationships"
+    },
+    "inflation_adjustments": {
+      "type": "object",
+      "description": "Historical inflation adjustment factors"
+    },
+    "energy_cost": {
+      "type": "object",
+      "description": "Electricity cost estimates and calculations"
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Dataset metadata and usage notes"
+    }
+  }
+}
