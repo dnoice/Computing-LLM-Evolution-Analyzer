@@ -1,243 +1,1089 @@
 {
   "description": "Unit conversion factors and standard definitions",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "last_updated": "2024-10-29",
 
   "memory_units": {
     "description": "Memory and storage unit conversions",
+    "note": "Two standards exist: binary (base-1024, IEC standard) and decimal (base-1000, SI standard). Computer memory typically uses binary, while storage manufacturers often use decimal.",
+    
     "bytes_to_bits": 8,
-    "kilobyte": {
-      "bytes": 1024,
-      "abbreviation": "KB",
-      "notes": "Binary kilobyte (KiB)"
+    
+    "binary_units": {
+      "description": "Binary units (IEC 60027-2 standard, base-1024)",
+      "kibibyte": {
+        "bytes": 1024,
+        "bits": 8192,
+        "abbreviation": "KiB",
+        "alternative_abbreviation": "KB (ambiguous)",
+        "notes": "2^10 bytes. Often incorrectly labeled as KB."
+      },
+      "mebibyte": {
+        "bytes": 1048576,
+        "kibibytes": 1024,
+        "abbreviation": "MiB",
+        "alternative_abbreviation": "MB (ambiguous)",
+        "notes": "2^20 bytes"
+      },
+      "gibibyte": {
+        "bytes": 1073741824,
+        "mebibytes": 1024,
+        "abbreviation": "GiB",
+        "alternative_abbreviation": "GB (ambiguous)",
+        "notes": "2^30 bytes. RAM capacity uses this standard."
+      },
+      "tebibyte": {
+        "bytes": 1099511627776,
+        "gibibytes": 1024,
+        "abbreviation": "TiB",
+        "alternative_abbreviation": "TB (ambiguous)",
+        "notes": "2^40 bytes"
+      },
+      "pebibyte": {
+        "bytes": 1125899906842624,
+        "tebibytes": 1024,
+        "abbreviation": "PiB",
+        "notes": "2^50 bytes"
+      }
     },
-    "megabyte": {
-      "bytes": 1048576,
-      "kilobytes": 1024,
-      "abbreviation": "MB",
-      "notes": "Binary megabyte (MiB)"
+    
+    "decimal_units": {
+      "description": "Decimal units (SI standard, base-1000)",
+      "kilobyte": {
+        "bytes": 1000,
+        "bits": 8000,
+        "abbreviation": "kB",
+        "alternative_abbreviation": "KB (ambiguous)",
+        "notes": "10^3 bytes. Storage manufacturers typically use this."
+      },
+      "megabyte": {
+        "bytes": 1000000,
+        "kilobytes": 1000,
+        "abbreviation": "MB",
+        "notes": "10^6 bytes"
+      },
+      "gigabyte": {
+        "bytes": 1000000000,
+        "megabytes": 1000,
+        "abbreviation": "GB",
+        "notes": "10^9 bytes. Hard drive/SSD capacity uses this standard."
+      },
+      "terabyte": {
+        "bytes": 1000000000000,
+        "gigabytes": 1000,
+        "abbreviation": "TB",
+        "notes": "10^12 bytes"
+      },
+      "petabyte": {
+        "bytes": 1000000000000000,
+        "terabytes": 1000,
+        "abbreviation": "PB",
+        "notes": "10^15 bytes"
+      }
     },
-    "gigabyte": {
-      "bytes": 1073741824,
-      "megabytes": 1024,
-      "abbreviation": "GB",
-      "notes": "Binary gigabyte (GiB)"
-    },
-    "terabyte": {
-      "bytes": 1099511627776,
-      "gigabytes": 1024,
-      "abbreviation": "TB",
-      "notes": "Binary terabyte (TiB)"
+    
+    "common_confusion": {
+      "description": "Why your 1TB drive shows as 931GB",
+      "example": "1 TB (decimal) = 1,000,000,000,000 bytes = 931.32 GiB (binary)",
+      "calculation": "1,000,000,000,000 ÷ 1,073,741,824 = 931.32",
+      "explanation": "Manufacturers use decimal (1000^4), OS displays binary (1024^3)"
     }
   },
 
   "performance_units": {
     "description": "Performance metric conversions",
-    "flops": {
+    
+    "flops_hierarchy": {
       "description": "Floating Point Operations Per Second",
-      "abbreviation": "FLOPS"
+      "flops": {
+        "value": 1,
+        "abbreviation": "FLOPS",
+        "description": "Base unit"
+      },
+      "kiloflops": {
+        "flops": 1000,
+        "abbreviation": "KFLOPS",
+        "notes": "10^3 FLOPS"
+      },
+      "megaflops": {
+        "flops": 1000000,
+        "kiloflops": 1000,
+        "abbreviation": "MFLOPS",
+        "notes": "10^6 FLOPS"
+      },
+      "gigaflops": {
+        "flops": 1000000000,
+        "megaflops": 1000,
+        "abbreviation": "GFLOPS",
+        "notes": "10^9 FLOPS"
+      },
+      "teraflops": {
+        "flops": 1000000000000,
+        "gigaflops": 1000,
+        "abbreviation": "TFLOPS",
+        "notes": "10^12 FLOPS. Modern consumer GPUs range from 10-40 TFLOPS FP32."
+      },
+      "petaflops": {
+        "flops": 1000000000000000,
+        "teraflops": 1000,
+        "abbreviation": "PFLOPS",
+        "notes": "10^15 FLOPS. Supercomputer performance metric."
+      },
+      "exaflops": {
+        "flops": 1000000000000000000,
+        "petaflops": 1000,
+        "abbreviation": "EFLOPS",
+        "notes": "10^18 FLOPS. Frontier supercomputer achieved this in 2022."
+      }
     },
-    "gigaflops": {
-      "flops": 1e9,
-      "abbreviation": "GFLOPS"
-    },
-    "teraflops": {
-      "flops": 1e12,
-      "gigaflops": 1000,
-      "abbreviation": "TFLOPS"
-    },
-    "petaflops": {
-      "flops": 1e15,
-      "teraflops": 1000,
-      "abbreviation": "PFLOPS"
-    },
-    "mips": {
-      "description": "Million Instructions Per Second",
-      "abbreviation": "MIPS",
-      "notes": "CPU performance metric, varies by instruction mix"
+    
+    "other_performance_metrics": {
+      "mips": {
+        "description": "Million Instructions Per Second",
+        "abbreviation": "MIPS",
+        "notes": "CPU performance metric, varies by instruction mix. Less commonly used today."
+      },
+      "ipc": {
+        "description": "Instructions Per Cycle",
+        "abbreviation": "IPC",
+        "notes": "Measure of CPU efficiency. Modern CPUs achieve 3-5 IPC on average workloads."
+      },
+      "iops": {
+        "description": "Input/Output Operations Per Second",
+        "abbreviation": "IOPS",
+        "notes": "Storage performance metric. NVMe SSDs: 100K-1M+ IOPS, HDDs: 100-200 IOPS."
+      },
+      "tokens_per_second": {
+        "description": "LLM inference speed",
+        "abbreviation": "tok/s",
+        "notes": "Generation speed for language models. Context-dependent."
+      }
     }
   },
 
   "bandwidth_units": {
     "description": "Data transfer rate conversions",
-    "gigabits_per_second": {
-      "bits_per_second": 1e9,
-      "abbreviation": "Gbps",
-      "bytes_per_second": 125000000,
-      "notes": "Network bandwidth typically measured in bits/s"
+    
+    "bit_rates": {
+      "description": "Network bandwidth (typically bits per second)",
+      "kilobits_per_second": {
+        "bits_per_second": 1000,
+        "bytes_per_second": 125,
+        "abbreviation": "kbps or Kbps"
+      },
+      "megabits_per_second": {
+        "bits_per_second": 1000000,
+        "bytes_per_second": 125000,
+        "abbreviation": "Mbps",
+        "notes": "Common for internet speeds. 100 Mbps = 12.5 MB/s"
+      },
+      "gigabits_per_second": {
+        "bits_per_second": 1000000000,
+        "bytes_per_second": 125000000,
+        "megabits_per_second": 1000,
+        "abbreviation": "Gbps",
+        "notes": "Network interface speeds. 1 Gbps Ethernet = 125 MB/s theoretical"
+      },
+      "terabits_per_second": {
+        "bits_per_second": 1000000000000,
+        "gigabits_per_second": 1000,
+        "abbreviation": "Tbps",
+        "notes": "High-speed datacenter interconnects"
+      }
     },
-    "gigabytes_per_second": {
-      "bytes_per_second": 1e9,
-      "abbreviation": "GB/s",
-      "bits_per_second": 8e9,
-      "notes": "Memory bandwidth typically measured in bytes/s"
+    
+    "byte_rates": {
+      "description": "Storage/memory bandwidth (typically bytes per second)",
+      "megabytes_per_second": {
+        "bytes_per_second": 1000000,
+        "bits_per_second": 8000000,
+        "abbreviation": "MB/s",
+        "notes": "Common for storage throughput"
+      },
+      "gigabytes_per_second": {
+        "bytes_per_second": 1000000000,
+        "megabytes_per_second": 1000,
+        "bits_per_second": 8000000000,
+        "abbreviation": "GB/s",
+        "notes": "Memory bandwidth. DDR5-6400 = 51.2 GB/s per channel"
+      },
+      "terabytes_per_second": {
+        "bytes_per_second": 1000000000000,
+        "gigabytes_per_second": 1000,
+        "abbreviation": "TB/s",
+        "notes": "High-end GPU memory bandwidth. H100 HBM3: ~3 TB/s"
+      }
+    },
+    
+    "common_interfaces": {
+      "description": "Standard interface speeds",
+      "usb_2_0": {
+        "theoretical_mbps": 480,
+        "theoretical_MBps": 60,
+        "practical_MBps": "30-40"
+      },
+      "usb_3_0": {
+        "theoretical_gbps": 5,
+        "theoretical_MBps": 625,
+        "practical_MBps": "300-400"
+      },
+      "usb_3_1_gen2": {
+        "theoretical_gbps": 10,
+        "theoretical_MBps": 1250,
+        "practical_MBps": "800-1000"
+      },
+      "usb_4": {
+        "theoretical_gbps": 40,
+        "theoretical_MBps": 5000,
+        "notes": "Same speed as Thunderbolt 3/4"
+      },
+      "sata_3": {
+        "theoretical_gbps": 6,
+        "theoretical_MBps": 600,
+        "practical_MBps": "500-550"
+      },
+      "pcie_3_0_x4": {
+        "theoretical_GBps": 3.94,
+        "practical_GBps": "3.0-3.5",
+        "notes": "Common for NVMe SSDs"
+      },
+      "pcie_4_0_x4": {
+        "theoretical_GBps": 7.88,
+        "practical_GBps": "6.0-7.0",
+        "notes": "Modern NVMe SSDs"
+      },
+      "pcie_5_0_x4": {
+        "theoretical_GBps": 15.75,
+        "practical_GBps": "12.0-14.0",
+        "notes": "Latest NVMe SSDs (2024)"
+      },
+      "ethernet_1g": {
+        "theoretical_mbps": 1000,
+        "theoretical_MBps": 125,
+        "practical_MBps": "110-118"
+      },
+      "ethernet_10g": {
+        "theoretical_gbps": 10,
+        "theoretical_MBps": 1250,
+        "practical_MBps": "1150-1200"
+      }
     }
   },
 
   "power_units": {
     "description": "Power and energy conversions",
-    "watt": {
-      "description": "Unit of power (energy per time)",
-      "abbreviation": "W"
+    
+    "power": {
+      "watt": {
+        "description": "Unit of power (energy per unit time)",
+        "abbreviation": "W",
+        "formula": "1 W = 1 J/s"
+      },
+      "kilowatt": {
+        "watts": 1000,
+        "abbreviation": "kW",
+        "notes": "10^3 watts"
+      },
+      "megawatt": {
+        "watts": 1000000,
+        "kilowatts": 1000,
+        "abbreviation": "MW",
+        "notes": "10^6 watts. Large datacenter power draw."
+      },
+      "horsepower": {
+        "watts": 745.7,
+        "abbreviation": "hp",
+        "notes": "Mechanical horsepower. 1 hp ≈ 746 W"
+      }
     },
-    "kilowatt": {
-      "watts": 1000,
-      "abbreviation": "kW"
+    
+    "energy": {
+      "joule": {
+        "description": "SI unit of energy",
+        "watt_seconds": 1,
+        "abbreviation": "J",
+        "notes": "1 joule = 1 watt-second"
+      },
+      "watt_hour": {
+        "joules": 3600,
+        "watt_seconds": 3600,
+        "abbreviation": "Wh"
+      },
+      "kilowatt_hour": {
+        "watt_hours": 1000,
+        "joules": 3600000,
+        "megajoules": 3.6,
+        "abbreviation": "kWh",
+        "notes": "Standard unit for electricity billing"
+      },
+      "megawatt_hour": {
+        "kilowatt_hours": 1000,
+        "joules": 3600000000,
+        "abbreviation": "MWh",
+        "notes": "Large-scale energy measurement"
+      },
+      "calorie": {
+        "joules": 4.184,
+        "abbreviation": "cal",
+        "notes": "Small calorie (thermochemical)"
+      },
+      "kilocalorie": {
+        "joules": 4184,
+        "calories": 1000,
+        "abbreviation": "kcal or Cal",
+        "notes": "Food calorie. 1 Cal (food) = 1 kcal = 1000 cal"
+      },
+      "btu": {
+        "joules": 1055.06,
+        "abbreviation": "BTU",
+        "notes": "British Thermal Unit"
+      }
     },
-    "kilowatt_hour": {
-      "description": "Unit of energy",
-      "watt_hours": 1000,
-      "joules": 3600000,
-      "abbreviation": "kWh",
-      "notes": "Common unit for electricity billing"
-    },
-    "joule": {
-      "description": "SI unit of energy",
-      "watt_seconds": 1,
-      "abbreviation": "J"
+    
+    "power_efficiency": {
+      "pue": {
+        "description": "Power Usage Effectiveness",
+        "formula": "Total Facility Power / IT Equipment Power",
+        "ideal_value": 1.0,
+        "typical_range": "1.2-2.0",
+        "efficient_datacenter": "1.1-1.3",
+        "notes": "Datacenter efficiency metric. Lower is better."
+      }
     }
   },
 
   "time_units": {
     "description": "Time conversions",
-    "second": {
-      "milliseconds": 1000,
-      "microseconds": 1000000,
-      "nanoseconds": 1e9,
-      "abbreviation": "s"
-    },
-    "minute": {
-      "seconds": 60,
-      "abbreviation": "min"
-    },
-    "hour": {
-      "minutes": 60,
-      "seconds": 3600,
-      "abbreviation": "hr"
-    },
-    "day": {
-      "hours": 24,
-      "seconds": 86400,
-      "abbreviation": "d"
-    },
-    "year": {
-      "days": 365.25,
-      "hours": 8766,
-      "seconds": 31557600,
-      "abbreviation": "yr",
-      "notes": "Average year including leap years"
-    }
-  },
-
-  "process_node_naming": {
-    "description": "Process node technology naming conventions",
-    "notes": "Modern nodes are marketing names, not actual feature sizes",
-    "equivalences": {
-      "tsmc_5nm": {
-        "actual_gate_pitch": 48,
-        "metal_pitch": 28,
-        "transistor_density": "~171M/mm²",
-        "notes": "TSMC N5"
+    
+    "standard_units": {
+      "nanosecond": {
+        "seconds": 0.000000001,
+        "abbreviation": "ns",
+        "notes": "10^-9 seconds. CPU clock cycle at 1 GHz = 1 ns"
       },
-      "tsmc_3nm": {
-        "actual_gate_pitch": 48,
-        "metal_pitch": 24,
-        "transistor_density": "~292M/mm²",
-        "notes": "TSMC N3, similar gate pitch to 5nm"
+      "microsecond": {
+        "seconds": 0.000001,
+        "nanoseconds": 1000,
+        "abbreviation": "μs or us",
+        "notes": "10^-6 seconds"
       },
-      "intel_7nm": {
-        "roughly_equivalent_to": "TSMC 5nm",
-        "notes": "Different measurement methodologies"
+      "millisecond": {
+        "seconds": 0.001,
+        "microseconds": 1000,
+        "abbreviation": "ms",
+        "notes": "10^-3 seconds. Typical API latency: 10-100 ms"
+      },
+      "second": {
+        "milliseconds": 1000,
+        "microseconds": 1000000,
+        "nanoseconds": 1000000000,
+        "abbreviation": "s"
+      },
+      "minute": {
+        "seconds": 60,
+        "abbreviation": "min"
+      },
+      "hour": {
+        "minutes": 60,
+        "seconds": 3600,
+        "abbreviation": "h or hr"
+      },
+      "day": {
+        "hours": 24,
+        "minutes": 1440,
+        "seconds": 86400,
+        "abbreviation": "d"
+      },
+      "week": {
+        "days": 7,
+        "hours": 168,
+        "seconds": 604800,
+        "abbreviation": "wk"
+      },
+      "month": {
+        "days": 30.44,
+        "hours": 730.5,
+        "seconds": 2629800,
+        "abbreviation": "mo",
+        "notes": "Average month = 365.25/12 = 30.4375 days"
+      },
+      "year": {
+        "days": 365.25,
+        "hours": 8766,
+        "minutes": 525960,
+        "seconds": 31557600,
+        "abbreviation": "yr",
+        "notes": "Average year including leap years"
+      }
+    },
+    
+    "computing_time": {
+      "cpu_cycle_1ghz": {
+        "nanoseconds": 1,
+        "notes": "At 1 GHz clock speed"
+      },
+      "cpu_cycle_3ghz": {
+        "nanoseconds": 0.333,
+        "notes": "At 3 GHz clock speed"
+      },
+      "ram_latency_ddr4": {
+        "nanoseconds": "15-20",
+        "notes": "CAS latency varies by speed grade"
+      },
+      "ram_latency_ddr5": {
+        "nanoseconds": "14-18",
+        "notes": "CAS latency for modern DDR5"
+      },
+      "ssd_latency_sata": {
+        "microseconds": "50-100",
+        "notes": "Random read latency"
+      },
+      "ssd_latency_nvme": {
+        "microseconds": "10-25",
+        "notes": "Random read latency"
+      },
+      "hdd_latency": {
+        "milliseconds": "8-15",
+        "notes": "Seek time + rotational latency"
       }
     }
   },
 
+  "temperature_units": {
+    "description": "Temperature conversions and formulas",
+    
+    "conversion_formulas": {
+      "celsius_to_fahrenheit": "F = (C × 9/5) + 32",
+      "fahrenheit_to_celsius": "C = (F - 32) × 5/9",
+      "celsius_to_kelvin": "K = C + 273.15",
+      "kelvin_to_celsius": "C = K - 273.15",
+      "fahrenheit_to_kelvin": "K = (F - 32) × 5/9 + 273.15"
+    },
+    
+    "reference_points": {
+      "absolute_zero": {
+        "kelvin": 0,
+        "celsius": -273.15,
+        "fahrenheit": -459.67
+      },
+      "water_freezing": {
+        "kelvin": 273.15,
+        "celsius": 0,
+        "fahrenheit": 32
+      },
+      "water_boiling": {
+        "kelvin": 373.15,
+        "celsius": 100,
+        "fahrenheit": 212,
+        "notes": "At standard atmospheric pressure (1 atm)"
+      },
+      "room_temperature": {
+        "kelvin": 293.15,
+        "celsius": 20,
+        "fahrenheit": 68,
+        "notes": "Typical comfortable indoor temperature"
+      },
+      "human_body": {
+        "kelvin": 310.15,
+        "celsius": 37,
+        "fahrenheit": 98.6,
+        "notes": "Normal human body temperature"
+      }
+    },
+    
+    "computing_temperatures": {
+      "cpu_idle": {
+        "celsius": "30-45",
+        "fahrenheit": "86-113",
+        "notes": "Typical desktop CPU at idle"
+      },
+      "cpu_load": {
+        "celsius": "60-85",
+        "fahrenheit": "140-185",
+        "notes": "Under sustained load"
+      },
+      "cpu_max": {
+        "celsius": "95-100",
+        "fahrenheit": "203-212",
+        "notes": "Thermal throttling threshold"
+      },
+      "gpu_idle": {
+        "celsius": "35-50",
+        "fahrenheit": "95-122",
+        "notes": "Typical desktop GPU at idle"
+      },
+      "gpu_load": {
+        "celsius": "70-85",
+        "fahrenheit": "158-185",
+        "notes": "Under gaming/compute load"
+      },
+      "gpu_max": {
+        "celsius": "90-95",
+        "fahrenheit": "194-203",
+        "notes": "Thermal throttling threshold"
+      }
+    }
+  },
+
+  "length_units": {
+    "description": "Length and distance conversions",
+    
+    "metric_system": {
+      "nanometer": {
+        "meters": 0.000000001,
+        "abbreviation": "nm",
+        "notes": "10^-9 meters. Used for process nodes and wavelengths."
+      },
+      "micrometer": {
+        "meters": 0.000001,
+        "nanometers": 1000,
+        "abbreviation": "μm or um",
+        "notes": "10^-6 meters. Micron."
+      },
+      "millimeter": {
+        "meters": 0.001,
+        "micrometers": 1000,
+        "abbreviation": "mm",
+        "notes": "10^-3 meters"
+      },
+      "centimeter": {
+        "meters": 0.01,
+        "millimeters": 10,
+        "abbreviation": "cm",
+        "notes": "10^-2 meters"
+      },
+      "meter": {
+        "centimeters": 100,
+        "millimeters": 1000,
+        "abbreviation": "m",
+        "notes": "Base SI unit of length"
+      },
+      "kilometer": {
+        "meters": 1000,
+        "abbreviation": "km",
+        "notes": "10^3 meters"
+      }
+    },
+    
+    "imperial_system": {
+      "inch": {
+        "millimeters": 25.4,
+        "centimeters": 2.54,
+        "abbreviation": "in",
+        "notes": "1 inch = 25.4 mm exactly"
+      },
+      "foot": {
+        "inches": 12,
+        "meters": 0.3048,
+        "centimeters": 30.48,
+        "abbreviation": "ft",
+        "notes": "1 foot = 12 inches"
+      },
+      "yard": {
+        "feet": 3,
+        "meters": 0.9144,
+        "abbreviation": "yd"
+      },
+      "mile": {
+        "feet": 5280,
+        "kilometers": 1.60934,
+        "meters": 1609.34,
+        "abbreviation": "mi",
+        "notes": "Statute mile"
+      }
+    },
+    
+    "computing_dimensions": {
+      "transistor_gate_length_2024": {
+        "nanometers": "10-20",
+        "notes": "Modern leading-edge transistors. 'nm' node names are marketing."
+      },
+      "display_pixel_pitch": {
+        "micrometers": "200-500",
+        "notes": "Typical pixel pitch for monitors/TVs"
+      },
+      "screen_size": {
+        "measurement": "diagonal",
+        "common_sizes_inches": [13.3, 15.6, 24, 27, 32],
+        "notes": "Monitors and TVs measured by diagonal"
+      }
+    }
+  },
+
+  "process_node_naming": {
+    "description": "Semiconductor process node technology naming conventions",
+    "warning": "Modern 'nm' node names are marketing terms, not actual physical measurements. Different foundries use different measurement methodologies.",
+    
+    "tsmc_nodes": {
+      "n7": {
+        "marketing_name": "7nm",
+        "actual_gate_pitch_nm": 57,
+        "metal_pitch_nm": 36,
+        "transistor_density_mtx_per_mm2": 96.5,
+        "year": 2018
+      },
+      "n5": {
+        "marketing_name": "5nm",
+        "actual_gate_pitch_nm": 48,
+        "metal_pitch_nm": 28,
+        "transistor_density_mtx_per_mm2": 171.3,
+        "year": 2020,
+        "notes": "Used in Apple M1, A14"
+      },
+      "n3": {
+        "marketing_name": "3nm",
+        "actual_gate_pitch_nm": 48,
+        "metal_pitch_nm": 24,
+        "transistor_density_mtx_per_mm2": 292.2,
+        "year": 2022,
+        "notes": "Used in Apple M3, A17 Pro. GAA transistors (3nm N3E uses FinFET)"
+      },
+      "n2": {
+        "marketing_name": "2nm",
+        "transistor_density_mtx_per_mm2": "~400 (projected)",
+        "year": "2025 (planned)",
+        "notes": "GAA (Gate-All-Around) nanosheet transistors"
+      }
+    },
+    
+    "samsung_nodes": {
+      "3nm": {
+        "marketing_name": "3nm",
+        "transistor_density_mtx_per_mm2": 230,
+        "year": 2022,
+        "notes": "First production GAA. Used in Exynos 2400"
+      },
+      "2nm": {
+        "marketing_name": "2nm",
+        "year": "2025-2026 (planned)",
+        "notes": "Second-generation GAA"
+      }
+    },
+    
+    "intel_nodes": {
+      "intel_7": {
+        "marketing_name": "Intel 7",
+        "formerly": "10nm Enhanced SuperFin",
+        "roughly_equivalent": "TSMC 7nm",
+        "year": 2021,
+        "notes": "Used in 12th/13th gen Core CPUs"
+      },
+      "intel_4": {
+        "marketing_name": "Intel 4",
+        "formerly": "7nm",
+        "roughly_equivalent": "TSMC 5nm",
+        "year": 2023,
+        "notes": "EUV lithography. Used in Meteor Lake"
+      },
+      "intel_3": {
+        "marketing_name": "Intel 3",
+        "roughly_equivalent": "TSMC 5nm+",
+        "year": 2024
+      },
+      "intel_20a": {
+        "marketing_name": "Intel 20A",
+        "angstrom": 20,
+        "year": "2024-2025",
+        "notes": "RibbonFET (GAA) + PowerVia (backside power)"
+      },
+      "intel_18a": {
+        "marketing_name": "Intel 18A",
+        "angstrom": 18,
+        "year": "2025",
+        "notes": "1.8nm in traditional naming"
+      }
+    },
+    
+    "naming_methodology": {
+      "traditional": "Based on minimum feature size (gate length)",
+      "modern": "Marketing term based on transistor density scaling",
+      "note": "A 5nm node from TSMC is not directly comparable to 5nm from Samsung or Intel's equivalent node"
+    }
+  },
+
   "llm_tokens": {
-    "description": "Token counting approximations",
+    "description": "Token counting approximations for various content types",
+    "note": "Token counts vary significantly by tokenizer (GPT, Claude, LLaMA use different tokenizers). These are approximations.",
+    
     "english_text": {
       "tokens_per_word": 1.3,
-      "words_per_token": 0.77,
-      "notes": "Approximate for typical English text"
+      "words_per_token": 0.75,
+      "characters_per_token": 4,
+      "notes": "Approximate for typical English text with GPT tokenizers"
     },
+    
+    "multilingual": {
+      "english": {
+        "tokens_per_word": 1.3
+      },
+      "spanish": {
+        "tokens_per_word": 1.5,
+        "notes": "Romance languages typically use more tokens"
+      },
+      "french": {
+        "tokens_per_word": 1.6
+      },
+      "german": {
+        "tokens_per_word": 1.7,
+        "notes": "Compound words increase token count"
+      },
+      "chinese": {
+        "tokens_per_character": 0.5,
+        "notes": "Characters, not words. ~2 characters per token"
+      },
+      "japanese": {
+        "tokens_per_character": 0.6,
+        "notes": "Mixed scripts affect tokenization"
+      },
+      "arabic": {
+        "tokens_per_word": 2.0,
+        "notes": "Right-to-left script and diacritics increase tokens"
+      }
+    },
+    
     "code": {
-      "tokens_per_character": 0.3,
-      "notes": "Code is more token-dense than natural language"
+      "python": {
+        "tokens_per_character": 0.3,
+        "characters_per_token": 3.3,
+        "notes": "Code is more token-dense than natural language"
+      },
+      "javascript": {
+        "tokens_per_character": 0.32,
+        "notes": "Similar to Python"
+      },
+      "json": {
+        "tokens_per_character": 0.4,
+        "notes": "Structured data with syntax characters"
+      },
+      "whitespace_heavy": {
+        "tokens_per_character": 0.5,
+        "notes": "Formatted code with indentation"
+      }
     },
-    "common_books": {
-      "tokens_per_page": 300,
-      "tokens_per_novel": 100000,
-      "notes": "Approximate for average novel"
+    
+    "content_estimates": {
+      "tweet": {
+        "characters": 280,
+        "tokens": "60-80"
+      },
+      "email": {
+        "tokens": "200-500",
+        "notes": "Typical business email"
+      },
+      "article": {
+        "words": 1000,
+        "tokens": "1300-1500"
+      },
+      "blog_post": {
+        "words": 1500,
+        "tokens": "1900-2200"
+      },
+      "novel_page": {
+        "words": 250,
+        "tokens": "325-375"
+      },
+      "novel": {
+        "words": "70000-100000",
+        "tokens": "90000-130000",
+        "notes": "Typical full-length novel"
+      },
+      "harry_potter_1": {
+        "words": 77325,
+        "tokens": "~100000",
+        "notes": "Harry Potter and the Philosopher's Stone"
+      },
+      "technical_manual": {
+        "pages": 100,
+        "tokens": "40000-60000",
+        "notes": "Dense technical documentation"
+      }
+    },
+    
+    "special_tokens": {
+      "numbers": {
+        "tokens_per_digit": "0.3-0.5",
+        "notes": "Large numbers may be multiple tokens. '1234' might be 1-2 tokens."
+      },
+      "urls": {
+        "tokens_per_url": "5-15",
+        "notes": "URLs are split into many tokens"
+      },
+      "base64": {
+        "tokens_per_character": 0.6,
+        "notes": "Encoded data is token-inefficient"
+      }
     }
   },
 
   "cost_conversions": {
-    "description": "Common cost metric conversions",
+    "description": "Common cost metric conversions for cloud and AI services",
+    
     "inference_cost": {
       "tokens_per_1k": 1000,
       "tokens_per_1m": 1000000,
-      "notes": "API pricing typically per million tokens"
+      "notes": "API pricing typically per million tokens (input and output priced separately)"
     },
+    
     "cloud_compute": {
       "hours_per_day": 24,
+      "hours_per_week": 168,
       "hours_per_month": 730,
       "hours_per_year": 8760,
-      "notes": "Average hours for billing calculations"
+      "notes": "Average hours for billing calculations. Months vary (28-31 days)."
+    },
+    
+    "typical_pricing_2024": {
+      "note": "These are approximate ranges as of late 2024. Actual prices vary by provider and change over time.",
+      "llm_api_per_1m_tokens": {
+        "input_small_model": "0.10-0.50 USD",
+        "input_large_model": "2-5 USD",
+        "output_small_model": "0.30-1.50 USD",
+        "output_large_model": "10-15 USD",
+        "notes": "Small: 7-13B params. Large: 70B+ params. Output typically 3-5x input cost."
+      },
+      "gpu_cloud_per_hour": {
+        "rtx_4090": "1.00-1.50 USD",
+        "a100_40gb": "2.00-4.00 USD",
+        "a100_80gb": "3.00-5.00 USD",
+        "h100_80gb": "5.00-10.00 USD",
+        "notes": "On-demand pricing varies significantly by provider and region"
+      },
+      "storage_per_gb_month": {
+        "object_storage": "0.02-0.03 USD",
+        "block_storage_ssd": "0.08-0.12 USD",
+        "block_storage_hdd": "0.04-0.06 USD"
+      },
+      "data_transfer_per_gb": {
+        "inbound": "0 USD (typically free)",
+        "outbound": "0.05-0.12 USD",
+        "notes": "First tier pricing. Volume discounts available."
+      }
     }
   },
 
   "gpu_compute_conversions": {
-    "description": "GPU compute operation conversions",
-    "fp32_to_fp16": {
-      "ratio": 2,
-      "notes": "FP16 typically 2x throughput of FP32 with tensor cores"
+    "description": "GPU compute operation conversions and precision relationships",
+    
+    "precision_hierarchy": {
+      "fp64": {
+        "bits": 64,
+        "name": "Double precision",
+        "relative_performance": 1,
+        "notes": "Scientific computing. Slowest but most accurate."
+      },
+      "fp32": {
+        "bits": 32,
+        "name": "Single precision",
+        "relative_performance": "2x fp64",
+        "notes": "Default for gaming and most compute. Standard TFLOPS rating."
+      },
+      "tf32": {
+        "bits": 19,
+        "name": "TensorFloat-32",
+        "relative_performance": "8x fp64 (with tensor cores)",
+        "notes": "NVIDIA tensor core format. FP32 range, reduced precision."
+      },
+      "fp16": {
+        "bits": 16,
+        "name": "Half precision",
+        "relative_performance": "2x fp32 (4x with tensor cores)",
+        "notes": "ML training/inference. Ampere+: 2x fp32 on tensor cores."
+      },
+      "bf16": {
+        "bits": 16,
+        "name": "Brain Float 16",
+        "relative_performance": "2x fp32 (4x with tensor cores)",
+        "notes": "Same range as FP32, reduced precision. Better for ML than FP16."
+      },
+      "int8": {
+        "bits": 8,
+        "name": "8-bit integer",
+        "relative_performance": "2x fp16 (8x with tensor cores)",
+        "notes": "Quantized inference. 2-4x memory savings."
+      },
+      "int4": {
+        "bits": 4,
+        "name": "4-bit integer",
+        "relative_performance": "2x int8",
+        "notes": "Aggressive quantization. Quality depends on calibration."
+      }
     },
-    "fp16_to_int8": {
-      "ratio": 2,
-      "notes": "INT8 typically 2x throughput of FP16"
+    
+    "throughput_relationships": {
+      "note": "Actual speedups depend on GPU architecture, workload, and memory bandwidth",
+      "fp32_baseline": 1.0,
+      "fp16_vs_fp32": "1.8-2x (without tensor cores)",
+      "fp16_tensor_vs_fp32": "4-8x (with tensor cores)",
+      "int8_vs_fp16": "1.5-2x",
+      "int8_tensor_vs_fp32": "8-16x (with tensor cores)",
+      "int4_vs_int8": "1.5-2x"
     },
-    "tensor_core_speedup": {
-      "fp16_vs_cuda_cores": "8-16x",
-      "int8_vs_cuda_cores": "16-32x",
-      "notes": "Speedup varies by architecture and workload"
+    
+    "tensor_core_generations": {
+      "volta": {
+        "architecture": "V100",
+        "fp16_support": true,
+        "notes": "First generation tensor cores"
+      },
+      "turing": {
+        "architecture": "RTX 20 series",
+        "fp16_support": true,
+        "int8_support": true,
+        "int4_support": true
+      },
+      "ampere": {
+        "architecture": "A100, RTX 30 series",
+        "tf32_support": true,
+        "bf16_support": true,
+        "notes": "Automatic TF32 for FP32 inputs"
+      },
+      "hopper": {
+        "architecture": "H100",
+        "fp8_support": true,
+        "notes": "Transformer Engine with FP8"
+      }
+    },
+    
+    "memory_impact": {
+      "fp32_model": "1x memory",
+      "fp16_model": "0.5x memory (2x savings)",
+      "int8_model": "0.25x memory (4x savings)",
+      "int4_model": "0.125x memory (8x savings)",
+      "notes": "Quantization reduces memory usage proportionally, enabling larger models on same hardware"
     }
   },
 
   "inflation_adjustments": {
-    "description": "US Dollar inflation factors (base year: 2024)",
-    "note": "For historical price comparisons",
+    "description": "US Dollar inflation factors for historical price comparisons",
+    "base_year": 2024,
+    "note": "Multiply historical price by factor to convert to 2024 dollars",
+    "source": "US Bureau of Labor Statistics Consumer Price Index (CPI-U)",
+    
     "factors": {
-      "1965": 9.48,
+      "1950": 12.10,
+      "1960": 10.20,
+      "1970": 7.89,
       "1980": 3.67,
+      "1985": 2.86,
       "1990": 2.21,
+      "1995": 1.90,
       "2000": 1.70,
+      "2005": 1.51,
       "2010": 1.35,
+      "2015": 1.19,
       "2020": 1.13,
+      "2021": 1.08,
+      "2022": 1.04,
+      "2023": 1.02,
       "2024": 1.00
     },
-    "source": "US Bureau of Labor Statistics CPI",
-    "example": "A $100 item in 1980 = $367 in 2024 dollars"
+    
+    "examples": {
+      "1980_computer_price": {
+        "original_price_usd": 1000,
+        "factor": 3.67,
+        "equivalent_2024_usd": 3670,
+        "description": "A $1,000 computer in 1980 = $3,670 in 2024 dollars"
+      },
+      "2000_gpu_price": {
+        "original_price_usd": 500,
+        "factor": 1.70,
+        "equivalent_2024_usd": 850,
+        "description": "A $500 GPU in 2000 = $850 in 2024 dollars"
+      }
+    }
   },
 
   "energy_cost": {
-    "description": "Electricity cost estimates",
-    "us_average_2024": {
-      "cost_per_kwh": 0.16,
-      "unit": "USD",
-      "notes": "US average residential electricity rate"
+    "description": "Electricity cost estimates and calculations",
+    
+    "average_rates_2024": {
+      "us_residential": {
+        "cost_per_kwh_usd": 0.16,
+        "notes": "US average residential rate. Varies by state: HI $0.42, LA $0.10"
+      },
+      "us_commercial": {
+        "cost_per_kwh_usd": 0.12,
+        "notes": "US average commercial rate"
+      },
+      "us_industrial": {
+        "cost_per_kwh_usd": 0.08,
+        "notes": "US average industrial rate"
+      },
+      "datacenter_bulk": {
+        "cost_per_kwh_usd": 0.06,
+        "notes": "Large datacenter with power purchase agreements"
+      },
+      "europe_average": {
+        "cost_per_kwh_usd": 0.25,
+        "cost_per_kwh_eur": 0.23,
+        "notes": "Higher than US average. Varies significantly by country."
+      }
     },
-    "data_center_2024": {
-      "cost_per_kwh": 0.07,
-      "unit": "USD",
-      "notes": "Typical data center rate with bulk pricing"
+    
+    "calculation_examples": {
+      "gaming_pc_monthly": {
+        "description": "Gaming PC running 6 hours/day",
+        "power_watts": 400,
+        "hours_per_day": 6,
+        "days": 30,
+        "total_hours": 180,
+        "kwh": 72,
+        "cost_at_016_usd": 11.52,
+        "cost_at_012_usd": 8.64,
+        "currency": "USD"
+      },
+      "mining_rig_monthly": {
+        "description": "Mining rig running 24/7",
+        "power_watts": 1500,
+        "hours": 730,
+        "kwh": 1095,
+        "cost_at_016_usd": 175.20,
+        "cost_at_012_usd": 131.40,
+        "currency": "USD",
+        "notes": "Continuous operation significantly increases costs"
+      },
+      "ml_training_h100": {
+        "description": "H100 GPU training for 1 week",
+        "power_watts": 700,
+        "hours": 168,
+        "kwh": 117.6,
+        "cost_at_008_usd": 9.41,
+        "cost_at_016_usd": 18.82,
+        "currency": "USD",
+        "notes": "H100 TDP 700W. Actual power varies by workload."
+      },
+      "idle_desktop_yearly": {
+        "description": "Desktop PC left on idle 24/7 for a year",
+        "power_watts": 100,
+        "hours": 8760,
+        "kwh": 876,
+        "cost_at_016_usd": 140.16,
+        "currency": "USD",
+        "notes": "Significant wasted energy from not using sleep mode"
+      }
     },
-    "calculation_example": {
-      "description": "Cost to run 400W GPU for 1 month",
-      "power_watts": 400,
-      "hours": 730,
-      "kwh": 292,
-      "cost_residential": 46.72,
-      "cost_datacenter": 20.44,
-      "currency": "USD"
+    
+    "power_draw_reference": {
+      "desktop_cpu_idle": "10-30 W",
+      "desktop_cpu_load": "65-250 W",
+      "desktop_gpu_idle": "10-30 W",
+      "desktop_gpu_load": "200-450 W",
+      "gaming_laptop": "100-200 W",
+      "workstation": "300-800 W",
+      "server_1u": "200-400 W",
+      "server_2u": "400-800 W",
+      "a100_gpu_tdp": "400 W",
+      "h100_gpu_tdp": "700 W",
+      "notes": "Actual power varies by model and workload"
     }
+  },
+
+  "metadata": {
+    "usage_notes": "Conversion factors are exact unless noted as approximate. Real-world values may vary.",
+    "precision": "Most conversion factors shown to appropriate precision for typical use cases",
+    "sources": "SI definitions, IEEE standards, manufacturer specifications, industry conventions",
+    "maintenance": "Unit definitions and common values should be periodically reviewed",
+    "warning": "Price and cost data becomes stale quickly and should be verified for current decision-making"
   }
 }
