@@ -11,20 +11,66 @@
 // Base path for data files (adjust based on your directory structure)
 const DATA_BASE_PATH = '../data';
 
+// Retry configuration
+const RETRY_CONFIG = {
+    maxRetries: 3,
+    retryDelay: 1000, // 1 second
+    timeout: 10000 // 10 seconds
+};
+
+/**
+ * Fetch with timeout and retry logic
+ */
+async function fetchWithRetry(url, options = {}, retries = RETRY_CONFIG.maxRetries) {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), RETRY_CONFIG.timeout);
+
+    try {
+        const response = await fetch(url, {
+            ...options,
+            signal: controller.signal
+        });
+        clearTimeout(timeoutId);
+
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+
+        return response;
+    } catch (error) {
+        clearTimeout(timeoutId);
+
+        if (retries > 0 && (error.name === 'AbortError' || error.message.includes('Failed to fetch'))) {
+            console.warn(`Fetch failed, retrying... (${retries} attempts remaining)`);
+            await new Promise(resolve => setTimeout(resolve, RETRY_CONFIG.retryDelay));
+            return fetchWithRetry(url, options, retries - 1);
+        }
+
+        throw error;
+    }
+}
+
 /**
  * Load Hardware Systems Data
  */
 async function loadHardwareData() {
     try {
-        const response = await fetch(`${DATA_BASE_PATH}/hardware/systems.json`);
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
+        const response = await fetchWithRetry(`${DATA_BASE_PATH}/hardware/systems.json`);
         const data = await response.json();
+
+        // Validate data structure
+        if (!Array.isArray(data)) {
+            throw new Error('Invalid data format: expected array');
+        }
+
+        if (data.length === 0) {
+            console.warn('Hardware data is empty');
+        }
+
         console.log('Hardware data loaded:', data.length, 'systems');
         return data;
     } catch (error) {
-        console.error('Error loading hardware data:', error);
+        console.error('Error loading hardware data:', error.message);
         console.log('Using sample hardware data');
         return getSampleHardwareData();
     }
@@ -35,15 +81,22 @@ async function loadHardwareData() {
  */
 async function loadGPUData() {
     try {
-        const response = await fetch(`${DATA_BASE_PATH}/gpu/gpus.json`);
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
+        const response = await fetchWithRetry(`${DATA_BASE_PATH}/gpu/gpus.json`);
         const data = await response.json();
+
+        // Validate data structure
+        if (!Array.isArray(data)) {
+            throw new Error('Invalid data format: expected array');
+        }
+
+        if (data.length === 0) {
+            console.warn('GPU data is empty');
+        }
+
         console.log('GPU data loaded:', data.length, 'GPUs');
         return data;
     } catch (error) {
-        console.error('Error loading GPU data:', error);
+        console.error('Error loading GPU data:', error.message);
         console.log('Using sample GPU data');
         return getSampleGPUData();
     }
@@ -54,15 +107,22 @@ async function loadGPUData() {
  */
 async function loadLLMData() {
     try {
-        const response = await fetch(`${DATA_BASE_PATH}/llm/models.json`);
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
+        const response = await fetchWithRetry(`${DATA_BASE_PATH}/llm/models.json`);
         const data = await response.json();
+
+        // Validate data structure
+        if (!Array.isArray(data)) {
+            throw new Error('Invalid data format: expected array');
+        }
+
+        if (data.length === 0) {
+            console.warn('LLM data is empty');
+        }
+
         console.log('LLM data loaded:', data.length, 'models');
         return data;
     } catch (error) {
-        console.error('Error loading LLM data:', error);
+        console.error('Error loading LLM data:', error.message);
         console.log('Using sample LLM data');
         return getSampleLLMData();
     }
@@ -73,15 +133,22 @@ async function loadLLMData() {
  */
 async function loadCloudData() {
     try {
-        const response = await fetch(`${DATA_BASE_PATH}/cloud/instances.json`);
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
+        const response = await fetchWithRetry(`${DATA_BASE_PATH}/cloud/instances.json`);
         const data = await response.json();
+
+        // Validate data structure
+        if (!Array.isArray(data)) {
+            throw new Error('Invalid data format: expected array');
+        }
+
+        if (data.length === 0) {
+            console.warn('Cloud data is empty');
+        }
+
         console.log('Cloud data loaded:', data.length, 'instances');
         return data;
     } catch (error) {
-        console.error('Error loading cloud data:', error);
+        console.error('Error loading cloud data:', error.message);
         console.log('Using sample cloud data');
         return getSampleCloudData();
     }

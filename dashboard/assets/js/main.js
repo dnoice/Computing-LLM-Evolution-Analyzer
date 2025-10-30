@@ -28,6 +28,9 @@ function dashboardApp() {
         darkMode: false,
         mobileMenuOpen: false,
         gpuFilter: 'all',
+        loading: true,
+        loadingMessage: 'Initializing dashboard...',
+        loadingProgress: 0,
 
         // Stats Data
         stats: {
@@ -148,37 +151,60 @@ function dashboardApp() {
         // Data Loading
         async loadData() {
             try {
+                this.loadingMessage = 'Loading hardware data...';
+                this.loadingProgress = 10;
+
                 // Load hardware data
                 const hardwareData = await loadHardwareData();
                 if (hardwareData) {
                     window.hardwareData = hardwareData;
                 }
+                this.loadingProgress = 25;
 
+                this.loadingMessage = 'Loading GPU data...';
                 // Load GPU data
                 const gpuData = await loadGPUData();
                 if (gpuData) {
                     window.gpuData = gpuData;
                 }
+                this.loadingProgress = 40;
 
+                this.loadingMessage = 'Loading LLM data...';
                 // Load LLM data
                 const llmData = await loadLLMData();
                 if (llmData) {
                     window.llmData = llmData;
                 }
+                this.loadingProgress = 55;
 
+                this.loadingMessage = 'Loading cloud data...';
                 // Load Cloud data
                 const cloudData = await loadCloudData();
                 if (cloudData) {
                     window.cloudData = cloudData;
                 }
+                this.loadingProgress = 70;
 
+                this.loadingMessage = 'Processing data...';
                 // Update stats from loaded data
                 this.updateStatsFromData();
+                this.loadingProgress = 85;
+
+                this.loadingMessage = 'Initializing charts...';
+                // Small delay to show the message
+                await new Promise(resolve => setTimeout(resolve, 500));
+                this.loadingProgress = 100;
+
+                // Hide loading overlay
+                setTimeout(() => {
+                    this.loading = false;
+                }, 500);
 
                 console.log('All data loaded successfully');
             } catch (error) {
                 console.error('Error loading data:', error);
                 this.showNotification('Error loading data. Using sample data.', 'warning');
+                this.loading = false;
             }
         },
 
@@ -195,6 +221,48 @@ function dashboardApp() {
             }
             if (window.cloudData) {
                 this.stats.cloud.count = window.cloudData.length;
+            }
+
+            // Calculate real CAGR values from loaded data
+            this.updateCAGRData();
+        },
+
+        // Calculate and update CAGR data from real datasets
+        updateCAGRData() {
+            // Hardware CAGR
+            if (window.hardwareData && typeof getHardwareCAGR === 'function') {
+                const hwCAGR = getHardwareCAGR(window.hardwareData);
+                if (hwCAGR.transistors) {
+                    this.cagrData.transistors = hwCAGR.transistors.toFixed(1) + '%';
+                }
+                if (hwCAGR.clockSpeed) {
+                    this.cagrData.clockSpeed = hwCAGR.clockSpeed.toFixed(1) + '%';
+                }
+                if (hwCAGR.cores) {
+                    this.cagrData.cores = hwCAGR.cores.toFixed(1) + '%';
+                }
+            }
+
+            // GPU CAGR
+            if (window.gpuData && typeof getGPUCAGR === 'function') {
+                const gpuCAGR = getGPUCAGR(window.gpuData);
+                if (gpuCAGR.tflops) {
+                    this.cagrData.gpuTflops = gpuCAGR.tflops.toFixed(1) + '%';
+                }
+                if (gpuCAGR.vram) {
+                    this.cagrData.gpuVram = gpuCAGR.vram.toFixed(1) + '%';
+                }
+            }
+
+            // LLM CAGR
+            if (window.llmData && typeof getLLMCAGR === 'function') {
+                const llmCAGR = getLLMCAGR(window.llmData);
+                if (llmCAGR.parameters) {
+                    this.cagrData.llmParameters = llmCAGR.parameters.toFixed(1) + '%';
+                }
+                if (llmCAGR.compute) {
+                    this.cagrData.llmCompute = llmCAGR.compute.toFixed(1) + '%';
+                }
             }
         },
 
@@ -470,18 +538,59 @@ function exportData(format = 'json') {
 function convertToCSV(data) {
     let csv = '';
 
+    // Helper function to escape CSV values
+    const escapeCSV = (value) => {
+        if (value === null || value === undefined) return '';
+        const stringValue = String(value);
+        if (stringValue.includes(',') || stringValue.includes('"') || stringValue.includes('\n')) {
+            return '"' + stringValue.replace(/"/g, '""') + '"';
+        }
+        return stringValue;
+    };
+
     // Hardware section
     if (data.hardware && data.hardware.length > 0) {
         csv += 'HARDWARE SYSTEMS\n';
         const hardwareHeaders = Object.keys(data.hardware[0]);
-        csv += hardwareHeaders.join(',') + '\n';
+        csv += hardwareHeaders.map(escapeCSV).join(',') + '\n';
         data.hardware.forEach(row => {
-            csv += hardwareHeaders.map(header => row[header]).join(',') + '\n';
+            csv += hardwareHeaders.map(header => escapeCSV(row[header])).join(',') + '\n';
         });
         csv += '\n';
     }
 
-    // Similar for GPU, LLM, Cloud...
+    // GPU section
+    if (data.gpu && data.gpu.length > 0) {
+        csv += 'GPU MODELS\n';
+        const gpuHeaders = Object.keys(data.gpu[0]);
+        csv += gpuHeaders.map(escapeCSV).join(',') + '\n';
+        data.gpu.forEach(row => {
+            csv += gpuHeaders.map(header => escapeCSV(row[header])).join(',') + '\n';
+        });
+        csv += '\n';
+    }
+
+    // LLM section
+    if (data.llm && data.llm.length > 0) {
+        csv += 'LLM MODELS\n';
+        const llmHeaders = Object.keys(data.llm[0]);
+        csv += llmHeaders.map(escapeCSV).join(',') + '\n';
+        data.llm.forEach(row => {
+            csv += llmHeaders.map(header => escapeCSV(row[header])).join(',') + '\n';
+        });
+        csv += '\n';
+    }
+
+    // Cloud section
+    if (data.cloud && data.cloud.length > 0) {
+        csv += 'CLOUD INSTANCES\n';
+        const cloudHeaders = Object.keys(data.cloud[0]);
+        csv += cloudHeaders.map(escapeCSV).join(',') + '\n';
+        data.cloud.forEach(row => {
+            csv += cloudHeaders.map(header => escapeCSV(row[header])).join(',') + '\n';
+        });
+        csv += '\n';
+    }
 
     return csv;
 }

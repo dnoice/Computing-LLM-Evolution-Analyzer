@@ -95,23 +95,57 @@ const defaultChartOptions = {
 };
 
 /**
- * Initialize all charts
+ * Safely get canvas context with error handling
+ */
+function getCanvasContext(id) {
+    const canvas = document.getElementById(id);
+    if (!canvas) {
+        console.warn(`Canvas element not found: ${id}`);
+        return null;
+    }
+    return canvas;
+}
+
+/**
+ * Safely destroy chart instance
+ */
+function destroyChart(chartName) {
+    if (chartInstances[chartName]) {
+        try {
+            chartInstances[chartName].destroy();
+            delete chartInstances[chartName];
+        } catch (error) {
+            console.error(`Error destroying chart ${chartName}:`, error);
+        }
+    }
+}
+
+/**
+ * Initialize all charts with error handling
  */
 function initializeCharts() {
-    initializeMooresLawChart();
-    initializeHardwareCharts();
-    initializeGPUCharts();
-    initializeLLMCharts();
-    initializeCloudCharts();
-    initializeComparisonChart();
+    try {
+        initializeMooresLawChart();
+        initializeHardwareCharts();
+        initializeGPUCharts();
+        initializeLLMCharts();
+        initializeCloudCharts();
+        initializeComparisonChart();
+        console.log('All charts initialized successfully');
+    } catch (error) {
+        console.error('Error initializing charts:', error);
+    }
 }
 
 /**
  * Moore's Law Chart
  */
 function initializeMooresLawChart() {
-    const ctx = document.getElementById('mooresLawChart');
+    const ctx = getCanvasContext('mooresLawChart');
     if (!ctx) return;
+
+    try {
+        destroyChart('mooresLaw');
 
     const data = window.hardwareData || getSampleHardwareData();
     const years = data.map(d => d.year);
@@ -191,6 +225,9 @@ function initializeMooresLawChart() {
             }
         }
     });
+    } catch (error) {
+        console.error('Error initializing Moore\'s Law chart:', error);
+    }
 }
 
 /**
@@ -581,6 +618,34 @@ function initializeLLMCharts() {
     const capabilityCtx = document.getElementById('llmCapabilityChart');
     if (capabilityCtx) {
         const latestModels = data.slice(-5);
+
+        // Helper function to estimate capability scores based on model parameters and year
+        const estimateCapabilityScore = (model, capability) => {
+            // If actual score exists, use it
+            const actualScore = model[`${capability}_score`] || model.capability_score;
+            if (actualScore) return actualScore;
+
+            // Otherwise estimate based on parameters and year
+            const params = model.parameters_billions || 1;
+            const year = model.year || 2020;
+            const yearFactor = Math.min((year - 2018) / 6, 1); // Normalize year (2018-2024)
+            const paramFactor = Math.min(Math.log10(params + 1) / 3, 1); // Normalize params (log scale)
+
+            // Base score increases with both parameters and recency
+            const baseScore = 50 + (yearFactor * 25) + (paramFactor * 25);
+
+            // Adjust by capability type (some models are better at certain tasks)
+            const adjustments = {
+                'reasoning': model.organization === 'OpenAI' ? 5 : 0,
+                'coding': model.organization === 'OpenAI' ? 5 : model.organization === 'Anthropic' ? 3 : 0,
+                'math': params > 100 ? 5 : 0,
+                'language': model.organization === 'Anthropic' ? 5 : 0,
+                'knowledge': params > 50 ? 5 : 0
+            };
+
+            return Math.min(baseScore + (adjustments[capability] || 0), 100);
+        };
+
         chartInstances.llmCapability = new Chart(capabilityCtx, {
             type: 'radar',
             data: {
@@ -588,11 +653,11 @@ function initializeLLMCharts() {
                 datasets: latestModels.map((model, i) => ({
                     label: model.name,
                     data: [
-                        model.reasoning_score || 70,
-                        model.coding_score || 70,
-                        model.math_score || 70,
-                        model.language_score || 70,
-                        model.knowledge_score || 70
+                        estimateCapabilityScore(model, 'reasoning'),
+                        estimateCapabilityScore(model, 'coding'),
+                        estimateCapabilityScore(model, 'math'),
+                        estimateCapabilityScore(model, 'language'),
+                        estimateCapabilityScore(model, 'knowledge')
                     ],
                     borderColor: Object.values(chartColors)[i % 10],
                     backgroundColor: `${Object.values(chartColors)[i % 10]}33`,
@@ -604,7 +669,21 @@ function initializeLLMCharts() {
                 scales: {
                     r: {
                         beginAtZero: true,
-                        max: 100
+                        max: 100,
+                        ticks: {
+                            stepSize: 20
+                        }
+                    }
+                },
+                plugins: {
+                    ...defaultChartOptions.plugins,
+                    tooltip: {
+                        ...defaultChartOptions.plugins.tooltip,
+                        callbacks: {
+                            label: function(context) {
+                                return context.dataset.label + ': ' + context.parsed.r.toFixed(0) + '/100';
+                            }
+                        }
                     }
                 }
             }
@@ -756,24 +835,100 @@ function initializeComparisonChart() {
 function updateComparisonChartData(type, metric) {
     if (!chartInstances.comparison) return;
 
-    let data, labels, values;
+    let data, labels, values, chartLabel;
 
     switch (type) {
         case 'hardware':
             data = window.hardwareData || getSampleHardwareData();
             labels = data.map(d => `${d.name} (${d.year})`);
-            values = metric === 'performance' ? data.map(d => d.cpu_clock_mhz || 0) :
-                     metric === 'cost' ? data.map(d => d.price_usd || 0) :
-                     data.map(d => d.cpu_transistors || 0);
+            if (metric === 'performance') {
+                values = data.map(d => d.cpu_clock_mhz || 0);
+                chartLabel = 'Clock Speed (MHz)';
+            } else if (metric === 'efficiency') {
+                values = data.map(d => (d.cpu_transistors || 0) / (d.price_usd || 1));
+                chartLabel = 'Transistors per Dollar';
+            } else if (metric === 'cost') {
+                values = data.map(d => d.price_usd || 0);
+                chartLabel = 'Price (USD)';
+            } else {
+                values = data.map(d => d.cpu_transistors || 0);
+                chartLabel = 'Transistor Count';
+            }
             break;
-        // Add other cases...
+
+        case 'gpu':
+            data = window.gpuData || getSampleGPUData();
+            labels = data.map(d => `${d.name} (${d.year})`);
+            if (metric === 'performance') {
+                values = data.map(d => d.tflops_fp32 || 0);
+                chartLabel = 'TFLOPS (FP32)';
+            } else if (metric === 'efficiency') {
+                values = data.map(d => (d.tflops_fp32 || 0) / (d.tdp_watts || 1));
+                chartLabel = 'TFLOPS per Watt';
+            } else if (metric === 'cost') {
+                values = data.map(d => d.price_usd || 0);
+                chartLabel = 'Price (USD)';
+            } else {
+                values = data.map(d => d.vram_gb || 0);
+                chartLabel = 'VRAM (GB)';
+            }
+            break;
+
+        case 'llm':
+            data = window.llmData || getSampleLLMData();
+            labels = data.map(d => `${d.name} (${d.year})`);
+            if (metric === 'performance') {
+                values = data.map(d => d.parameters_billions || 0);
+                chartLabel = 'Parameters (Billions)';
+            } else if (metric === 'efficiency') {
+                values = data.map(d => {
+                    const params = d.parameters_billions || 1;
+                    const compute = d.training_compute_flops || 1;
+                    return params / Math.log10(compute);
+                });
+                chartLabel = 'Parameter Efficiency';
+            } else if (metric === 'cost') {
+                values = data.map(d => {
+                    // Estimate cost based on training compute (rough estimate)
+                    const compute = d.training_compute_flops || 0;
+                    const costPerFlop = 1e-20; // Very rough estimate
+                    return compute * costPerFlop;
+                });
+                chartLabel = 'Estimated Training Cost (USD)';
+            } else {
+                values = data.map(d => d.context_window || 0);
+                chartLabel = 'Context Window (tokens)';
+            }
+            break;
+
+        case 'cloud':
+            data = window.cloudData || getSampleCloudData();
+            labels = data.map(d => `${d.provider} ${d.instance_type}`);
+            if (metric === 'performance') {
+                values = data.map(d => d.tflops || 0);
+                chartLabel = 'TFLOPS';
+            } else if (metric === 'efficiency') {
+                values = data.map(d => (d.tflops || 0) / (d.on_demand_hourly || 1));
+                chartLabel = 'TFLOPS per Dollar';
+            } else if (metric === 'cost') {
+                values = data.map(d => d.on_demand_hourly || 0);
+                chartLabel = 'Cost (USD/hour)';
+            } else {
+                const onDemand = data.map(d => d.on_demand_hourly || 0);
+                const spot = data.map(d => d.spot_hourly || 0);
+                values = onDemand.map((od, i) => od > 0 ? ((od - spot[i]) / od) * 100 : 0);
+                chartLabel = 'Spot Savings (%)';
+            }
+            break;
+
         default:
+            console.warn('Unknown comparison type:', type);
             return;
     }
 
     chartInstances.comparison.data.labels = labels;
     chartInstances.comparison.data.datasets = [{
-        label: metric.charAt(0).toUpperCase() + metric.slice(1),
+        label: chartLabel,
         data: values,
         backgroundColor: chartColors.primary,
         borderRadius: 6
