@@ -1,6 +1,6 @@
 {
   "description": "Industry-standard benchmarks and reference measurements",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "last_updated": "2024-10-29",
 
   "llm_benchmarks": {
@@ -8,43 +8,142 @@
     "benchmarks": {
       "MMLU": {
         "name": "Massive Multitask Language Understanding",
-        "description": "57 subjects across STEM, humanities, social sciences",
+        "description": "57 subjects across STEM, humanities, social sciences, and more",
         "scale": "0-100%",
         "human_expert_baseline": 89.8,
         "random_baseline": 25.0,
-        "notes": "Gold standard for general knowledge evaluation"
+        "notes": "Gold standard for general knowledge evaluation. 5-shot evaluation typically used.",
+        "reference": "Hendrycks et al. 2021",
+        "url": "https://github.com/hendrycks/test"
+      },
+      "MMLU_Pro": {
+        "name": "MMLU-Pro",
+        "description": "Enhanced version of MMLU with 10 answer choices and more challenging questions",
+        "scale": "0-100%",
+        "human_expert_baseline": 75.0,
+        "random_baseline": 10.0,
+        "notes": "More challenging variant with increased answer choices",
+        "reference": "Wang et al. 2024"
+      },
+      "GPQA": {
+        "name": "Graduate-Level Google-Proof Q&A",
+        "description": "PhD-level questions in biology, physics, and chemistry that are difficult to answer with search",
+        "scale": "0-100%",
+        "human_expert_baseline": 69.7,
+        "random_baseline": 25.0,
+        "notes": "Diamond variant is the most challenging. Tests expert-level reasoning.",
+        "reference": "Rein et al. 2023"
       },
       "HumanEval": {
         "name": "HumanEval Coding Benchmark",
-        "description": "164 hand-written programming problems",
+        "description": "164 hand-written programming problems with unit tests",
         "scale": "0-100%",
         "human_expert_baseline": 90.0,
         "random_baseline": 0.0,
-        "notes": "Standard coding capability test"
+        "notes": "Standard coding capability test. Pass@1 metric typically reported.",
+        "reference": "Chen et al. 2021",
+        "url": "https://github.com/openai/human-eval"
+      },
+      "MBPP": {
+        "name": "Mostly Basic Python Problems",
+        "description": "974 Python programming problems designed to be solvable by entry-level programmers",
+        "scale": "0-100%",
+        "human_baseline": 86.8,
+        "random_baseline": 0.0,
+        "notes": "Complementary to HumanEval, tests basic programming skills",
+        "reference": "Austin et al. 2021"
       },
       "GSM8K": {
         "name": "Grade School Math 8K",
-        "description": "8,500 grade school math word problems",
+        "description": "8,500 linguistically diverse grade school math word problems",
         "scale": "0-100%",
         "human_expert_baseline": 95.0,
         "random_baseline": 2.0,
-        "notes": "Mathematical reasoning test"
+        "notes": "Mathematical reasoning test. 5-shot evaluation typically used.",
+        "reference": "Cobbe et al. 2021",
+        "url": "https://github.com/openai/grade-school-math"
+      },
+      "MATH": {
+        "name": "MATH Dataset",
+        "description": "12,500 challenging competition mathematics problems from AMC 8/10/12, AIME, and more",
+        "scale": "0-100%",
+        "human_expert_baseline": 90.0,
+        "random_baseline": 0.0,
+        "notes": "Tests advanced mathematical reasoning. Problems range from level 1 (easiest) to 5 (hardest).",
+        "reference": "Hendrycks et al. 2021"
       },
       "HellaSwag": {
         "name": "HellaSwag Common Sense",
-        "description": "Physical and temporal common sense reasoning",
+        "description": "Physical and temporal common sense reasoning completion tasks",
         "scale": "0-100%",
         "human_baseline": 95.6,
         "random_baseline": 25.0,
-        "notes": "Tests common sense reasoning"
+        "notes": "Tests common sense reasoning about everyday scenarios",
+        "reference": "Zellers et al. 2019",
+        "url": "https://rowanzellers.com/hellaswag/"
+      },
+      "ARC": {
+        "name": "AI2 Reasoning Challenge",
+        "description": "7,787 science exam questions from grade 3-9. Challenge set contains hardest questions.",
+        "scale": "0-100%",
+        "human_baseline": 96.0,
+        "random_baseline": 25.0,
+        "notes": "Challenge set is primary evaluation metric. Tests scientific reasoning.",
+        "reference": "Clark et al. 2018",
+        "url": "https://allenai.org/data/arc"
+      },
+      "BBH": {
+        "name": "Big Bench Hard",
+        "description": "23 challenging tasks from BIG-Bench where prior models struggled",
+        "scale": "0-100%",
+        "human_baseline": 92.0,
+        "random_baseline": 33.8,
+        "notes": "Subset of BIG-Bench focusing on particularly difficult tasks for language models",
+        "reference": "Suzgun et al. 2022"
       },
       "TruthfulQA": {
         "name": "TruthfulQA",
-        "description": "Questions that humans might answer incorrectly due to misconceptions",
+        "description": "817 questions that humans might answer incorrectly due to misconceptions",
         "scale": "0-100%",
         "human_baseline": 94.0,
         "gpt3_baseline": 27.6,
-        "notes": "Tests factual accuracy and truthfulness"
+        "notes": "Tests factual accuracy and resistance to common misconceptions. Multiple choice variant typically used.",
+        "reference": "Lin et al. 2022",
+        "url": "https://github.com/sylinrl/TruthfulQA"
+      },
+      "DROP": {
+        "name": "Discrete Reasoning Over Paragraphs",
+        "description": "Reading comprehension requiring discrete reasoning (addition, counting, sorting)",
+        "scale": "0-100 F1 score",
+        "human_baseline": 96.4,
+        "random_baseline": 9.5,
+        "notes": "Tests reading comprehension with numerical reasoning",
+        "reference": "Dua et al. 2019"
+      },
+      "SQuAD": {
+        "name": "Stanford Question Answering Dataset",
+        "description": "Reading comprehension with questions posed by crowdworkers on Wikipedia articles",
+        "scale": "0-100 F1 score",
+        "human_baseline": 91.2,
+        "random_baseline": 0.0,
+        "notes": "SQuAD 2.0 includes unanswerable questions. Classic reading comprehension benchmark.",
+        "reference": "Rajpurkar et al. 2018",
+        "url": "https://rajpurkar.github.io/SQuAD-explorer/"
+      },
+      "IFEval": {
+        "name": "Instruction Following Eval",
+        "description": "Tests models' ability to follow explicit formatting and content instructions",
+        "scale": "0-100%",
+        "human_baseline": 100,
+        "notes": "Tests instruction following with verifiable constraints (e.g., 'write exactly 3 paragraphs')",
+        "reference": "Zhou et al. 2023"
+      },
+      "BFCL": {
+        "name": "Berkeley Function Calling Leaderboard",
+        "description": "Evaluates models' ability to call functions/tools accurately",
+        "scale": "0-100%",
+        "notes": "Tests function calling, API usage, and tool use capabilities. Multiple categories including simple, parallel, and complex function calling.",
+        "reference": "Berkeley 2024"
       }
     }
   },
@@ -54,30 +153,80 @@
     "benchmarks": {
       "3DMark_TimeSpy": {
         "name": "3DMark Time Spy",
-        "description": "DirectX 12 gaming benchmark",
+        "description": "DirectX 12 gaming benchmark at 1440p resolution",
         "unit": "score",
-        "notes": "Industry standard for gaming performance"
+        "notes": "Industry standard for gaming performance. Includes Graphics and CPU subtests.",
+        "reference": "UL Solutions",
+        "url": "https://www.3dmark.com/"
+      },
+      "3DMark_SpeedWay": {
+        "name": "3DMark Speed Way",
+        "description": "DirectX 12 Ultimate benchmark with ray tracing and mesh shaders",
+        "unit": "score",
+        "notes": "Tests modern GPU features including ray tracing performance",
+        "reference": "UL Solutions"
+      },
+      "3DMark_PortRoyal": {
+        "name": "3DMark Port Royal",
+        "description": "Dedicated real-time ray tracing benchmark",
+        "unit": "score",
+        "notes": "First dedicated DirectX ray tracing benchmark",
+        "reference": "UL Solutions"
       },
       "Geekbench_Compute": {
         "name": "Geekbench Compute",
         "description": "Cross-platform compute benchmark",
         "unit": "score",
         "apis": ["CUDA", "OpenCL", "Metal", "Vulkan"],
-        "notes": "Standardized compute performance measurement"
+        "notes": "Standardized compute performance measurement across platforms",
+        "reference": "Primate Labs"
+      },
+      "Blender_Benchmark": {
+        "name": "Blender Open Data Benchmark",
+        "description": "3D rendering performance using production Blender scenes",
+        "unit": "samples per minute",
+        "notes": "Real-world 3D rendering performance. Tests both Cycles and EEVEE render engines.",
+        "reference": "Blender Foundation",
+        "url": "https://opendata.blender.org/"
       },
       "MLPerf_Training": {
         "name": "MLPerf Training",
-        "description": "ML model training benchmark",
-        "unit": "minutes to accuracy",
-        "models": ["ResNet-50", "BERT", "Mask R-CNN"],
-        "notes": "Standard for ML training performance"
+        "description": "ML model training benchmark suite",
+        "unit": "time to target accuracy",
+        "models": ["ResNet-50", "BERT", "Mask R-CNN", "DLRM", "3D U-Net"],
+        "notes": "Industry standard for ML training performance. Measures time to reach target accuracy.",
+        "reference": "MLCommons",
+        "url": "https://mlcommons.org/benchmarks/training/"
       },
       "MLPerf_Inference": {
         "name": "MLPerf Inference",
-        "description": "ML model inference benchmark",
+        "description": "ML model inference benchmark suite",
         "unit": "queries per second",
-        "models": ["ResNet-50", "SSD-MobileNet", "BERT"],
-        "notes": "Standard for ML inference performance"
+        "models": ["ResNet-50", "BERT", "DLRM", "RNN-T"],
+        "notes": "Standard for ML inference performance. Includes datacenter and edge categories.",
+        "reference": "MLCommons",
+        "url": "https://mlcommons.org/benchmarks/inference/"
+      },
+      "OctaneBench": {
+        "name": "OctaneBench",
+        "description": "OctaneRender GPU rendering benchmark",
+        "unit": "score",
+        "notes": "Tests GPU rendering performance using commercial renderer",
+        "reference": "OTOY"
+      },
+      "VRay_Benchmark": {
+        "name": "V-Ray Benchmark",
+        "description": "V-Ray GPU rendering benchmark",
+        "unit": "vsamples (samples per minute)",
+        "notes": "Industry-standard production rendering performance test",
+        "reference": "Chaos Group"
+      },
+      "Furmark": {
+        "name": "FurMark",
+        "description": "GPU stress test and temperature monitoring",
+        "unit": "score and temperature",
+        "notes": "Intensive GPU burn-in test. Primarily used for stability testing rather than performance comparison.",
+        "reference": "Geeks3D"
       }
     }
   },
@@ -87,120 +236,291 @@
     "benchmarks": {
       "SPEC_CPU2017": {
         "name": "SPEC CPU 2017",
-        "description": "Industry-standard CPU benchmark",
-        "subtests": ["SPECspeed 2017 Integer", "SPECspeed 2017 Floating Point"],
-        "notes": "Comprehensive CPU performance measurement"
+        "description": "Industry-standard CPU benchmark suite",
+        "subtests": ["SPECspeed 2017 Integer", "SPECspeed 2017 Floating Point", "SPECrate 2017 Integer", "SPECrate 2017 Floating Point"],
+        "notes": "Comprehensive CPU performance measurement. Gold standard for CPU evaluation.",
+        "reference": "SPEC",
+        "url": "https://www.spec.org/cpu2017/"
       },
       "Geekbench_6": {
         "name": "Geekbench 6",
         "description": "Cross-platform CPU benchmark",
         "subtests": ["Single-Core", "Multi-Core"],
-        "notes": "Widely used consumer CPU benchmark"
+        "unit": "score",
+        "notes": "Widely used consumer CPU benchmark. Tests integer, floating point, and memory performance.",
+        "reference": "Primate Labs",
+        "url": "https://www.geekbench.com/"
       },
-      "Cinebench_R23": {
-        "name": "Cinebench R23",
-        "description": "Cinema 4D rendering benchmark",
+      "Cinebench_2024": {
+        "name": "Cinebench 2024",
+        "description": "Cinema 4D 2024 rendering benchmark",
         "unit": "points",
-        "notes": "Popular rendering performance test"
+        "subtests": ["Single-Core", "Multi-Core"],
+        "notes": "Popular rendering performance test. Based on Cinema 4D rendering engine.",
+        "reference": "Maxon",
+        "url": "https://www.maxon.net/cinebench"
+      },
+      "PassMark_CPU": {
+        "name": "PassMark CPU Mark",
+        "description": "Comprehensive CPU testing suite",
+        "unit": "score",
+        "notes": "Includes integer math, floating point math, encryption, compression, and physics tests",
+        "reference": "PassMark Software"
       },
       "LINPACK": {
         "name": "LINPACK Benchmark",
-        "description": "Floating point arithmetic benchmark",
+        "description": "Floating point arithmetic benchmark solving dense linear systems",
         "unit": "GFLOPS",
-        "notes": "Used for TOP500 supercomputer rankings"
+        "notes": "Used for TOP500 supercomputer rankings. Measures peak FLOPS.",
+        "reference": "Jack Dongarra",
+        "url": "https://www.top500.org/"
+      },
+      "7-Zip_Benchmark": {
+        "name": "7-Zip Benchmark",
+        "description": "Compression and decompression performance test",
+        "unit": "MIPS (million instructions per second)",
+        "subtests": ["Compression", "Decompression"],
+        "notes": "Tests CPU performance using LZMA compression algorithm",
+        "reference": "Igor Pavlov"
+      },
+      "PCMark_10": {
+        "name": "PCMark 10",
+        "description": "Complete system benchmark for modern office work",
+        "unit": "score",
+        "subtests": ["Essentials", "Productivity", "Digital Content Creation"],
+        "notes": "Tests overall PC performance with real-world scenarios",
+        "reference": "UL Solutions"
+      },
+      "AIDA64": {
+        "name": "AIDA64 Memory Benchmark",
+        "description": "Memory and cache benchmark suite",
+        "unit": "MB/s",
+        "subtests": ["Read", "Write", "Copy", "Latency"],
+        "notes": "Comprehensive memory subsystem testing",
+        "reference": "FinalWire"
+      },
+      "CoreMark": {
+        "name": "CoreMark",
+        "description": "Simple CPU benchmark focusing on core functionality",
+        "unit": "iterations per second",
+        "notes": "Designed for embedded and small processors. Industry standard for MCUs.",
+        "reference": "EEMBC",
+        "url": "https://www.eembc.org/coremark/"
+      }
+    }
+  },
+
+  "storage_benchmarks": {
+    "description": "Storage and I/O performance benchmarks",
+    "benchmarks": {
+      "CrystalDiskMark": {
+        "name": "CrystalDiskMark",
+        "description": "Disk benchmark software for measuring read/write speeds",
+        "unit": "MB/s and IOPS",
+        "subtests": ["Sequential Read/Write", "Random 4K Read/Write", "Mixed workloads"],
+        "notes": "Most popular consumer storage benchmark. Tests various queue depths and thread counts.",
+        "reference": "Crystal Dew World",
+        "url": "https://crystalmark.info/"
+      },
+      "AS_SSD": {
+        "name": "AS SSD Benchmark",
+        "description": "SSD-focused benchmark tool",
+        "unit": "MB/s and IOPS",
+        "notes": "Tests SSD performance without cache. Includes compression test.",
+        "reference": "Alex Intelligent Software"
+      },
+      "ATTO_Disk": {
+        "name": "ATTO Disk Benchmark",
+        "description": "Transfer speed test across different block sizes",
+        "unit": "MB/s",
+        "notes": "Tests performance with various transfer sizes from 512B to 64MB",
+        "reference": "ATTO Technology"
+      },
+      "FIO": {
+        "name": "Flexible I/O Tester",
+        "description": "Flexible I/O workload simulator",
+        "unit": "MB/s, IOPS, latency",
+        "notes": "Industry standard for storage performance testing. Highly configurable for various workload patterns.",
+        "reference": "Jens Axboe",
+        "url": "https://fio.readthedocs.io/"
+      },
+      "IOmeter": {
+        "name": "IOmeter",
+        "description": "I/O subsystem measurement and characterization tool",
+        "unit": "IOPS and latency",
+        "notes": "Enterprise-focused storage benchmark. Tests sustained I/O performance.",
+        "reference": "IOmeter.org"
+      }
+    }
+  },
+
+  "network_benchmarks": {
+    "description": "Network performance and throughput benchmarks",
+    "benchmarks": {
+      "iperf3": {
+        "name": "iPerf3",
+        "description": "Network throughput measurement tool",
+        "unit": "Gbps or Mbps",
+        "notes": "De facto standard for measuring maximum TCP and UDP bandwidth. Tests both single and parallel streams.",
+        "reference": "ESnet",
+        "url": "https://iperf.fr/"
+      },
+      "netperf": {
+        "name": "Netperf",
+        "description": "Network performance benchmark",
+        "unit": "Transactions per second or Mbps",
+        "notes": "Tests various network performance metrics including throughput and latency",
+        "reference": "HP"
+      },
+      "ping_latency": {
+        "name": "Ping Latency Test",
+        "description": "Basic network latency measurement",
+        "unit": "milliseconds",
+        "notes": "Fundamental network diagnostic tool. Measures round-trip time (RTT)."
+      },
+      "speedtest": {
+        "name": "Speedtest by Ookla",
+        "description": "Internet connection speed test",
+        "unit": "Mbps",
+        "subtests": ["Download", "Upload", "Latency", "Jitter"],
+        "notes": "Most widely used consumer internet speed test",
+        "reference": "Ookla",
+        "url": "https://www.speedtest.net/"
       }
     }
   },
 
   "real_world_performance": {
-    "description": "Real-world performance metrics from production systems",
+    "description": "Real-world performance metrics from production systems. Note: These are approximate values and can vary significantly based on configuration, optimization, and workload.",
     "llm_inference": {
       "tokens_per_second": {
+        "note": "Approximate generation speed for single batch inference. Actual performance varies by sequence length, optimization, quantization, and other factors.",
         "A100_40GB": {
-          "model_7B": 120,
-          "model_13B": 80,
-          "model_70B": 25,
-          "notes": "Approximate tokens/sec on single GPU"
+          "model_7B": "100-150",
+          "model_13B": "60-100",
+          "model_70B": "15-30",
+          "notes": "FP16/BF16, batch size 1, approximate range"
         },
         "H100_80GB": {
-          "model_7B": 300,
-          "model_13B": 200,
-          "model_70B": 60,
-          "model_175B": 15,
-          "notes": "Approximate tokens/sec on single GPU"
+          "model_7B": "250-350",
+          "model_13B": "150-250",
+          "model_70B": "40-80",
+          "model_175B": "10-20",
+          "notes": "FP16/BF16, batch size 1, approximate range"
+        },
+        "A100_40GB_quantized": {
+          "model_7B_int8": "150-200",
+          "model_13B_int8": "100-150",
+          "model_70B_int8": "25-40",
+          "notes": "INT8 quantization, batch size 1, approximate range"
         }
       },
       "batch_size_impact": {
-        "description": "Performance improvement with batch size",
+        "description": "Relative throughput improvement with batching (approximate)",
         "batch_1": 1.0,
-        "batch_8": 3.5,
-        "batch_32": 8.0,
-        "batch_128": 15.0,
-        "notes": "Relative throughput multiplier"
+        "batch_8": "3-4x",
+        "batch_32": "7-10x",
+        "batch_128": "12-20x",
+        "notes": "Throughput multipliers are approximate and vary by model size and hardware. Larger batches increase throughput but also latency per request."
       }
     },
     "training_throughput": {
-      "description": "Training throughput in tokens/sec",
+      "description": "Training throughput in tokens/sec (approximate ranges)",
+      "note": "Highly dependent on model architecture, sequence length, optimization level, and interconnect. These are rough estimates.",
       "A100_40GB_8x": {
-        "model_7B": 45000,
-        "model_13B": 28000,
-        "model_70B": 6500,
-        "notes": "8x A100 40GB cluster with NVLink"
+        "model_7B": "40000-50000",
+        "model_13B": "25000-32000",
+        "model_70B": "5000-8000",
+        "notes": "8x A100 40GB with NVLink, approximate range, BF16 mixed precision"
       },
       "H100_80GB_8x": {
-        "model_7B": 110000,
-        "model_13B": 72000,
-        "model_70B": 18000,
-        "model_175B": 5000,
-        "notes": "8x H100 80GB cluster with NVSwitch"
+        "model_7B": "100000-130000",
+        "model_13B": "65000-85000",
+        "model_70B": "15000-22000",
+        "notes": "8x H100 80GB with NVSwitch, approximate range, BF16 mixed precision"
       }
     }
   },
 
   "efficiency_metrics": {
-    "description": "Standard efficiency measurements",
+    "description": "Standard efficiency measurements and trends",
     "performance_per_watt": {
-      "description": "Performance per watt ratios",
-      "unit": "GFLOPS/W",
+      "description": "Performance per watt ratios (approximate)",
+      "unit": "GFLOPS/W (FP32)",
       "targets": {
-        "high_end_gpu_2024": 350,
-        "high_end_gpu_2020": 150,
-        "high_end_gpu_2016": 50,
-        "notes": "FP32 performance per watt"
+        "high_end_gpu_2024": "300-400",
+        "high_end_gpu_2020": "130-180",
+        "high_end_gpu_2016": "40-60",
+        "notes": "FP32 performance per watt for flagship gaming/consumer GPUs. Data center GPUs may differ significantly."
       }
     },
     "cost_per_tflop": {
-      "description": "Cost efficiency over time",
+      "description": "Cost efficiency trends over time (approximate)",
       "unit": "USD/TFLOP",
       "historical": {
-        "2016": 25.0,
-        "2020": 12.0,
-        "2024": 6.0,
-        "notes": "Consumer GPU MSRP / FP32 TFLOPS"
+        "2016": "20-30",
+        "2020": "10-15",
+        "2024": "5-8",
+        "notes": "Based on consumer GPU MSRP divided by FP32 TFLOPS. Actual street prices and specific models vary."
+      }
+    },
+    "memory_bandwidth": {
+      "description": "Memory bandwidth trends",
+      "unit": "GB/s",
+      "typical_values": {
+        "DDR4_3200": 25.6,
+        "DDR5_4800": 38.4,
+        "DDR5_6400": 51.2,
+        "GDDR6": "384-672",
+        "GDDR6X": "760-1008",
+        "HBM2": "900-1200",
+        "HBM2E": "1600-2000",
+        "HBM3": "2000-3000",
+        "notes": "System memory shown per channel. GPU memory bandwidth varies by bus width and speed."
       }
     }
   },
 
   "scaling_laws": {
-    "description": "Empirical scaling laws for LLMs",
+    "description": "Empirical scaling laws for LLMs and compute systems",
     "chinchilla_scaling": {
-      "description": "Chinchilla optimal training",
+      "description": "Chinchilla optimal training (compute-optimal)",
       "optimal_tokens_per_parameter": 20,
-      "formula": "optimal_tokens = 20 * parameters",
-      "reference": "Hoffmann et al. 2022"
+      "formula": "optimal_tokens ≈ 20 × parameters",
+      "example": "For 70B model, optimal training uses ~1.4T tokens",
+      "reference": "Hoffmann et al. 2022",
+      "notes": "More recent research suggests this may vary by model architecture and training approach"
     },
     "kaplan_scaling": {
       "description": "Original GPT-3 scaling laws",
-      "compute_optimal_model_size": "formula: N ~ C^0.73",
-      "dataset_optimal": "formula: D ~ C^0.27",
+      "compute_optimal_model_size": "N ∝ C^0.73",
+      "dataset_optimal": "D ∝ C^0.27",
       "reference": "Kaplan et al. 2020",
-      "notes": "Superseded by Chinchilla findings"
+      "notes": "Superseded by Chinchilla findings which recommend more training data relative to model size"
     },
     "inference_cost_scaling": {
-      "description": "Inference cost scales with model size",
-      "cost_per_token_scaling": "approximately linear with parameters",
-      "latency_scaling": "approximately linear with model depth",
-      "notes": "Batching can amortize costs significantly"
+      "description": "Inference cost relationships",
+      "cost_per_token_scaling": "Approximately linear with model parameters for similar architectures",
+      "latency_scaling": "Approximately linear with model depth (number of layers)",
+      "memory_requirements": "Parameters (billions) × precision (bytes) ≈ minimum GPU memory needed",
+      "notes": "Batching can increase throughput by 10-20x. Quantization can reduce memory by 2-4x. KV cache grows with context length."
+    },
+    "moores_law": {
+      "description": "Historical transistor density scaling",
+      "traditional_doubling_period": "~2 years (historically)",
+      "current_status": "Slowing since ~2015",
+      "notes": "Classical Moore's Law (transistor doubling every 2 years) has slowed. Performance improvements now come more from architecture and specialization."
+    },
+    "dennard_scaling": {
+      "description": "Power density scaling",
+      "status": "Ended around 2005-2006",
+      "notes": "Power density no longer scales with transistor size, leading to power wall and end of frequency scaling era."
     }
+  },
+
+  "metadata": {
+    "warning": "Real-world performance values are approximate and can vary significantly based on specific hardware configurations, software optimizations, workload characteristics, and environmental conditions. Always validate with your specific setup.",
+    "sources": "Benchmarks compiled from official documentation, published research papers, and widely-reported industry results",
+    "maintenance_note": "Benchmark software and methodologies evolve over time. Newer versions may not be directly comparable to older results."
   }
 }
