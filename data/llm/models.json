@@ -23,7 +23,7 @@
     "release_date": "2018-10",
     "model_type": "text",
     "open_source": true,
-    "notes": "Bidirectional encoder - revolutionized NLP"
+    "notes": "Bidirectional encoder that revolutionized NLP with masked language modeling. Foundation for many downstream tasks."
   },
   {
     "name": "GPT-2",
@@ -49,7 +49,7 @@
     "release_date": "2019-02",
     "model_type": "text",
     "open_source": true,
-    "notes": "Demonstrated impressive zero-shot capabilities"
+    "notes": "Demonstrated impressive zero-shot capabilities and coherent long-form text generation. Initially controversial release."
   },
   {
     "name": "T5-11B",
@@ -75,7 +75,7 @@
     "release_date": "2019-10",
     "model_type": "text",
     "open_source": true,
-    "notes": "Text-to-text transfer transformer"
+    "notes": "Text-to-text transfer transformer. Unified framework treating all NLP tasks as text-to-text problems."
   },
   {
     "name": "GPT-3 (Davinci)",
@@ -101,7 +101,7 @@
     "release_date": "2020-06",
     "model_type": "text",
     "open_source": false,
-    "notes": "First model to demonstrate strong few-shot learning"
+    "notes": "First model to demonstrate strong few-shot learning. Breakthrough in language model capabilities and scale."
   },
   {
     "name": "GPT-3.5 (text-davinci-003)",
@@ -127,7 +127,33 @@
     "release_date": "2022-11",
     "model_type": "text",
     "open_source": false,
-    "notes": "RLHF-tuned version of GPT-3"
+    "notes": "RLHF-tuned version of GPT-3 with improved instruction following. Precursor to ChatGPT."
+  },
+  {
+    "name": "GPT-3.5 Turbo",
+    "year": 2022,
+    "organization": "OpenAI",
+    "parameters_billions": 175,
+    "architecture_type": "Transformer Decoder",
+    "training_tokens_billions": 300,
+    "training_compute_flops": 3.14e23,
+    "training_days": 35,
+    "context_window": 16385,
+    "max_output_tokens": 4096,
+    "capability_score_reasoning": 78,
+    "capability_score_coding": 76,
+    "capability_score_math": 72,
+    "capability_score_knowledge": 82,
+    "capability_score_multilingual": 75,
+    "cost_per_1m_input_tokens": 0.5,
+    "cost_per_1m_output_tokens": 1.5,
+    "num_layers": 96,
+    "hidden_size": 12288,
+    "attention_heads": 96,
+    "release_date": "2022-11",
+    "model_type": "text",
+    "open_source": false,
+    "notes": "Chat-optimized variant. Powered ChatGPT initially. 10x cheaper than Davinci. Very cost-effective for most applications."
   },
   {
     "name": "LLaMA-65B",
@@ -153,7 +179,7 @@
     "release_date": "2023-02",
     "model_type": "text",
     "open_source": true,
-    "notes": "Trained on 1.4T tokens, highly efficient"
+    "notes": "Trained on 1.4T tokens. Highly parameter-efficient model. Pioneered era of competitive open-source LLMs."
   },
   {
     "name": "GPT-4",
@@ -179,7 +205,7 @@
     "release_date": "2023-03",
     "model_type": "multimodal",
     "open_source": false,
-    "notes": "First major multimodal LLM, accepts images"
+    "notes": "First major multimodal LLM accepting images. 8K base (or 32K at $60/$120). MoE architecture with ~1.76T total params, 8 experts with 2 active per token. Cost of training exceeded $100M."
   },
   {
     "name": "Claude 2.0",
@@ -205,7 +231,7 @@
     "release_date": "2023-07",
     "model_type": "text",
     "open_source": false,
-    "notes": "100K context window, strong safety features"
+    "notes": "100K context window - breakthrough at the time. Strong Constitutional AI safety features and alignment."
   },
   {
     "name": "LLaMA 2 70B",
@@ -231,7 +257,7 @@
     "release_date": "2023-07",
     "model_type": "text",
     "open_source": true,
-    "notes": "Open source, commercially usable"
+    "notes": "First truly commercially usable open-source LLM with permissive license. Democratized access to capable models."
   },
   {
     "name": "Mistral 7B",
@@ -257,7 +283,7 @@
     "release_date": "2023-09",
     "model_type": "text",
     "open_source": true,
-    "notes": "Sliding window attention, highly efficient"
+    "notes": "Sliding window attention mechanism. Highly efficient small model outperforming larger competitors. Apache 2.0 license."
   },
   {
     "name": "GPT-4 Turbo",
@@ -277,10 +303,13 @@
     "capability_score_multilingual": 88,
     "cost_per_1m_input_tokens": 10.0,
     "cost_per_1m_output_tokens": 30.0,
+    "num_layers": 120,
+    "hidden_size": 18432,
+    "attention_heads": 128,
     "release_date": "2023-11",
     "model_type": "multimodal",
     "open_source": false,
-    "notes": "128K context, updated knowledge cutoff"
+    "notes": "Released Nov 6, 2023. 128K context (300 pages). 3x cheaper input, 2x cheaper output than GPT-4. Knowledge cutoff: April 2023. Improved instruction following and JSON mode."
   },
   {
     "name": "Gemini Pro",
@@ -306,7 +335,7 @@
     "release_date": "2023-12",
     "model_type": "multimodal",
     "open_source": false,
-    "notes": "Native multimodal training"
+    "notes": "Google's first major multimodal model family. Native multimodal training from ground up (not bolted on vision)."
   },
   {
     "name": "Claude 3 Opus",
@@ -332,7 +361,7 @@
     "release_date": "2024-03",
     "model_type": "multimodal",
     "open_source": false,
-    "notes": "200K context, strong vision capabilities"
+    "notes": "200K context window. Strong vision capabilities. Set new benchmarks for intelligence. Claude 3 family: Haiku, Sonnet, Opus. Parameter count estimated (not officially disclosed)."
   },
   {
     "name": "Llama 3 70B",
@@ -358,17 +387,43 @@
     "release_date": "2024-04",
     "model_type": "text",
     "open_source": true,
-    "notes": "Massive training dataset, 15T tokens"
+    "notes": "Massive 15T token training dataset - 7x more than Llama 2. Major quality leap in open-source models."
+  },
+  {
+    "name": "Command R+",
+    "year": 2024,
+    "organization": "Cohere",
+    "parameters_billions": 104,
+    "architecture_type": "Transformer Decoder",
+    "training_tokens_billions": 7000,
+    "training_compute_flops": 6.8e24,
+    "training_days": 40,
+    "context_window": 128000,
+    "max_output_tokens": 4096,
+    "capability_score_reasoning": 82,
+    "capability_score_coding": 79,
+    "capability_score_math": 77,
+    "capability_score_knowledge": 86,
+    "capability_score_multilingual": 84,
+    "cost_per_1m_input_tokens": 3.0,
+    "cost_per_1m_output_tokens": 15.0,
+    "num_layers": 80,
+    "hidden_size": 10240,
+    "attention_heads": 80,
+    "release_date": "2024-04",
+    "model_type": "text",
+    "open_source": false,
+    "notes": "Optimized for RAG (Retrieval Augmented Generation) and enterprise use cases. Strong instruction following and grounded responses."
   },
   {
     "name": "GPT-4o",
     "year": 2024,
     "organization": "OpenAI",
-    "parameters_billions": 1760,
-    "architecture_type": "Mixture of Experts",
-    "training_tokens_billions": 20000,
-    "training_compute_flops": 3.2e25,
-    "training_days": 100,
+    "parameters_billions": 200,
+    "architecture_type": "Multimodal Transformer (Dense)",
+    "training_tokens_billions": 10000,
+    "training_compute_flops": 8.5e24,
+    "training_days": 55,
     "context_window": 128000,
     "max_output_tokens": 16384,
     "capability_score_reasoning": 92,
@@ -376,15 +431,15 @@
     "capability_score_math": 88,
     "capability_score_knowledge": 95,
     "capability_score_multilingual": 92,
-    "cost_per_1m_input_tokens": 5.0,
-    "cost_per_1m_output_tokens": 15.0,
-    "num_layers": 120,
-    "hidden_size": 18432,
-    "attention_heads": 128,
+    "cost_per_1m_input_tokens": 2.5,
+    "cost_per_1m_output_tokens": 10.0,
+    "num_layers": 80,
+    "hidden_size": 10240,
+    "attention_heads": 80,
     "release_date": "2024-05",
     "model_type": "multimodal",
     "open_source": false,
-    "notes": "Omni model with native audio/video/text"
+    "notes": "Released May 13, 2024. 'Omni' model with native text, audio, image, video processing in single model. 2x faster than GPT-4 Turbo. Knowledge cutoff: Oct 2023. Scored 88.7 on MMLU. Real-time voice interaction. Param count estimated (~200B, not 1.76T)."
   },
   {
     "name": "Claude 3.5 Sonnet",
@@ -410,12 +465,12 @@
     "release_date": "2024-06",
     "model_type": "multimodal",
     "open_source": false,
-    "notes": "Best-in-class coding, extended thinking"
+    "notes": "Released June 20, 2024. Outperformed Claude 3 Opus on many benchmarks while cheaper. Introduced Artifacts feature for interactive content. Knowledge cutoff: April 2024. 2x speed of Claude 3 Opus. Parameter count estimated."
   },
   {
     "name": "Gemini 1.5 Pro",
     "year": 2024,
-    "organization": "Google",
+    "organization": "Google DeepMind",
     "parameters_billions": 175,
     "architecture_type": "Mixture of Experts",
     "training_tokens_billions": 8000,
@@ -436,7 +491,7 @@
     "release_date": "2024-07",
     "model_type": "multimodal",
     "open_source": false,
-    "notes": "2M context window - longest available"
+    "notes": "2M token context window - longest available. Supports text, images, video, audio inputs. Sparse MoE architecture. Can process hours of video or entire codebases."
   },
   {
     "name": "Llama 3.1 405B",
@@ -462,33 +517,33 @@
     "release_date": "2024-07",
     "model_type": "text",
     "open_source": true,
-    "notes": "Largest open-source model, 128K context"
+    "notes": "Largest open-source model. 128K context. Trained on 16,000 H100 GPUs. Competes with GPT-4 class models. First open model with 128K output capability."
   },
   {
-    "name": "Claude 3.5 Sonnet v2",
+    "name": "Mistral Large 2",
     "year": 2024,
-    "organization": "Anthropic",
-    "parameters_billions": 175,
+    "organization": "Mistral AI",
+    "parameters_billions": 123,
     "architecture_type": "Transformer Decoder",
-    "training_tokens_billions": 6000,
-    "training_compute_flops": 8.2e24,
-    "training_days": 85,
-    "context_window": 200000,
-    "max_output_tokens": 8192,
-    "capability_score_reasoning": 95,
-    "capability_score_coding": 94,
-    "capability_score_math": 91,
-    "capability_score_knowledge": 95,
-    "capability_score_multilingual": 92,
-    "cost_per_1m_input_tokens": 3.0,
-    "cost_per_1m_output_tokens": 15.0,
-    "num_layers": 96,
-    "hidden_size": 14336,
-    "attention_heads": 112,
-    "release_date": "2024-10",
-    "model_type": "multimodal",
+    "training_tokens_billions": 8000,
+    "training_compute_flops": 8.5e24,
+    "training_days": 45,
+    "context_window": 128000,
+    "max_output_tokens": 4096,
+    "capability_score_reasoning": 84,
+    "capability_score_coding": 86,
+    "capability_score_math": 80,
+    "capability_score_knowledge": 85,
+    "capability_score_multilingual": 88,
+    "cost_per_1m_input_tokens": 2.0,
+    "cost_per_1m_output_tokens": 6.0,
+    "num_layers": 88,
+    "hidden_size": 12288,
+    "attention_heads": 96,
+    "release_date": "2024-07",
+    "model_type": "text",
     "open_source": false,
-    "notes": "Computer use capability, improved agentic coding"
+    "notes": "European AI company's flagship model. Exceptionally strong coding and multilingual capabilities, especially European languages."
   },
   {
     "name": "o1-preview",
@@ -514,6 +569,110 @@
     "release_date": "2024-09",
     "model_type": "multimodal",
     "open_source": false,
-    "notes": "Extended chain-of-thought reasoning capabilities"
+    "notes": "First model with extended chain-of-thought reasoning. Excels at math, coding, scientific reasoning. 'Thinks' before responding. Performance comparable to PhD-level experts on some benchmarks."
+  },
+  {
+    "name": "Claude 3.5 Sonnet v2",
+    "year": 2024,
+    "organization": "Anthropic",
+    "parameters_billions": 175,
+    "architecture_type": "Transformer Decoder",
+    "training_tokens_billions": 6000,
+    "training_compute_flops": 8.2e24,
+    "training_days": 85,
+    "context_window": 200000,
+    "max_output_tokens": 8192,
+    "capability_score_reasoning": 95,
+    "capability_score_coding": 94,
+    "capability_score_math": 91,
+    "capability_score_knowledge": 95,
+    "capability_score_multilingual": 92,
+    "cost_per_1m_input_tokens": 3.0,
+    "cost_per_1m_output_tokens": 15.0,
+    "num_layers": 96,
+    "hidden_size": 14336,
+    "attention_heads": 112,
+    "release_date": "2024-10",
+    "model_type": "multimodal",
+    "open_source": false,
+    "notes": "October 2024 update. Added computer use capability - can interact with computer interfaces. Improved agentic coding. Better instruction following."
+  },
+  {
+    "name": "Llama 3.3 70B",
+    "year": 2024,
+    "organization": "Meta",
+    "parameters_billions": 70,
+    "architecture_type": "Transformer Decoder",
+    "training_tokens_billions": 15000,
+    "training_compute_flops": 6.4e24,
+    "training_days": 50,
+    "context_window": 128000,
+    "max_output_tokens": 4096,
+    "capability_score_reasoning": 84,
+    "capability_score_coding": 82,
+    "capability_score_math": 80,
+    "capability_score_knowledge": 86,
+    "capability_score_multilingual": 83,
+    "cost_per_1m_input_tokens": 0,
+    "cost_per_1m_output_tokens": 0,
+    "num_layers": 80,
+    "hidden_size": 8192,
+    "attention_heads": 64,
+    "release_date": "2024-12",
+    "model_type": "text",
+    "open_source": true,
+    "notes": "Latest Llama 3 iteration. Open-source with permissive license. Excellent performance-to-size ratio. Competes with larger proprietary models."
+  },
+  {
+    "name": "Claude Opus 4.1",
+    "year": 2025,
+    "organization": "Anthropic",
+    "parameters_billions": 750,
+    "architecture_type": "Transformer Decoder",
+    "training_tokens_billions": 20000,
+    "training_compute_flops": 3.0e25,
+    "training_days": 95,
+    "context_window": 200000,
+    "max_output_tokens": 8192,
+    "capability_score_reasoning": 97,
+    "capability_score_coding": 95,
+    "capability_score_math": 94,
+    "capability_score_knowledge": 96,
+    "capability_score_multilingual": 92,
+    "cost_per_1m_input_tokens": 15.0,
+    "cost_per_1m_output_tokens": 75.0,
+    "num_layers": 108,
+    "hidden_size": 20480,
+    "attention_heads": 160,
+    "release_date": "2025-01",
+    "model_type": "multimodal",
+    "open_source": false,
+    "notes": "Part of Claude 4 family. Most capable model for complex reasoning, analysis, long-form generation. Enhanced agentic capabilities and real-world coding. Parameter count estimated."
+  },
+  {
+    "name": "Claude Sonnet 4.5",
+    "year": 2025,
+    "organization": "Anthropic",
+    "parameters_billions": 650,
+    "architecture_type": "Transformer Decoder",
+    "training_tokens_billions": 18000,
+    "training_compute_flops": 2.5e25,
+    "training_days": 85,
+    "context_window": 200000,
+    "max_output_tokens": 64000,
+    "capability_score_reasoning": 96,
+    "capability_score_coding": 94,
+    "capability_score_math": 92,
+    "capability_score_knowledge": 95,
+    "capability_score_multilingual": 91,
+    "cost_per_1m_input_tokens": 3.0,
+    "cost_per_1m_output_tokens": 15.0,
+    "num_layers": 104,
+    "hidden_size": 18432,
+    "attention_heads": 144,
+    "release_date": "2025-09",
+    "model_type": "multimodal",
+    "open_source": false,
+    "notes": "Released Sept 29, 2025. Smartest Claude model. Enhanced coding, agents, computer use. 77.2% on SWE-bench Verified. Can maintain focus for 30+ hours on complex tasks. Up to 64K output tokens for long code generation. Parameter count estimated."
   }
 ]
