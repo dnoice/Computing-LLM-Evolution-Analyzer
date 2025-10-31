@@ -8,7 +8,7 @@ from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
 from rich.prompt import Prompt, IntPrompt, Confirm
-from rich.progress import Progress, SpinnerColumn, TextColumn
+from rich.progress import Progress, SpinnerColumn, TextColumn, BarColumn
 from rich import box
 from rich.layout import Layout
 from rich.text import Text
@@ -20,6 +20,17 @@ from .cloud_cost_analyzer import CloudCostAnalyzer
 from .moores_law import MooresLawAnalyzer
 from .visualizations import Plotter
 from .exports import Exporter
+
+# Import new UI components
+from .ui_components import (
+    THEME, ICONS,
+    create_banner, create_menu_option, create_styled_table,
+    create_dashboard_panel, create_status_bar, create_help_text,
+    create_help_screen, show_help, clear_screen,
+    print_section_header, create_prompt_text,
+    build_choice_validator, normalize_choice,
+    BreadcrumbNav, Notify
+)
 
 
 class CLI:
@@ -35,84 +46,226 @@ class CLI:
         self.moores_law = MooresLawAnalyzer()
         self.plotter = Plotter()
         self.exporter = Exporter()
+        self.breadcrumbs = BreadcrumbNav()
 
     def show_banner(self):
         """Display application banner."""
-        banner = Text()
-        banner.append("Computing & LLM Evolution Analyzer\n", style="bold cyan")
-        banner.append("Version 2.1.0\n", style="dim")
-        banner.append("\nAnalyze hardware, LLM evolution, and cloud costs", style="italic")
-
-        panel = Panel(
-            banner,
-            box=box.DOUBLE,
-            border_style="cyan",
-            padding=(1, 2),
-        )
-        self.console.print(panel)
-        self.console.print()
+        self.console.print(create_banner())
 
     def show_main_menu(self) -> str:
         """Display main menu and get user choice."""
-        self.console.print("\n[bold cyan]Main Menu[/bold cyan]")
-        self.console.print("[1] Hardware Analysis")
-        self.console.print("[2] LLM Analysis")
-        self.console.print("[3] GPU Analysis")
-        self.console.print("[4] Moore's Law Analysis")
-        self.console.print("[5] Compare Hardware vs LLM vs GPU Evolution")
-        self.console.print("[6] Export Data")
-        self.console.print("[7] Generate Visualizations")
-        self.console.print("[8] Cloud Cost Analysis")
-        self.console.print("[0] Exit")
-        self.console.print()
+        while True:  # Loop to handle help requests
+            # Clear screen for clean display
+            clear_screen(self.console)
 
-        choice = Prompt.ask(
-            "Select an option",
-            choices=["0", "1", "2", "3", "4", "5", "6", "7", "8"],
-            default="1"
-        )
-        return choice
+            # Show breadcrumbs
+            self.console.print()
+            self.console.print(self.breadcrumbs.render())
+            self.console.print()
+
+            # Create menu title
+            print_section_header(self.console, "Main Menu", "🏠")
+            self.console.print()
+
+            # Display menu options with both number and letter shortcuts
+            self.console.print(create_menu_option("1", "h", "Hardware Analysis", ICONS['hardware'],
+                                                 "CPU, RAM, storage evolution"))
+            self.console.print(create_menu_option("2", "l", "LLM Analysis", ICONS['llm'],
+                                                 "Model parameters, capabilities"))
+            self.console.print(create_menu_option("3", "g", "GPU Analysis", ICONS['gpu'],
+                                                 "Performance, efficiency trends"))
+            self.console.print(create_menu_option("4", "m", "Moore's Law Analysis", ICONS['moores_law'],
+                                                 "Historical adherence & predictions"))
+            self.console.print(create_menu_option("5", "c", "Compare Evolution", ICONS['compare'],
+                                                 "Hardware vs LLM vs GPU"))
+            self.console.print(create_menu_option("6", "e", "Export Data", ICONS['export'],
+                                                 "JSON, CSV, Markdown formats"))
+            self.console.print(create_menu_option("7", "v", "Generate Visualizations", ICONS['visualize'],
+                                                 "Charts and plots"))
+            self.console.print(create_menu_option("8", "k", "Cloud Cost Analysis", ICONS['cloud'],
+                                                 "AWS, Azure, GCP pricing"))
+            self.console.print()
+            self.console.print(create_menu_option("0", "q", "Exit", ICONS['exit'],
+                                                 "Quit application"))
+
+            # Status bar with tip
+            self.console.print()
+            self.console.print(create_status_bar("Ready", "Type number/letter or '?' for help"))
+            self.console.print()
+
+            # Build choice validator with both numbers and letters + help
+            num_keys = ["0", "1", "2", "3", "4", "5", "6", "7", "8"]
+            letter_keys = ["q", "h", "l", "g", "m", "c", "e", "v", "k", "?"]
+            valid_choices = build_choice_validator(num_keys, letter_keys)
+
+            # Key mapping: letter -> number
+            key_map = {
+                "q": "0", "h": "1", "l": "2", "g": "3",
+                "m": "4", "c": "5", "e": "6", "v": "7", "k": "8"
+            }
+
+            choice = Prompt.ask(
+                create_prompt_text("Enter your choice"),
+                choices=valid_choices,
+                default="1"
+            )
+
+            # Handle help request
+            if choice == "?":
+                clear_screen(self.console)
+                show_help(self.console)
+                continue  # Show menu again
+
+            # Normalize the choice to a number
+            return normalize_choice(choice, key_map)
 
     def load_data(self):
         """Load hardware, LLM, GPU, and cloud cost data."""
         with Progress(
             SpinnerColumn(),
             TextColumn("[progress.description]{task.description}"),
+            BarColumn(),
             console=self.console,
         ) as progress:
-            task1 = progress.add_task("[cyan]Loading hardware data...", total=None)
+            task1 = progress.add_task(f"[cyan]{ICONS['hardware']} Loading hardware data...", total=None)
             self.hw_analyzer = HardwareAnalyzer()
             progress.update(task1, completed=True)
 
-            task2 = progress.add_task("[cyan]Loading LLM data...", total=None)
+            task2 = progress.add_task(f"[cyan]{ICONS['llm']} Loading LLM data...", total=None)
             self.llm_analyzer = LLMAnalyzer()
             progress.update(task2, completed=True)
 
-            task3 = progress.add_task("[cyan]Loading GPU data...", total=None)
+            task3 = progress.add_task(f"[cyan]{ICONS['gpu']} Loading GPU data...", total=None)
             self.gpu_analyzer = GPUAnalyzer()
             progress.update(task3, completed=True)
 
-            task4 = progress.add_task("[cyan]Loading cloud cost data...", total=None)
+            task4 = progress.add_task(f"[cyan]{ICONS['cloud']} Loading cloud cost data...", total=None)
             self.cloud_cost_analyzer = CloudCostAnalyzer()
             progress.update(task4, completed=True)
 
-        self.console.print("[green]Data loaded successfully![/green]\n")
+        Notify.success(self.console, "All data loaded successfully!", "Ready to analyze")
+
+        # Show dashboard
+        self.show_dashboard()
+
+    def show_dashboard(self):
+        """Display quick stats dashboard."""
+        self.console.print()
+        print_section_header(self.console, "Dataset Overview", "📊")
+        self.console.print()
+
+        # Create a layout with 3 columns
+        from rich.columns import Columns
+
+        # Hardware stats
+        hw_stats = Text()
+        hw_stats.append(f"{ICONS['hardware']} ", style=THEME['accent'])
+        hw_stats.append("Hardware\n", style=f"bold {THEME['primary']}")
+        hw_stats.append(f"  {len(self.hw_analyzer.systems)} systems\n", style=THEME['info'])
+        hw_stats.append(f"  1965-2024\n", style=THEME['muted'])
+        hw_stats.append(f"  59 years", style=THEME['muted'])
+
+        hw_panel = Panel(hw_stats, box=box.ROUNDED, border_style=THEME['primary'])
+
+        # GPU stats
+        gpu_stats = Text()
+        gpu_stats.append(f"{ICONS['gpu']} ", style=THEME['accent'])
+        gpu_stats.append("GPUs\n", style=f"bold {THEME['primary']}")
+        gpu_stats.append(f"  {len(self.gpu_analyzer.gpus)} GPUs\n", style=THEME['info'])
+        gpu_stats.append(f"  1999-2024\n", style=THEME['muted'])
+        gpu_stats.append(f"  3 manufacturers", style=THEME['muted'])
+
+        gpu_panel = Panel(gpu_stats, box=box.ROUNDED, border_style=THEME['primary'])
+
+        # LLM stats
+        llm_stats = Text()
+        llm_stats.append(f"{ICONS['llm']} ", style=THEME['accent'])
+        llm_stats.append("LLMs\n", style=f"bold {THEME['primary']}")
+        llm_stats.append(f"  {len(self.llm_analyzer.models)} models\n", style=THEME['info'])
+        llm_stats.append(f"  2018-2024\n", style=THEME['muted'])
+        llm_stats.append(f"  6 organizations", style=THEME['muted'])
+
+        llm_panel = Panel(llm_stats, box=box.ROUNDED, border_style=THEME['primary'])
+
+        # Cloud stats
+        cloud_stats = Text()
+        cloud_stats.append(f"{ICONS['cloud']} ", style=THEME['accent'])
+        cloud_stats.append("Cloud\n", style=f"bold {THEME['primary']}")
+        cloud_stats.append(f"  {len(self.cloud_cost_analyzer.instances)} instances\n", style=THEME['info'])
+        cloud_stats.append(f"  3 providers\n", style=THEME['muted'])
+        cloud_stats.append(f"  AWS/Azure/GCP", style=THEME['muted'])
+
+        cloud_panel = Panel(cloud_stats, box=box.ROUNDED, border_style=THEME['primary'])
+
+        # Display columns
+        self.console.print(Columns([hw_panel, gpu_panel, llm_panel, cloud_panel], equal=True, expand=True))
+
+        # Quick highlights
+        self.console.print()
+        highlights = Text()
+        highlights.append("⚡ Quick Facts: ", style=f"bold {THEME['warning']}")
+        highlights.append("CPU transistors grew ", style=THEME['muted'])
+        highlights.append("41.4% CAGR", style=f"bold {THEME['success']}")
+        highlights.append(" • GPU performance ", style=THEME['muted'])
+        highlights.append("51.3% CAGR", style=f"bold {THEME['success']}")
+        highlights.append(" • LLM parameters ", style=THEME['muted'])
+        highlights.append("227% CAGR", style=f"bold {THEME['warning']}")
+
+        self.console.print(Panel(highlights, box=box.SIMPLE, border_style=THEME['info']))
+
+        self.console.print()
+        self.console.print(create_status_bar("Dashboard", "Press Enter to continue to main menu"))
+        Prompt.ask("", default="")
 
     def hardware_analysis_menu(self):
         """Hardware analysis submenu."""
+        self.breadcrumbs.push("Hardware Analysis")
+
         while True:
-            self.console.print("\n[bold cyan]Hardware Analysis Menu[/bold cyan]")
-            self.console.print("[1] View All Systems")
-            self.console.print("[2] Calculate CAGR for All Metrics")
-            self.console.print("[3] View Specific Metric Growth")
-            self.console.print("[4] Efficiency Trends")
-            self.console.print("[5] Summary Statistics")
-            self.console.print("[0] Back to Main Menu")
+            # Show breadcrumbs
+            self.console.print()
+            self.console.print(self.breadcrumbs.render())
             self.console.print()
 
-            choice = Prompt.ask("Select an option", choices=["0", "1", "2", "3", "4", "5"])
+            # Menu header
+            print_section_header(self.console, "Hardware Analysis", ICONS['hardware'])
+            self.console.print()
+
+            # Menu options
+            self.console.print(create_menu_option("1", "a", "View All Systems", "📋",
+                                                 "Complete hardware timeline"))
+            self.console.print(create_menu_option("2", "c", "Calculate CAGR", "📈",
+                                                 "Growth rates for all metrics"))
+            self.console.print(create_menu_option("3", "m", "Metric Growth", "🔍",
+                                                 "Analyze specific metric"))
+            self.console.print(create_menu_option("4", "e", "Efficiency Trends", "⚡",
+                                                 "Performance per watt"))
+            self.console.print(create_menu_option("5", "s", "Summary Statistics", "📊",
+                                                 "Overview of dataset"))
+            self.console.print()
+            self.console.print(create_menu_option("0", "b", "Back", ICONS['back'],
+                                                 "Return to main menu"))
+
+            self.console.print()
+            self.console.print(create_status_bar("Hardware Analysis", "Analyzing 30 systems (1965-2024)"))
+            self.console.print()
+
+            # Get choice
+            num_keys = ["0", "1", "2", "3", "4", "5"]
+            letter_keys = ["b", "a", "c", "m", "e", "s"]
+            valid_choices = build_choice_validator(num_keys, letter_keys)
+
+            key_map = {"b": "0", "a": "1", "c": "2", "m": "3", "e": "4", "s": "5"}
+
+            choice = Prompt.ask(
+                create_prompt_text("Your choice"),
+                choices=valid_choices,
+                default="1"
+            )
+            choice = normalize_choice(choice, key_map)
 
             if choice == "0":
+                self.breadcrumbs.pop()
                 break
             elif choice == "1":
                 self.show_all_systems()
@@ -127,47 +280,80 @@ class CLI:
 
     def show_all_systems(self):
         """Display all hardware systems."""
-        table = Table(title="Hardware Systems", box=box.ROUNDED)
-        table.add_column("Year", style="cyan")
-        table.add_column("Name", style="green")
-        table.add_column("Manufacturer")
-        table.add_column("CPU", style="yellow")
-        table.add_column("Transistors", justify="right")
-        table.add_column("Clock (MHz)", justify="right")
+        table = create_styled_table(
+            f"{ICONS['hardware']} Hardware Systems Timeline",
+            box_style=box.ROUNDED
+        )
+
+        table.add_column("Year", style=THEME['info'], justify="center", width=6)
+        table.add_column("Name", style=THEME['highlight'], no_wrap=False, min_width=25)
+        table.add_column("Manufacturer", style=THEME['secondary'], width=15)
+        table.add_column("CPU", style=THEME['muted'], no_wrap=False)
+        table.add_column("Transistors", justify="right", style=THEME['accent'])
+        table.add_column("Clock", justify="right", style=THEME['success'])
 
         for system in self.hw_analyzer.systems:
             table.add_row(
                 str(system.year),
                 system.name,
                 system.manufacturer,
-                system.cpu_name,
+                system.cpu_name[:30] if len(system.cpu_name) > 30 else system.cpu_name,
                 f"{system.cpu_transistors:,}",
-                f"{system.cpu_clock_mhz:.2f}",
+                f"{system.cpu_clock_mhz:.0f} MHz",
             )
 
+        self.console.print()
         self.console.print(table)
+        self.console.print()
+        self.console.print(create_status_bar(f"Showing {len(self.hw_analyzer.systems)} systems",
+                                            "Press Enter to continue"))
+        Prompt.ask("", default="")
 
     def show_hardware_cagr(self):
         """Display CAGR for all hardware metrics."""
         results = self.hw_analyzer.calculate_all_cagrs()
 
-        table = Table(title="Hardware CAGR Analysis", box=box.ROUNDED)
-        table.add_column("Metric", style="cyan")
-        table.add_column("Start Value", justify="right")
-        table.add_column("End Value", justify="right")
-        table.add_column("Growth Factor", justify="right", style="yellow")
-        table.add_column("CAGR %", justify="right", style="green")
+        table = create_styled_table(
+            f"{ICONS['stats']} Hardware CAGR Analysis (1965-2024)",
+            box_style=box.HEAVY
+        )
+
+        table.add_column("Metric", style=THEME['primary'], no_wrap=False, min_width=20)
+        table.add_column("Start", justify="right", style=THEME['muted'])
+        table.add_column("End", justify="right", style=THEME['highlight'])
+        table.add_column("Growth", justify="right", style=THEME['warning'])
+        table.add_column("CAGR", justify="right", style=THEME['success'], width=10)
 
         for metric_name, result in results.items():
+            # Format large numbers
+            if result.start_value >= 1e9:
+                start_str = f"{result.start_value/1e9:.1f}B"
+            elif result.start_value >= 1e6:
+                start_str = f"{result.start_value/1e6:.1f}M"
+            else:
+                start_str = f"{result.start_value:,.0f}"
+
+            if result.end_value >= 1e9:
+                end_str = f"{result.end_value/1e9:.1f}B"
+            elif result.end_value >= 1e6:
+                end_str = f"{result.end_value/1e6:.1f}M"
+            else:
+                end_str = f"{result.end_value:,.0f}"
+
             table.add_row(
                 metric_name.replace('_', ' ').title(),
-                f"{result.start_value:,.2f}",
-                f"{result.end_value:,.2f}",
-                f"{result.growth_factor:.2f}x",
-                f"{result.cagr_percent:.2f}%",
+                start_str,
+                end_str,
+                f"{result.growth_factor:,.0f}x",
+                f"{result.cagr_percent:.1f}%",
             )
 
+        self.console.print()
         self.console.print(table)
+        self.console.print()
+        Notify.info(self.console, "CAGR = Compound Annual Growth Rate",
+                   "Shows exponential growth over the time period")
+        Prompt.ask("\nPress Enter to continue", default="")
 
     def show_metric_growth(self):
         """Show growth for a specific metric."""
@@ -233,20 +419,55 @@ class CLI:
 
     def llm_analysis_menu(self):
         """LLM analysis submenu."""
+        self.breadcrumbs.push("LLM Analysis")
+
         while True:
-            self.console.print("\n[bold cyan]LLM Analysis Menu[/bold cyan]")
-            self.console.print("[1] View All Models")
-            self.console.print("[2] Calculate CAGR for All Metrics")
-            self.console.print("[3] Chinchilla Optimal Analysis")
-            self.console.print("[4] Capability Comparison")
-            self.console.print("[5] Cost Efficiency Analysis")
-            self.console.print("[6] Summary Statistics")
-            self.console.print("[0] Back to Main Menu")
+            # Show breadcrumbs
+            self.console.print()
+            self.console.print(self.breadcrumbs.render())
             self.console.print()
 
-            choice = Prompt.ask("Select an option", choices=["0", "1", "2", "3", "4", "5", "6"])
+            # Menu header
+            print_section_header(self.console, "LLM Analysis", ICONS['llm'])
+            self.console.print()
+
+            # Menu options
+            self.console.print(create_menu_option("1", "a", "View All Models", "📋",
+                                                 "GPT, Claude, LLaMA, Gemini"))
+            self.console.print(create_menu_option("2", "c", "Calculate CAGR", "📈",
+                                                 "Parameter & compute scaling"))
+            self.console.print(create_menu_option("3", "o", "Chinchilla Optimal", "🐭",
+                                                 "Training efficiency analysis"))
+            self.console.print(create_menu_option("4", "p", "Capability Comparison", "⭐",
+                                                 "Reasoning, coding, math scores"))
+            self.console.print(create_menu_option("5", "e", "Cost Efficiency", "💰",
+                                                 "Value per dollar analysis"))
+            self.console.print(create_menu_option("6", "s", "Summary Statistics", "📊",
+                                                 "Dataset overview"))
+            self.console.print()
+            self.console.print(create_menu_option("0", "b", "Back", ICONS['back'],
+                                                 "Return to main menu"))
+
+            self.console.print()
+            self.console.print(create_status_bar("LLM Analysis", "22 models from 2018-2024"))
+            self.console.print()
+
+            # Get choice
+            num_keys = ["0", "1", "2", "3", "4", "5", "6"]
+            letter_keys = ["b", "a", "c", "o", "p", "e", "s"]
+            valid_choices = build_choice_validator(num_keys, letter_keys)
+
+            key_map = {"b": "0", "a": "1", "c": "2", "o": "3", "p": "4", "e": "5", "s": "6"}
+
+            choice = Prompt.ask(
+                create_prompt_text("Your choice"),
+                choices=valid_choices,
+                default="1"
+            )
+            choice = normalize_choice(choice, key_map)
 
             if choice == "0":
+                self.breadcrumbs.pop()
                 break
             elif choice == "1":
                 self.show_all_llms()
@@ -263,37 +484,56 @@ class CLI:
 
     def show_all_llms(self):
         """Display all LLM models."""
-        table = Table(title="LLM Models", box=box.ROUNDED)
-        table.add_column("Year", style="cyan")
-        table.add_column("Name", style="green")
-        table.add_column("Organization")
-        table.add_column("Parameters (B)", justify="right")
-        table.add_column("Context", justify="right")
-        table.add_column("Open Source", justify="center")
+        table = create_styled_table(
+            f"{ICONS['llm']} LLM Models Timeline",
+            box_style=box.ROUNDED
+        )
+
+        table.add_column("Year", style=THEME['info'], justify="center", width=6)
+        table.add_column("Name", style=THEME['highlight'], no_wrap=False, min_width=20)
+        table.add_column("Organization", style=THEME['secondary'], width=15)
+        table.add_column("Parameters (B)", justify="right", style=THEME['accent'])
+        table.add_column("Context", justify="right", style=THEME['warning'])
+        table.add_column("Open Source", justify="center", style=THEME['muted'], width=12)
 
         for model in self.llm_analyzer.models:
+            # Format open source status with icons
+            if model.open_source:
+                open_src = f"[{THEME['success']}]✓ Yes[/{THEME['success']}]"
+            else:
+                open_src = f"[{THEME['muted']}]✗ No[/{THEME['muted']}]"
+
             table.add_row(
                 str(model.year),
                 model.name,
                 model.organization,
-                f"{model.parameters_billions:.1f}",
+                f"{model.parameters_billions:.1f}B",
                 f"{model.context_window:,}",
-                "[green]Yes[/green]" if model.open_source else "[red]No[/red]",
+                open_src,
             )
 
+        self.console.print()
         self.console.print(table)
+        self.console.print()
+        self.console.print(create_status_bar(f"Showing {len(self.llm_analyzer.models)} models",
+                                            "Press Enter to continue", include_help=False))
+        Prompt.ask("", default="")
 
     def show_llm_cagr(self):
         """Display CAGR for LLM metrics."""
         results = self.llm_analyzer.calculate_all_cagrs()
 
-        table = Table(title="LLM CAGR Analysis", box=box.ROUNDED)
-        table.add_column("Metric", style="cyan")
-        table.add_column("Start Value", justify="right")
-        table.add_column("End Value", justify="right")
-        table.add_column("Growth Factor", justify="right", style="yellow")
-        table.add_column("CAGR %", justify="right", style="green")
-        table.add_column("Warning", justify="center")
+        table = create_styled_table(
+            f"{ICONS['stats']} LLM CAGR Analysis (2018-2024)",
+            box_style=box.HEAVY
+        )
+
+        table.add_column("Metric", style=THEME['primary'], no_wrap=False, min_width=20)
+        table.add_column("Start", justify="right", style=THEME['muted'])
+        table.add_column("End", justify="right", style=THEME['highlight'])
+        table.add_column("Growth", justify="right", style=THEME['warning'])
+        table.add_column("CAGR", justify="right", style=THEME['success'], width=10)
+        table.add_column("Alert", justify="center", width=8)
 
         extreme_cagrs = []
         for metric_name, result in results.items():
@@ -328,17 +568,18 @@ class CLI:
                 warning,
             )
 
+        self.console.print()
         self.console.print(table)
+        self.console.print()
 
         # Add important warning for extreme CAGRs
         if extreme_cagrs:
-            self.console.print("\n[bold red]⚠ CRITICAL REALITY CHECK:[/bold red]")
-            self.console.print(
-                "[yellow]The following growth rates are UNSUSTAINABLE and represent a historical anomaly "
-                "from the initial LLM scaling phase (2018-2024):[/yellow]\n"
-            )
+            warning_details = "These growth rates are UNSUSTAINABLE:\n"
             for metric, cagr in extreme_cagrs:
-                self.console.print(f"  • [cyan]{metric.replace('_', ' ').title()}[/cyan]: {cagr:.0f}% CAGR")
+                warning_details += f"  • {metric.replace('_', ' ').title()}: {cagr:.0f}% CAGR\n"
+            warning_details += "\nThis represents initial LLM scaling phase (2018-2024)"
+
+            Notify.warning(self.console, "⚠ CRITICAL REALITY CHECK", warning_details)
 
             self.console.print(
                 "\n[bold]Why these rates cannot continue:[/bold]\n"
@@ -352,6 +593,8 @@ class CLI:
                 "[yellow]Expected future: Growth will slow to 20-50% CAGR as models focus on "
                 "efficiency, specialization, and inference optimization rather than pure scale.[/yellow]\n"
             )
+
+        Prompt.ask("\nPress Enter to continue", default="")
 
     def show_chinchilla_analysis(self):
         """Display Chinchilla optimal analysis."""
@@ -447,22 +690,59 @@ class CLI:
 
     def gpu_analysis_menu(self):
         """GPU analysis submenu."""
+        self.breadcrumbs.push("GPU Analysis")
+
         while True:
-            self.console.print("\n[bold cyan]GPU Analysis Menu[/bold cyan]")
-            self.console.print("[1] View All GPUs")
-            self.console.print("[2] Calculate CAGR for All Metrics")
-            self.console.print("[3] Manufacturer Comparison")
-            self.console.print("[4] Performance Evolution")
-            self.console.print("[5] Memory Evolution")
-            self.console.print("[6] Efficiency Trends")
-            self.console.print("[7] Architectural Milestones")
-            self.console.print("[8] Summary Statistics")
-            self.console.print("[0] Back to Main Menu")
+            # Show breadcrumbs
+            self.console.print()
+            self.console.print(self.breadcrumbs.render())
             self.console.print()
 
-            choice = Prompt.ask("Select an option", choices=["0", "1", "2", "3", "4", "5", "6", "7", "8"])
+            # Menu header
+            print_section_header(self.console, "GPU Analysis", ICONS['gpu'])
+            self.console.print()
+
+            # Menu options
+            self.console.print(create_menu_option("1", "a", "View All GPUs", "📋",
+                                                 "NVIDIA, AMD, Intel GPUs"))
+            self.console.print(create_menu_option("2", "c", "Calculate CAGR", "📈",
+                                                 "Performance growth rates"))
+            self.console.print(create_menu_option("3", "m", "Manufacturer Comparison", "🏭",
+                                                 "NVIDIA vs AMD vs Intel"))
+            self.console.print(create_menu_option("4", "p", "Performance Evolution", "🚀",
+                                                 "TFLOPS over time"))
+            self.console.print(create_menu_option("5", "v", "Memory Evolution", "💾",
+                                                 "VRAM capacity trends"))
+            self.console.print(create_menu_option("6", "e", "Efficiency Trends", "⚡",
+                                                 "TFLOPS per watt"))
+            self.console.print(create_menu_option("7", "l", "Architectural Milestones", "🏛️",
+                                                 "Key innovations"))
+            self.console.print(create_menu_option("8", "s", "Summary Statistics", "📊",
+                                                 "Dataset overview"))
+            self.console.print()
+            self.console.print(create_menu_option("0", "b", "Back", ICONS['back'],
+                                                 "Return to main menu"))
+
+            self.console.print()
+            self.console.print(create_status_bar("GPU Analysis", "28 GPUs from 1999-2024"))
+            self.console.print()
+
+            # Get choice
+            num_keys = ["0", "1", "2", "3", "4", "5", "6", "7", "8"]
+            letter_keys = ["b", "a", "c", "m", "p", "v", "e", "l", "s"]
+            valid_choices = build_choice_validator(num_keys, letter_keys)
+
+            key_map = {"b": "0", "a": "1", "c": "2", "m": "3", "p": "4", "v": "5", "e": "6", "l": "7", "s": "8"}
+
+            choice = Prompt.ask(
+                create_prompt_text("Your choice"),
+                choices=valid_choices,
+                default="1"
+            )
+            choice = normalize_choice(choice, key_map)
 
             if choice == "0":
+                self.breadcrumbs.pop()
                 break
             elif choice == "1":
                 self.show_all_gpus()
@@ -483,47 +763,76 @@ class CLI:
 
     def show_all_gpus(self):
         """Display all GPU models."""
-        table = Table(title="GPU Models", box=box.ROUNDED)
-        table.add_column("Year", style="cyan")
-        table.add_column("Name", style="green")
-        table.add_column("Manufacturer")
-        table.add_column("TFLOPS", justify="right", style="yellow")
-        table.add_column("VRAM", justify="right")
-        table.add_column("TDP (W)", justify="right")
+        table = create_styled_table(
+            f"{ICONS['gpu']} GPU Models Timeline",
+            box_style=box.ROUNDED
+        )
+
+        table.add_column("Year", style=THEME['info'], justify="center", width=6)
+        table.add_column("Name", style=THEME['highlight'], no_wrap=False, min_width=30)
+        table.add_column("Manufacturer", style=THEME['secondary'], width=10)
+        table.add_column("TFLOPS", justify="right", style=THEME['warning'])
+        table.add_column("VRAM", justify="right", style=THEME['accent'])
+        table.add_column("TDP", justify="right", style=THEME['muted'])
 
         for gpu in self.gpu_analyzer.gpus:
             table.add_row(
                 str(gpu.year),
-                gpu.name[:35],
+                gpu.name[:35] if len(gpu.name) > 35 else gpu.name,
                 gpu.manufacturer,
-                f"{gpu.tflops_fp32:.2f}",
+                f"{gpu.tflops_fp32:.1f}",
                 f"{gpu.vram_mb // 1024}GB",
                 f"{gpu.tdp_watts}W",
             )
 
+        self.console.print()
         self.console.print(table)
+        self.console.print()
+        self.console.print(create_status_bar(f"Showing {len(self.gpu_analyzer.gpus)} GPUs",
+                                            "Press Enter to continue", include_help=False))
+        Prompt.ask("", default="")
 
     def show_gpu_cagr(self):
         """Display CAGR for GPU metrics."""
         results = self.gpu_analyzer.calculate_all_cagrs()
 
-        table = Table(title="GPU CAGR Analysis", box=box.ROUNDED)
-        table.add_column("Metric", style="cyan")
-        table.add_column("Start Value", justify="right")
-        table.add_column("End Value", justify="right")
-        table.add_column("Growth Factor", justify="right", style="yellow")
-        table.add_column("CAGR %", justify="right", style="green")
+        table = create_styled_table(
+            f"{ICONS['stats']} GPU CAGR Analysis (1999-2024)",
+            box_style=box.HEAVY
+        )
+
+        table.add_column("Metric", style=THEME['primary'], no_wrap=False, min_width=20)
+        table.add_column("Start", justify="right", style=THEME['muted'])
+        table.add_column("End", justify="right", style=THEME['highlight'])
+        table.add_column("Growth", justify="right", style=THEME['warning'])
+        table.add_column("CAGR", justify="right", style=THEME['success'], width=10)
 
         for metric_name, result in results.items():
+            # Format large numbers nicely
+            if result.start_value >= 1000:
+                start_str = f"{result.start_value/1000:.1f}K"
+            else:
+                start_str = f"{result.start_value:.1f}"
+
+            if result.end_value >= 1000:
+                end_str = f"{result.end_value/1000:.1f}K"
+            else:
+                end_str = f"{result.end_value:.1f}"
+
             table.add_row(
                 metric_name.replace('_', ' ').title(),
-                f"{result.start_value:,.2f}",
-                f"{result.end_value:,.2f}",
-                f"{result.growth_factor:.2f}x",
-                f"{result.cagr_percent:.2f}%",
+                start_str,
+                end_str,
+                f"{result.growth_factor:,.0f}x",
+                f"{result.cagr_percent:.1f}%",
             )
 
+        self.console.print()
         self.console.print(table)
+        self.console.print()
+        Notify.info(self.console, "GPU Performance Growth",
+                   "TFLOPS grew 51.3% CAGR over 25 years - sustainable hardware progress")
+        Prompt.ask("\nPress Enter to continue", default="")
 
     def show_gpu_manufacturer_comparison(self):
         """Display manufacturer comparison."""
@@ -656,18 +965,51 @@ class CLI:
 
     def moores_law_menu(self):
         """Moore's Law analysis submenu."""
+        self.breadcrumbs.push("Moore's Law")
+
         while True:
-            self.console.print("\n[bold cyan]Moore's Law Analysis Menu[/bold cyan]")
-            self.console.print("[1] Historical Adherence Analysis")
-            self.console.print("[2] Era Trends (5-year periods)")
-            self.console.print("[3] Future Predictions")
-            self.console.print("[4] Specific Year Comparison")
-            self.console.print("[0] Back to Main Menu")
+            # Show breadcrumbs
+            self.console.print()
+            self.console.print(self.breadcrumbs.render())
             self.console.print()
 
-            choice = Prompt.ask("Select an option", choices=["0", "1", "2", "3", "4"])
+            # Menu header
+            print_section_header(self.console, "Moore's Law Analysis", ICONS['moores_law'])
+            self.console.print()
+
+            # Menu options
+            self.console.print(create_menu_option("1", "h", "Historical Adherence", "📜",
+                                                 "Predicted vs actual transistors"))
+            self.console.print(create_menu_option("2", "e", "Era Trends", "📊",
+                                                 "5-year period analysis"))
+            self.console.print(create_menu_option("3", "f", "Future Predictions", "🔮",
+                                                 "Extrapolate transistor counts"))
+            self.console.print(create_menu_option("4", "y", "Year Comparison", "🎯",
+                                                 "Specific year analysis"))
+            self.console.print()
+            self.console.print(create_menu_option("0", "b", "Back", ICONS['back'],
+                                                 "Return to main menu"))
+
+            self.console.print()
+            self.console.print(create_status_bar("Moore's Law", "2x transistors every ~2 years"))
+            self.console.print()
+
+            # Get choice
+            num_keys = ["0", "1", "2", "3", "4"]
+            letter_keys = ["b", "h", "e", "f", "y"]
+            valid_choices = build_choice_validator(num_keys, letter_keys)
+
+            key_map = {"b": "0", "h": "1", "e": "2", "f": "3", "y": "4"}
+
+            choice = Prompt.ask(
+                create_prompt_text("Your choice"),
+                choices=valid_choices,
+                default="1"
+            )
+            choice = normalize_choice(choice, key_map)
 
             if choice == "0":
+                self.breadcrumbs.pop()
                 break
             elif choice == "1":
                 self.show_moores_law_adherence()
@@ -845,19 +1187,53 @@ class CLI:
 
     def export_menu(self):
         """Export data submenu."""
+        self.breadcrumbs.push("Export Data")
+
         while True:
-            self.console.print("\n[bold cyan]Export Menu[/bold cyan]")
-            self.console.print("[1] Export Hardware Data")
-            self.console.print("[2] Export LLM Data")
-            self.console.print("[3] Export GPU Data")
-            self.console.print("[4] Export CAGR Analysis")
-            self.console.print("[5] Export Complete Analysis Report")
-            self.console.print("[0] Back to Main Menu")
+            # Show breadcrumbs
+            self.console.print()
+            self.console.print(self.breadcrumbs.render())
             self.console.print()
 
-            choice = Prompt.ask("Select an option", choices=["0", "1", "2", "3", "4", "5"])
+            # Menu header
+            print_section_header(self.console, "Export Data", ICONS['export'])
+            self.console.print()
+
+            # Menu options
+            self.console.print(create_menu_option("1", "h", "Export Hardware Data", "💻",
+                                                 "Systems data to file"))
+            self.console.print(create_menu_option("2", "l", "Export LLM Data", "🤖",
+                                                 "Models data to file"))
+            self.console.print(create_menu_option("3", "g", "Export GPU Data", "🖥️",
+                                                 "GPU data to file"))
+            self.console.print(create_menu_option("4", "c", "Export CAGR Analysis", "📈",
+                                                 "Growth rate analysis"))
+            self.console.print(create_menu_option("5", "r", "Export Complete Report", "📄",
+                                                 "Full analysis report"))
+            self.console.print()
+            self.console.print(create_menu_option("0", "b", "Back", ICONS['back'],
+                                                 "Return to main menu"))
+
+            self.console.print()
+            self.console.print(create_status_bar("Export", "JSON, CSV, Markdown, Text formats available"))
+            self.console.print()
+
+            # Get choice
+            num_keys = ["0", "1", "2", "3", "4", "5"]
+            letter_keys = ["b", "h", "l", "g", "c", "r"]
+            valid_choices = build_choice_validator(num_keys, letter_keys)
+
+            key_map = {"b": "0", "h": "1", "l": "2", "g": "3", "c": "4", "r": "5"}
+
+            choice = Prompt.ask(
+                create_prompt_text("Your choice"),
+                choices=valid_choices,
+                default="1"
+            )
+            choice = normalize_choice(choice, key_map)
 
             if choice == "0":
+                self.breadcrumbs.pop()
                 break
             elif choice == "1":
                 self.export_hardware_data()
@@ -873,26 +1249,36 @@ class CLI:
     def export_hardware_data(self):
         """Export hardware data to file."""
         format_choice = Prompt.ask(
-            "Select format",
+            create_prompt_text("Select format"),
             choices=["json", "csv", "markdown", "text"],
             default="json"
         )
 
         data = self.hw_analyzer.to_dict()
 
-        try:
-            if format_choice == "json":
-                path = self.exporter.export_json(data, "hardware_systems.json")
-            elif format_choice == "csv":
-                path = self.exporter.export_csv(data, "hardware_systems.csv")
-            elif format_choice == "markdown":
-                path = self.exporter.export_markdown(data, "hardware_systems.md", "Hardware Systems")
-            elif format_choice == "text":
-                path = self.exporter.export_text(data, "hardware_systems.txt", "Hardware Systems")
+        with Progress(
+            SpinnerColumn(),
+            TextColumn("[progress.description]{task.description}"),
+            console=self.console
+        ) as progress:
+            task = progress.add_task(f"[cyan]Exporting hardware data as {format_choice}...", total=None)
 
-            self.console.print(f"[green]✓ Exported to {path}[/green]")
-        except Exception as e:
-            self.console.print(f"[red]Error exporting: {e}[/red]")
+            try:
+                if format_choice == "json":
+                    path = self.exporter.export_json(data, "hardware_systems.json")
+                elif format_choice == "csv":
+                    path = self.exporter.export_csv(data, "hardware_systems.csv")
+                elif format_choice == "markdown":
+                    path = self.exporter.export_markdown(data, "hardware_systems.md", "Hardware Systems")
+                elif format_choice == "text":
+                    path = self.exporter.export_text(data, "hardware_systems.txt", "Hardware Systems")
+
+                progress.update(task, completed=True)
+
+                Notify.success(self.console, "Export Complete!", f"File saved to: {path}")
+            except Exception as e:
+                progress.update(task, completed=True)
+                Notify.error(self.console, "Export Failed", str(e))
 
     def export_llm_data(self):
         """Export LLM data to file."""
@@ -1015,33 +1401,91 @@ class CLI:
 
     def visualizations_menu(self):
         """Visualizations submenu."""
+        self.breadcrumbs.push("Visualizations")
+
         while True:
-            self.console.print("\n[bold cyan]Visualizations Menu[/bold cyan]")
-            self.console.print("[1] Hardware Transistor Evolution")
-            self.console.print("[2] Moore's Law Comparison")
-            self.console.print("[3] CAGR Heatmap")
-            self.console.print("[4] LLM Parameter Scaling")
-            self.console.print("[5] LLM Context Window Evolution")
-            self.console.print("[6] LLM Capability Radar Chart")
-            self.console.print("[7] Hardware Growth Factors")
-            self.console.print("[8] GPU Performance Evolution")
-            self.console.print("[9] GPU Memory Evolution")
-            self.console.print("[10] GPU Efficiency Trends")
-            self.console.print("[11] GPU Manufacturer Comparison")
-            self.console.print("[12] GPU Price vs Performance")
-            self.console.print("[0] Back to Main Menu")
+            # Show breadcrumbs
+            self.console.print()
+            self.console.print(self.breadcrumbs.render())
             self.console.print()
 
-            choice = Prompt.ask("Select an option", choices=["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"])
+            # Menu header
+            print_section_header(self.console, "Generate Visualizations", ICONS['visualize'])
+            self.console.print()
+
+            # Hardware section
+            self.console.print(Text("  Hardware Charts", style=f"bold {THEME['primary']}"))
+            self.console.print(create_menu_option("1", "h", "Transistor Evolution", "📈",
+                                                 "Log scale hardware trends"))
+            self.console.print(create_menu_option("2", "m", "Moore's Law Comparison", "🎯",
+                                                 "Predicted vs actual"))
+            self.console.print(create_menu_option("3", "g", "Growth Factors", "📊",
+                                                 "Bar chart of growth rates"))
+            self.console.print()
+
+            # LLM section
+            self.console.print(Text("  LLM Charts", style=f"bold {THEME['primary']}"))
+            self.console.print(create_menu_option("4", "p", "Parameter Scaling", "🤖",
+                                                 "Model size over time"))
+            self.console.print(create_menu_option("5", "w", "Context Window Evolution", "📏",
+                                                 "Context length trends"))
+            self.console.print(create_menu_option("6", "r", "Capability Radar", "⭐",
+                                                 "Multi-dimensional scores"))
+            self.console.print()
+
+            # GPU section
+            self.console.print(Text("  GPU Charts", style=f"bold {THEME['primary']}"))
+            self.console.print(create_menu_option("7", "a", "Performance Evolution", "🚀",
+                                                 "TFLOPS over time"))
+            self.console.print(create_menu_option("8", "v", "Memory Evolution", "💾",
+                                                 "VRAM capacity trends"))
+            self.console.print(create_menu_option("9", "e", "Efficiency Trends", "⚡",
+                                                 "TFLOPS per watt"))
+            self.console.print(create_menu_option("10", "f", "Manufacturer Comparison", "🏭",
+                                                 "NVIDIA vs AMD vs Intel"))
+            self.console.print(create_menu_option("11", "x", "Price vs Performance", "💰",
+                                                 "Value analysis"))
+            self.console.print()
+
+            # Analysis charts
+            self.console.print(Text("  Analysis Charts", style=f"bold {THEME['primary']}"))
+            self.console.print(create_menu_option("12", "c", "CAGR Heatmap", "🌡️",
+                                                 "Growth rate visualization"))
+            self.console.print()
+
+            self.console.print(create_menu_option("0", "b", "Back", ICONS['back'],
+                                                 "Return to main menu"))
+
+            self.console.print()
+            self.console.print(create_status_bar("Visualizations", "Charts saved to output/ directory"))
+            self.console.print()
+
+            # Get choice
+            num_keys = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"]
+            letter_keys = ["b", "h", "m", "g", "p", "w", "r", "a", "v", "e", "f", "x", "c"]
+            valid_choices = build_choice_validator(num_keys, letter_keys)
+
+            key_map = {
+                "b": "0", "h": "1", "m": "2", "g": "3", "p": "4", "w": "5", "r": "6",
+                "a": "7", "v": "8", "e": "9", "f": "10", "x": "11", "c": "12"
+            }
+
+            choice = Prompt.ask(
+                create_prompt_text("Your choice"),
+                choices=valid_choices,
+                default="1"
+            )
+            choice = normalize_choice(choice, key_map)
 
             if choice == "0":
+                self.breadcrumbs.pop()
                 break
             elif choice == "1":
                 self.plot_hardware_evolution()
             elif choice == "2":
                 self.plot_moores_law_comparison()
             elif choice == "3":
-                self.plot_cagr_heatmap()
+                self.plot_growth_factors()
             elif choice == "4":
                 self.plot_llm_parameters()
             elif choice == "5":
@@ -1049,22 +1493,22 @@ class CLI:
             elif choice == "6":
                 self.plot_llm_capabilities()
             elif choice == "7":
-                self.plot_growth_factors()
-            elif choice == "8":
                 self.plot_gpu_performance()
-            elif choice == "9":
+            elif choice == "8":
                 self.plot_gpu_memory()
-            elif choice == "10":
+            elif choice == "9":
                 self.plot_gpu_efficiency()
-            elif choice == "11":
+            elif choice == "10":
                 self.plot_gpu_manufacturer_comp()
-            elif choice == "12":
+            elif choice == "11":
                 self.plot_gpu_price_performance()
+            elif choice == "12":
+                self.plot_cagr_heatmap()
 
     def plot_hardware_evolution(self):
         """Plot hardware metric evolution."""
         metric = Prompt.ask(
-            "Enter metric to plot",
+            create_prompt_text("Select metric to plot"),
             choices=["cpu_transistors", "cpu_clock_mhz", "ram_mb", "storage_mb", "performance_mips"],
             default="cpu_transistors"
         )
@@ -1072,16 +1516,25 @@ class CLI:
         output_path = Path("output") / f"hardware_{metric}_evolution.png"
         output_path.parent.mkdir(exist_ok=True)
 
-        try:
-            self.plotter.plot_hardware_evolution(
-                self.hw_analyzer.systems,
-                metric,
-                output_path,
-                log_scale=True
-            )
-            self.console.print(f"[green]✓ Plot saved to {output_path}[/green]")
-        except Exception as e:
-            self.console.print(f"[red]Error creating plot: {e}[/red]")
+        with Progress(
+            SpinnerColumn(),
+            TextColumn("[progress.description]{task.description}"),
+            console=self.console
+        ) as progress:
+            task = progress.add_task(f"[cyan]📈 Generating {metric} plot...", total=None)
+
+            try:
+                self.plotter.plot_hardware_evolution(
+                    self.hw_analyzer.systems,
+                    metric,
+                    output_path,
+                    log_scale=True
+                )
+                progress.update(task, completed=True)
+                Notify.success(self.console, "Plot Generated!", f"Saved to: {output_path}")
+            except Exception as e:
+                progress.update(task, completed=True)
+                Notify.error(self.console, "Plot Failed", str(e))
 
     def plot_moores_law_comparison(self):
         """Plot Moore's Law prediction vs actual."""
@@ -1100,15 +1553,16 @@ class CLI:
         output_path = Path("output") / "moores_law_comparison.png"
         output_path.parent.mkdir(exist_ok=True)
 
-        try:
-            self.plotter.plot_moores_law_comparison(
-                self.hw_analyzer.systems,
-                predictions,
-                output_path
-            )
-            self.console.print(f"[green]✓ Plot saved to {output_path}[/green]")
-        except Exception as e:
-            self.console.print(f"[red]Error creating plot: {e}[/red]")
+        with Progress(SpinnerColumn(), TextColumn("[progress.description]{task.description}"),
+                     console=self.console) as progress:
+            task = progress.add_task(f"[cyan]🎯 Generating Moore's Law comparison...", total=None)
+            try:
+                self.plotter.plot_moores_law_comparison(self.hw_analyzer.systems, predictions, output_path)
+                progress.update(task, completed=True)
+                Notify.success(self.console, "Plot Generated!", f"Saved to: {output_path}")
+            except Exception as e:
+                progress.update(task, completed=True)
+                Notify.error(self.console, "Plot Failed", str(e))
 
     def plot_cagr_heatmap(self):
         """Plot CAGR heatmap."""
@@ -1118,11 +1572,16 @@ class CLI:
         output_path = Path("output") / "cagr_heatmap.png"
         output_path.parent.mkdir(exist_ok=True)
 
-        try:
-            self.plotter.plot_cagr_heatmap(cagr_data, output_path)
-            self.console.print(f"[green]✓ Plot saved to {output_path}[/green]")
-        except Exception as e:
-            self.console.print(f"[red]Error creating plot: {e}[/red]")
+        with Progress(SpinnerColumn(), TextColumn("[progress.description]{task.description}"),
+                     console=self.console) as progress:
+            task = progress.add_task(f"[cyan]🌡️ Generating CAGR heatmap...", total=None)
+            try:
+                self.plotter.plot_cagr_heatmap(cagr_data, output_path)
+                progress.update(task, completed=True)
+                Notify.success(self.console, "Plot Generated!", f"Saved to: {output_path}")
+            except Exception as e:
+                progress.update(task, completed=True)
+                Notify.error(self.console, "Plot Failed", str(e))
 
     def plot_llm_parameters(self):
         """Plot LLM parameter scaling."""
@@ -1249,17 +1708,26 @@ class CLI:
 
     def comparison_menu(self):
         """Hardware vs LLM vs GPU comparison submenu."""
-        self.console.print("\n[bold cyan]Hardware vs LLM vs GPU Evolution Comparison[/bold cyan]\n")
+        self.breadcrumbs.push("Compare Evolution")
+
+        # Show breadcrumbs
+        self.console.print()
+        self.console.print(self.breadcrumbs.render())
+        self.console.print()
+
+        # Header
+        print_section_header(self.console, "Hardware vs LLM vs GPU Evolution", ICONS['compare'])
+        self.console.print()
 
         hw_cagr = self.hw_analyzer.calculate_all_cagrs()
         llm_cagr = self.llm_analyzer.calculate_all_cagrs()
         gpu_cagr = self.gpu_analyzer.calculate_all_cagrs()
 
         # Hardware summary
-        self.console.print("[yellow]Hardware Evolution (1965-2024)[/yellow]")
-        hw_table = Table(box=box.SIMPLE)
-        hw_table.add_column("Metric", style="cyan")
-        hw_table.add_column("CAGR %", justify="right", style="green")
+        self.console.print(Text(f"  {ICONS['hardware']} Hardware Evolution (1965-2024)", style=f"bold {THEME['primary']}"))
+        hw_table = create_styled_table("", box_style=box.SIMPLE, show_header=False)
+        hw_table.add_column("Metric", style=THEME['secondary'])
+        hw_table.add_column("CAGR %", justify="right", style=THEME['success'])
 
         for metric, result in hw_cagr.items():
             hw_table.add_row(
@@ -1271,10 +1739,10 @@ class CLI:
         self.console.print()
 
         # GPU summary
-        self.console.print("[yellow]GPU Evolution (1999-2024)[/yellow]")
-        gpu_table = Table(box=box.SIMPLE)
-        gpu_table.add_column("Metric", style="cyan")
-        gpu_table.add_column("CAGR %", justify="right", style="green")
+        self.console.print(Text(f"  {ICONS['gpu']} GPU Evolution (1999-2024)", style=f"bold {THEME['primary']}"))
+        gpu_table = create_styled_table("", box_style=box.SIMPLE, show_header=False)
+        gpu_table.add_column("Metric", style=THEME['secondary'])
+        gpu_table.add_column("CAGR %", justify="right", style=THEME['success'])
 
         for metric, result in gpu_cagr.items():
             gpu_table.add_row(
@@ -1286,10 +1754,10 @@ class CLI:
         self.console.print()
 
         # LLM summary
-        self.console.print("[yellow]LLM Evolution (2018-2024)[/yellow]")
-        llm_table = Table(box=box.SIMPLE)
-        llm_table.add_column("Metric", style="cyan")
-        llm_table.add_column("CAGR %", justify="right", style="green")
+        self.console.print(Text(f"  {ICONS['llm']} LLM Evolution (2018-2024)", style=f"bold {THEME['primary']}"))
+        llm_table = create_styled_table("", box_style=box.SIMPLE, show_header=False)
+        llm_table.add_column("Metric", style=THEME['secondary'])
+        llm_table.add_column("CAGR %", justify="right", style=THEME['warning'])
 
         for metric, result in llm_cagr.items():
             llm_table.add_row(
@@ -1327,31 +1795,69 @@ class CLI:
             "  4. [cyan]Expected slowdown:[/cyan] LLM scaling will normalize to 20-50% CAGR as field matures\n"
         )
 
-        Prompt.ask("\nPress Enter to continue", default="")
+        self.console.print()
+        self.console.print(create_status_bar("Comparison Complete", "Press Enter to return"))
+        Prompt.ask("", default="")
+
+        self.breadcrumbs.pop()
 
     def cloud_cost_analysis_menu(self):
         """Cloud cost analysis submenu."""
+        self.breadcrumbs.push("Cloud Cost Analysis")
+
         while True:
-            self.console.print("\n[bold cyan]Cloud Cost Analysis Menu[/bold cyan]")
-            self.console.print("[1] View All Cloud Instances")
-            self.console.print("[2] Compare Providers for Training")
-            self.console.print("[3] Compare Providers for Inference")
-            self.console.print("[4] Cost Efficiency Ranking")
-            self.console.print("[5] Spot Instance Savings Analysis")
-            self.console.print("[6] Estimate LLM Training Cost")
-            self.console.print("[7] GPU Price Evolution")
-            self.console.print("[8] Provider Statistics")
-            self.console.print("[9] Compare Specific Instances")
-            self.console.print("[0] Back to Main Menu")
+            # Show breadcrumbs
+            self.console.print()
+            self.console.print(self.breadcrumbs.render())
             self.console.print()
 
+            # Menu header
+            print_section_header(self.console, "Cloud Cost Analysis", ICONS['cloud'])
+            self.console.print()
+
+            # Menu options
+            self.console.print(create_menu_option("1", "a", "View All Instances", "📋",
+                                                 "AWS, Azure, GCP inventory"))
+            self.console.print(create_menu_option("2", "t", "Compare Training Costs", "🎓",
+                                                 "Best providers for training"))
+            self.console.print(create_menu_option("3", "i", "Compare Inference Costs", "🚀",
+                                                 "Best providers for serving"))
+            self.console.print(create_menu_option("4", "r", "Cost Efficiency Ranking", "🏆",
+                                                 "TFLOPS per dollar"))
+            self.console.print(create_menu_option("5", "s", "Spot Savings Analysis", "💸",
+                                                 "On-demand vs spot pricing"))
+            self.console.print(create_menu_option("6", "e", "Estimate Training Cost", "🧮",
+                                                 "Calculate LLM training costs"))
+            self.console.print(create_menu_option("7", "p", "GPU Price Evolution", "📈",
+                                                 "Historical pricing trends"))
+            self.console.print(create_menu_option("8", "v", "Provider Statistics", "📊",
+                                                 "AWS vs Azure vs GCP"))
+            self.console.print(create_menu_option("9", "c", "Compare Instances", "⚖️",
+                                                 "Side-by-side comparison"))
+            self.console.print()
+            self.console.print(create_menu_option("0", "b", "Back", ICONS['back'],
+                                                 "Return to main menu"))
+
+            self.console.print()
+            self.console.print(create_status_bar("Cloud Costs", "17 instances across 3 providers"))
+            self.console.print()
+
+            # Get choice
+            num_keys = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]
+            letter_keys = ["b", "a", "t", "i", "r", "s", "e", "p", "v", "c"]
+            valid_choices = build_choice_validator(num_keys, letter_keys)
+
+            key_map = {"b": "0", "a": "1", "t": "2", "i": "3", "r": "4", "s": "5", "e": "6", "p": "7", "v": "8", "c": "9"}
+
             choice = Prompt.ask(
-                "Select an option",
-                choices=["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"],
+                create_prompt_text("Your choice"),
+                choices=valid_choices,
                 default="1"
             )
+            choice = normalize_choice(choice, key_map)
 
             if choice == "0":
+                self.breadcrumbs.pop()
                 break
             elif choice == "1":
                 self._show_all_cloud_instances()
