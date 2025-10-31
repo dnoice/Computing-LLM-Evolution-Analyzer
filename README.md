@@ -354,7 +354,12 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
   - Real-time filtering and comparisons
 
 ### Planned Features
-- [ ] Real-time data updates from APIs
+
+#### Fri 10-31
+- [ ] CLI/Terminal Look and Feel Rehaul for interactive mode
+
+#### Futures
+- [ ] CLI/Terminal Look and Feel Rehaul for interactive mode
 - [ ] Carbon footprint analysis
 - [ ] Benchmark database integration
 - [ ] Custom dataset support
